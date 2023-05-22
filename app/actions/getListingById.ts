@@ -10,10 +10,6 @@ export default async function getListingById(
   try {
     const { listingId } = params;
 
-    if (!listingId) {
-      throw new Error("Listing ID is required");
-    }
-
     const listing = await prisma.listing.findUnique({
       where: {
         id: listingId,

@@ -10,18 +10,15 @@ contract REverse {
        bool isAvailable;
    }
 
-
    struct Offer {
        uint256 propertyId;
        address payable buyer;
        uint256 offerAmount;
    }
 
-
    uint256 public propertyCount;
    mapping(uint256 => Property) public properties;
    mapping(uint256 => Offer[]) public propertyOffers;
-
 
    function createProperty(uint256 _price, string memory _description) public {
        propertyCount++;
@@ -33,7 +30,6 @@ contract REverse {
            true
        );
    }
-
 
    function placeOffer(uint256 _propertyId) public payable {
        require(properties[_propertyId].isAvailable, "Property is not available");
