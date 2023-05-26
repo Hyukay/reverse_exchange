@@ -11,7 +11,7 @@ import ToasterProvider from '@/app/providers/ToasterProvider';
 import './globals.css'
 import ClientOnly from './components/ClientOnly';
 import getCurrentUser from './actions/getCurrentUser';
-import WalletConnectModal from './components/modals/WalltConnectModal';
+import WalletConnectModal from './components/modals/WalletConnectModal';
 
 export const metadata = {
   title: 'REverse',
