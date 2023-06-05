@@ -1,6 +1,6 @@
 "use client"
 import Container from "@/app/components/Container";
-import ListingCard from "@/app/components/fdasbjkfdashjklfdasj/ListingCard";
+import ListingCard from "@/app/components/listing/ListingCard";
 import EmptyState from "@/app/components/EmptyState";
 
 import getListings, { 
