@@ -12,17 +12,7 @@ import ToasterProvider from '@/app/providers/ToasterProvider';
 import './globals.css'
 import ClientOnly from './components/ClientOnly';
 import getCurrentUser from './actions/getCurrentUser';
-import '@rainbow-me/rainbowkit/styles.css';
-import {
-  getDefaultWallets,
-  RainbowKitProvider,
-} from '@rainbow-me/rainbowkit';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import {goerli, localhost } from 'wagmi/chains';
-import { infuraProvider } from 'wagmi/providers/infura';
-import { publicProvider } from 'wagmi/providers/public';
-
+import WalletConnectModal from './components/modals/WalletConnectModal';
 
 // export const metadata = {
 //   title: 'REverse',
@@ -65,7 +55,7 @@ export default async function RootLayout({
       <WagmiConfig config={wagmiConfig}>
         <RainbowKitProvider chains={chains}>
         <ClientOnly>
-          <ConnectButton />
+          <WalletConnectModal />
           <ToasterProvider />
           <LoginModal />
           <RegisterModal />
