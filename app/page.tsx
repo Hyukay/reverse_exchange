@@ -1,45 +1,20 @@
-"use client";
-import { useEffect, useState } from "react";
-import axios from "axios";
 import Container from "@/app/components/Container";
 import ListingCard from "@/app/components/listing/ListingCard";
 import EmptyState from "@/app/components/EmptyState";
+
+import getListings, { 
+  IListingsParams
+} from "@/app/actions/getListings";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import ClientOnly from "./components/ClientOnly";
 
-interface User {
-  createdAt: string;
-  updatedAt: string;
-  emailVerified: string | null;
-  id: string;
-  name: string | null;
-  email: string | null;
-  image: string | null;
-  hashedPassword: string | null;
-  favoriteIds: string[];
-}
+interface HomeProps {
+  searchParams: IListingsParams
+};
 
-
-const Home = () => {
-  const [listings, setListings] = useState([]);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const user = await getCurrentUser();
-        setCurrentUser(user);
-
-        const response = await axios.get('/api/listings');
-        setListings(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchData();
-  }, []);
+const Home = async ({ searchParams }: HomeProps) => {
+  const listings = await getListings(searchParams);
+  const currentUser = await getCurrentUser();
 
   if (listings.length === 0) {
     return (
