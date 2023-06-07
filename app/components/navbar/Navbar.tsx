@@ -1,3 +1,4 @@
+// Navbar.tsx
 import { SafeUser } from "@/app/types";
 
 import Categories from "./Categories";
@@ -5,6 +6,7 @@ import Container from "../Container";
 import Logo from "./Logo";
 import Search from "./Search";
 import UserMenu from "./UserMenu";
+import WalletConnect from "./WalletConnect"; // Import WalletConnect
 
 interface NavbarProps {
   currentUser?: SafeUser | null;
@@ -34,7 +36,10 @@ const Navbar: React.FC<NavbarProps> = ({
         >
           <Logo />
           <Search />
-          <UserMenu currentUser={currentUser} />
+          <div className="flex flex-col items-end mr-2 space-y-4"> {/* Wrap WalletConnect and UserMenu in a div */}
+            <WalletConnect /> {/* WalletConnect is now above UserMenu */}
+            <UserMenu currentUser={currentUser} />
+          </div>
         </div>
       </Container>
     </div>
@@ -42,6 +47,5 @@ const Navbar: React.FC<NavbarProps> = ({
   </div>
   );
 }
-
 
 export default Navbar;

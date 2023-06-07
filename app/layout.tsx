@@ -11,7 +11,6 @@ import ToasterProvider from '@/app/providers/ToasterProvider';
 import './globals.css'
 import ClientOnly from './components/ClientOnly';
 import getCurrentUser from './actions/getCurrentUser';
-import WalletConnectModal from './components/modals/WalletConnectModal';
 
 export const metadata = {
   title: 'REverse',
@@ -33,7 +32,6 @@ export default async function RootLayout({
     <html lang="en">
       <body className={font.className}>
         <ClientOnly>
-          <WalletConnectModal />
           <ToasterProvider />
           <LoginModal />
           <RegisterModal />
@@ -41,7 +39,7 @@ export default async function RootLayout({
           <RentModal />
           <Navbar currentUser={currentUser} />
         </ClientOnly>
-        <div className="pb-20 pt-28">
+        <div className="pb-20 pt-36">
           {children}
         </div>
       </body>
