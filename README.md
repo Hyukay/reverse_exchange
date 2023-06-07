@@ -6,7 +6,7 @@ This project uses Next.js 13 App Router (as of today 05-16-2023) which is still 
 
 Stack
 
-* Next.js 13
+* Next.js v13.4.4
 * React 18
 * Prisma
 * MongoDB
@@ -14,6 +14,7 @@ Stack
 * Truffle
 * Metamask
 * Ethereum EVM
+* Node.js v18.16.0
 
 ## Features
 
