@@ -30,7 +30,6 @@ interface ListingInfoProps {
 const ListingInfo: React.FC<ListingInfoProps> = ({
   user,
   description,
-  guestCount,
   roomCount,
   bathroomCount,
   category,
@@ -53,7 +52,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
             gap-2
           "
         >
-          <div>Hosted by {user?.name}</div>
+          <div>Sold by {user?.name}</div>
           <Avatar src={user?.image} />
         </div>
         <div className="
@@ -65,9 +64,6 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
             text-neutral-500
           "
         >
-          <div>
-            {guestCount} guests
-          </div>
           <div>
             {roomCount} rooms
           </div>
