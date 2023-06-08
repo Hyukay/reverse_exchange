@@ -30,7 +30,7 @@
     "lokijs": "^1.5.12",
     "mock-aws-s3": "^4.0.2",
     "mongodb": "^5.5.0",
-    "next": "^13.4.5-canary.0",
+    "next": "13.4.5-canary.0",
     "next-auth": "^4.22.1",
     "next-cloudinary": "^4.10.0",
     "next-superjson-plugin": "^0.5.6",
@@ -65,12 +65,5 @@
     "postcss": "^8.4.21",
     "prisma": "^4.11.0",
     "tailwindcss": "^3.2.7"
-  },
-  "binary": {
-    "module_name": "reverse_exchange",
-    "module_path": "./lib/binding/{configuration}/{node_abi}-{platform}-{arch}/",
-    "remote_path": "./{module_name}/v{version}/{configuration}/",
-    "package_name": "{module_name}-v{version}-{node_abi}-{platform}-{arch}.tar.gz",
-    "host": "https://node-pre-gyp-tests.s3-us-west-1.amazonaws.com"
   }
 }
