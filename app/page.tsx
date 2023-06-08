@@ -1,3 +1,5 @@
+export const dynamic = 'auto';
+// 'auto' | 'force-dynamic' | 'error' | 'force-static'
 import Container from "@/app/components/Container";
 import ListingCard from "@/app/components/listing/ListingCard";
 import EmptyState from "@/app/components/EmptyState";
@@ -12,8 +14,7 @@ interface HomeProps {
   searchParams: IListingsParams
 };
 
-export const dynamic = 'auto';
-// 'auto' | 'force-dynamic' | 'error' | 'force-static'
+
 
 const Home = async ({ searchParams }: HomeProps) => {
   const listings = await getListings(searchParams);
