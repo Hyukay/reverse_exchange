@@ -12,6 +12,14 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
   onMakeOffer
 }) => {
   const [offer, setOffer] = useState<number>(price);
+  const formattedPrice = new Intl.NumberFormat(
+    "en-US",
+    {
+      style: "currency",
+      currency: "USD",
+    }
+  ).format(price);
+
 
   return ( 
     <div 
@@ -26,7 +34,7 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
       <div className="
       flex flex-row items-center gap-1 p-4">
         <div className="text-2xl font-semibold">
-          Asking Price: $ {price}
+          Asking Price: {formattedPrice}
         </div>
       </div>
       <hr />
