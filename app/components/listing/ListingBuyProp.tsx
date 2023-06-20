@@ -1,38 +1,59 @@
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
 import Button from "../Button";
 
 interface ListingBuyProps {
   price: number;
-  onMakeOffer: (offer: number) => void;
+  buyer: string;
+  lender: string;
+  inspector: string;
+  seller: string;
+  account: string;
+  buyHandler: () => void;
+  lendHandler: () => void;
+  inspectHandler: () => void;
+  sellHandler: () => void;
 }
 
 const ListingBuy: React.FC<ListingBuyProps> = ({
   price,
-  onMakeOffer
+  buyer,
+  lender,
+  inspector,
+  seller,
+  account,
+  buyHandler,
+  lendHandler,
+  inspectHandler,
+  sellHandler
 }) => {
   const [offer, setOffer] = useState<number>(price);
-  const formattedPrice = new Intl.NumberFormat(
-    "en-US",
-    {
-      style: "currency",
-      currency: "USD",
+  const formattedPrice = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD"
+  }).format(price);
+
+  const [buttonLabel, setButtonLabel] = useState("Make Offer");
+  const [buttonAction, setButtonAction] = useState(() => () => {});
+
+  useEffect(() => {
+    if (account === buyer) {
+      setButtonLabel("Buy");
+      setButtonAction(() => buyHandler);
+    } else if (account === lender) {
+      setButtonLabel("Lend");
+      setButtonAction(() => lendHandler);
+    } else if (account === inspector) {
+      setButtonLabel("Inspect");
+      setButtonAction(() => inspectHandler);
+    } else if (account === seller) {
+      setButtonLabel("Sell");
+      setButtonAction(() => sellHandler);
     }
-  ).format(price);
+  }, [account, buyer, lender, inspector, seller, buyHandler, lendHandler, inspectHandler, sellHandler]);
 
-
-  return ( 
-    <div 
-      className="
-      bg-white 
-        rounded-xl 
-        border-[1px]
-      border-neutral-200 
-        overflow-hidden
-      "
-    >
-      <div className="
-      flex flex-row items-center gap-1 p-4">
+  return (
+    <div className="bg-white rounded-xl border-[1px] border-neutral-200 overflow-hidden">
+      <div className="flex flex-row items-center gap-1 p-4">
         <div className="text-2xl font-semibold">
           Asking Price: {formattedPrice}
         </div>
@@ -40,7 +61,7 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
       <hr />
       <div className="p-4">
         <label>
-          Your Offer: 
+          Current Offer: 
           <input 
             type="number" 
             value={offer} 
@@ -51,12 +72,12 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
       <hr />
       <div className="p-4">
         <Button 
-          label="Make Offer" 
-          onClick={() => onMakeOffer(offer)}
+          label={buttonLabel} 
+          onClick={buttonAction}
         />
       </div>
     </div>
-   );
+  ); 
 }
  
 export default ListingBuy;

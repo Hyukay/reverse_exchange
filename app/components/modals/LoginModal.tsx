@@ -1,5 +1,6 @@
 'use client';
 
+ // A modal is a dialog box/popup window that is displayed on top of the current page
 import { useCallback, useState } from "react";
 import { toast } from "react-hot-toast";
 import { signIn } from 'next-auth/react';
