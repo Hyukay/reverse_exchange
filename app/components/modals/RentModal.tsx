@@ -13,6 +13,7 @@ import { useMemo, useState } from "react";
 
 import useRentModal from '@/app/hooks/useRentModal';
 
+
 import Modal from "./Modal";
 import Counter from "../inputs/Counter";
 import CategoryInput from '../inputs/CategoryInput';
@@ -21,14 +22,16 @@ import { categories } from '../navbar/Categories';
 import ImageUpload from '../inputs/ImageUpload';
 import Input from '../inputs/Input';
 import Heading from '../Heading';
+import NumberInput from '../inputs/NumericInput';
 
 enum STEPS {
   CATEGORY = 0,
   LOCATION = 1,
-  INFO = 2,
-  IMAGES = 3,
-  DESCRIPTION = 4,
-  PRICE = 5,
+  AREA = 2,
+  INFO = 3,
+  IMAGES = 4,
+  DESCRIPTION = 5,
+  PRICE = 6,
 }
 
 const RentModal = () => {
@@ -51,7 +54,7 @@ const RentModal = () => {
     defaultValues: {
       category: '',
       location: null,
-      guestCount: 1,
+      area: 1,
       roomCount: 1,
       bathroomCount: 1,
       imageSrc: '',
@@ -63,7 +66,7 @@ const RentModal = () => {
 
   const location = watch('location');
   const category = watch('category');
-  const guestCount = watch('guestCount');
+  const area = watch('area');
   const roomCount = watch('roomCount');
   const bathroomCount = watch('bathroomCount');
   const imageSrc = watch('imageSrc');
@@ -89,14 +92,37 @@ const RentModal = () => {
     setStep((value) => value + 1);
   }
 
-  const onSubmit: SubmitHandler<FieldValues> = (data) => {
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     if (step !== STEPS.PRICE) {
       return onNext();
     }
     
     setIsLoading(true);
 
-    axios.post('/api/listings', data)
+    //Create IPFS metadata object
+    const metadata = {
+      category: data.category,
+      location: data.location,
+      area: data.area,
+      roomCount: data.roomCount,
+      bathroomCount: data.bathroomCount,
+      imageSrc: data.imageSrc,
+      price: data.price,
+      title: data.title,
+      description: data.description,
+    }
+
+
+
+  /*  //Upload image to IPFS
+    const imageUploadResult = await ipfshttpClient().add(data.imageSrc);
+    const imageIpfsLink = `https://ipfs.io/ipfs/${imageUploadResult.path}`;
+
+    metadata.imageSrc = imageIpfsLink;
+
+*/
+
+    axios.post('/api/listings', metadata)
     .then(() => {
       toast.success('Listing created!');
       router.refresh();
@@ -182,11 +208,12 @@ const RentModal = () => {
           title="Share some basics about your place"
           subtitle="What amenitis do you have?"
         />
-        <Counter 
-          onChange={(value) => setCustomValue('guestCount', value)}
-          value={guestCount}
-          title="Guests" 
-          subtitle="How many guests do you allow?"
+        <NumberInput
+          onChange={(value) => setCustomValue('area', value)}
+          value={area}
+          title="Area"
+          subtitle="How big is your place?"
+          suffix="m²"
         />
         <hr />
         <Counter 
@@ -269,6 +296,8 @@ const RentModal = () => {
       </div>
     )
   }
+
+ 
 
   return (
     <Modal

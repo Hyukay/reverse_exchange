@@ -15,9 +15,8 @@ const wagmiConfig = createConfig({
   publicClient
 })
 const ethereumClient = new EthereumClient(wagmiConfig, chains)
-
 const WalletConnect = () => {
-  const  account  = useAccount();
+  
   return (
     <div className="flex items-center gap-3"> {/* Add your custom styling here */}
       <WagmiConfig config={wagmiConfig}>

@@ -13,6 +13,7 @@ const ModalsProvider = () => {
       <RegisterModal />
       <SearchModal />
       <RentModal />
+      <WalletConnectModal />
     </>
    );
 }

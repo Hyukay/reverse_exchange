@@ -13,6 +13,8 @@ export type SafeReservation = Omit<
   endDate: string;
   listing: SafeListing;
 };
+export type Address = `0x${string}`
+
 
 export type SafeUser = Omit<
   User,

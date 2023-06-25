@@ -14,51 +14,57 @@ import ListingHead from "@/app/components/listing/ListingHead";
 import ListingInfo from "@/app/components/listing/ListingInfo";
 import ListingBuy from "@/app/components/listing/ListingBuyProp";
 
+import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { InjectedConnector } from "wagmi/connectors/injected";
+
+
 interface ListingClientProps {
   listing: SafeListing & {
-    user: SafeUser;
+    seller: SafeUser;
+    isApproved: boolean;
+    isAvailable: boolean;
+    isInspected: boolean;
   };
   currentUser?: SafeUser | null;
-  escrow: ethers.Contract;
-  provider: ethers.providers.Web3Provider;
-  account : string;
+  //escrow: ethers.Contract;
+ // provider: ethers.providers.Web3Provider;
+  
 }
 
 const ListingClient: React.FC<ListingClientProps> = ({
   listing,
   currentUser,
-  escrow,
-  provider,
-  account
-}) => {
   
+}) => {
+
   const loginModal = useLoginModal();
   const router = useRouter();
-
+  
   const category = useMemo(() => {
      return categories.find((items) => 
       items.label === listing.category);
   }, [listing.category]);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [hasBought, setHasBought] = useState(false)
+  /*const [hasBought, setHasBought] = useState(false)
   const [hasLended, setHasLended] = useState(false)
   const [hasInspected, setHasInspected] = useState(false)
   const [hasSold, setHasSold] = useState(false)
 
-  const [buyer, setBuyer] = useState(null)
+  const [buyer, setBuyer] = useState(null )
   const [lender, setLender] = useState(null)
   const [inspector, setInspector] = useState(null)
   const [seller, setSeller] = useState(null)
 
   const [owner, setOwner] = useState(null)
 
+
   const fetchDetails = useCallback(async () => {
     // -- Buyer
 
     const buyer = await escrow.buyer(listing.id)
     setBuyer(buyer)
-
+    
     const hasBought = await escrow.approval(listing.id, buyer)
     setHasBought(hasBought)
 
@@ -85,16 +91,17 @@ const ListingClient: React.FC<ListingClientProps> = ({
 
     const hasInspected = await escrow.inspectionPassed(listing.id)
     setHasInspected(hasInspected)
+
 }, [escrow, listing.id])
 
-const fetchOwner = useCallback (async () => {
+  const fetchOwner = useCallback (async () => {
     if (await escrow.isListed(listing.id)) return
 
     const owner = await escrow.buyer(listing.id)
     setOwner(owner)
 }, [escrow, listing.id])
 
-const buyHandler = async () => {
+  const buyHandler = async () => {
     const escrowAmount = await escrow.escrowAmount(listing.id)
     const signer = await provider.getSigner()
 
@@ -110,6 +117,7 @@ const buyHandler = async () => {
 }
 
 const inspectHandler = async () => {
+
     const signer = await provider.getSigner()
 
     // Inspector updates status
@@ -150,7 +158,7 @@ const sellHandler = async () => {
 useEffect(() => {
     fetchDetails()
     fetchOwner()
-}, [fetchDetails, fetchOwner,hasSold])
+}, [fetchDetails, fetchOwner,hasSold])*/
 
  /* const onMakeOffer = useCallback((offer: number) => {
       if (!currentUser) {
@@ -206,13 +214,16 @@ useEffect(() => {
             "
           >
             <ListingInfo
-              user={listing.user}
+              user={listing.seller} 
               category={category}
               description={listing.description}
               roomCount={listing.roomCount}
               guestCount={listing.guestCount}
               bathroomCount={listing.bathroomCount}
               locationValue={listing.locationValue}
+              isAvailable={listing.isAvailable}
+              isApproved={listing.isApproved}
+              isInspected={listing.isInspected}
             />
             <div 
               className="
@@ -225,20 +236,8 @@ useEffect(() => {
               
              <ListingBuy
                 price={listing.price}
-                buyer = {buyer}
-                seller = {seller}
-                lender = {lender}
-                inspector = {inspector}
-                hasBought = {hasBought}
-                hasLended = {hasLended}
-                hasInspected = {hasInspected}
-                hasSold = {hasSold}
-                owner = {owner}
-                buyHandler = {buyHandler}
-                inspectHandler = {inspectHandler}
-                lendHandler = {lendHandler}
-                sellHandler = {sellHandler}
-              />
+                
+                ></ListingBuy>
             </div>
           </div>
         </div>

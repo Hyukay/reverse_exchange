@@ -6,7 +6,7 @@ import prisma from "@/app/libs/prismadb";
 export function getSession() {
   return getServerSession(authOptions)
 }
-
+// If you need to get data from the database, you can use and create functions in the actions folder. (This is a server component)
 export default async function getCurrentUser() {
   try {
     const session = await getSession();

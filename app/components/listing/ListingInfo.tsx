@@ -1,7 +1,7 @@
-'use client';
-
+'use strict';
 import dynamic from "next/dynamic";
 import { IconType } from "react-icons";
+import { FiCheckCircle, FiXCircle } from "react-icons/fi";
 
 import useCountries from "@/app/hooks/useCountries";
 import { SafeUser } from "@/app/types";
@@ -24,7 +24,10 @@ interface ListingInfoProps {
     label: string;
     description: string;
   } | undefined
-  locationValue: string;
+  locationValue: string;  
+  isAvailable: boolean;
+  isInspected: boolean;
+  isApproved: boolean;
 }
 
 const ListingInfo: React.FC<ListingInfoProps> = ({
@@ -34,9 +37,12 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
   bathroomCount,
   category,
   locationValue,
+  isApproved,
+  isAvailable,
+  isInspected
 }) => {
   const { getByValue } = useCountries();
-
+  
   const coordinates = getByValue(locationValue)?.latlng
 
   return ( 
@@ -70,6 +76,11 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
           <div>
             {bathroomCount} bathrooms
           </div>
+        </div>
+        <div className="flex flex-row items-center gap-2">
+          {isApproved && <FiCheckCircle className="text-green-500" />}
+          {isInspected && <FiCheckCircle className="text-green-500" />}
+          {!isAvailable && <><FiXCircle className="text-red-500" /><span> This property is currently unavailable</span></>}
         </div>
       </div>
       <hr />

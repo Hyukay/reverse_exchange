@@ -9,16 +9,20 @@ import getListings, {
 } from "@/app/actions/getListings";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import ClientOnly from "./components/ClientOnly";
+import { connectWallet } from './components/wallet';
+
 
 interface HomeProps {
   searchParams: IListingsParams
 };
 
-
-
 const Home = async ({ searchParams }: HomeProps) => {
+
   const listings = await getListings(searchParams);
   const currentUser = await getCurrentUser();
+  
+
+  
 
   if (listings.length === 0) {
     return (
