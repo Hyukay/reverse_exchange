@@ -29,3 +29,4 @@ const WagmiProvider = ({ children }: { children: React.ReactNode }) => {
 // Exports
 // ========================================================
 export default WagmiProvider;
+

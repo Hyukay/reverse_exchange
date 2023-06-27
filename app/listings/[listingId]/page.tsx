@@ -7,7 +7,7 @@ import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
 import { useNetwork } from "wagmi";
 // getsigners from wagmi
 import { Web3Modal, Web3Button } from '@web3modal/react';
-import { configureChains, createConfig, WagmiConfig, useAccount, sepolia } from 'wagmi';
+import { configureChains, createConfig, WagmiConfig, sepolia } from 'wagmi';
 import RealEstate from 'artifacts/contracts/RealEstate.sol/RealEstate.json'
 import WalletConnect from "@/app/components/navbar/WalletConnect";
 import ClientOnly from "@/app/components/ClientOnly";
@@ -15,17 +15,25 @@ import EmptyState from "@/app/components/EmptyState";
 
 import ListingClient from "../ListingClient";
 import { Address, useContractRead } from "wagmi";
-import escrowContract from 'artifacts/contracts/Escrow.sol/Escrow.json'
-import config from 'config.json'
+
+import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { InjectedConnector } from "wagmi/connectors/injected";
+
+
 interface IParams {
   listingId?: string;
+  isConnected: Boolean
+
 }
+
+
 
 const ListingPage = async ({ params }: { params: IParams }) => {
 
   const listing = await getListingById(params);
   const currentUser = await getCurrentUser();
   
+
   
 
 
