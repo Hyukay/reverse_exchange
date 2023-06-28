@@ -11,6 +11,7 @@ datasource db {
 }
 
 model User {
+
   id              String @id @default(auto()) @map("_id") @db.ObjectId
   name            String?
   email           String?   @unique
@@ -21,6 +22,7 @@ model User {
   updatedAt       DateTime @updatedAt
   favoriteIds     String[] @db.ObjectId
   role            String?   @default("user")
+  
 
   accounts Account[]
   listings Listing[]

@@ -18,11 +18,12 @@ import { Address, useContractRead } from "wagmi";
 
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
+import WagmiProvider from "@/providers/wagmi";
+import  RootProvider  from '../../providers'
 
 
 interface IParams {
   listingId?: string;
-  isConnected: Boolean
 
 }
 
@@ -48,24 +49,27 @@ const ListingPage = async ({ params }: { params: IParams }) => {
     functionName: 'totalSupply',
     chainId: sepolia.id
   })*/
-
-  return (
-    <ClientOnly>
-      <ListingClient
-        listing={listing}
-        currentUser={currentUser}
-      />
-    </ClientOnly>
-  );
-  
   if (!listing) {
     return (
       <ClientOnly>
-        <EmptyState />
+        <EmptyState/>
       </ClientOnly>
     );
   }
 
+  return (
+    <ClientOnly>
+      <RootProvider>
+      <ListingClient
+        listing={listing}
+        currentUser={currentUser}
+      />
+      </RootProvider>
+    </ClientOnly>
+  );
+  
+
+/*
   // if the user is the inspector show the inspector page
   else if (currentUser?.role === 'inspector') {
     return (
@@ -73,7 +77,7 @@ const ListingPage = async ({ params }: { params: IParams }) => {
         {/*<ListingInspector
           listing={listing}
           currentUser={currentUser}
-        />*/}
+        />}
       </ClientOnly>
     );
   }
@@ -86,7 +90,7 @@ const ListingPage = async ({ params }: { params: IParams }) => {
             listing={listing}
             currentUser={currentUser}
           />
-        */}
+        }
         </ClientOnly>
       );
       }
@@ -112,7 +116,9 @@ const ListingPage = async ({ params }: { params: IParams }) => {
         currentUser={currentUser}
       />
     </ClientOnly>
-  );
+  );*/
   }
-}
+
+
 export default ListingPage;
+

@@ -9,8 +9,7 @@ import getListings, {
 } from "@/app/actions/getListings";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import ClientOnly from "./components/ClientOnly";
-import { connectWallet } from './components/wallet';
-
+//import { Wallet } from './components/wallet';
 
 interface HomeProps {
   searchParams: IListingsParams

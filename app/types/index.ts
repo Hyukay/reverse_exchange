@@ -1,7 +1,11 @@
 import { Listing, Reservation, User } from "@prisma/client";
 
-export type SafeListing = Omit<Listing, "createdAt"> & {
+export type SafeListing = Omit<Listing, "createdAt" |"isAvailable" | "isApproved" | "isInspected"> & {
   createdAt: string;
+  isAvailable: boolean
+  isApproved: boolean;
+  isInspected: boolean;
+
 };
 
 export type SafeReservation = Omit<
@@ -15,6 +19,7 @@ export type SafeReservation = Omit<
 };
 export type Address = `0x${string}`
 
+export type role =`${string}` 
 
 export type SafeUser = Omit<
   User,

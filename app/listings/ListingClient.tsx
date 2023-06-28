@@ -3,7 +3,7 @@ import axios from "axios";
 import { useEffect, useCallback, useState, useMemo} from "react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import ethers from "ethers";
+
 
 import useLoginModal from "@/app/hooks/useLoginModal";
 import { SafeListing, SafeUser } from "@/app/types";
@@ -14,9 +14,11 @@ import ListingHead from "@/app/components/listing/ListingHead";
 import ListingInfo from "@/app/components/listing/ListingInfo";
 import ListingBuy from "@/app/components/listing/ListingBuyProp";
 
-import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { InjectedConnector } from "wagmi/connectors/injected";
+
+
 import { connected } from "process";
+
+
 import Button from "../components/Button";
 
 
@@ -30,8 +32,6 @@ interface ListingClientProps {
     isInspected: boolean;
   };
   currentUser?: SafeUser | null ;
-  //escrow: ethers.Contract;
- // provider: ethers.providers.Web3Provider;
   
 }
 
@@ -45,12 +45,6 @@ const ListingClient: React.FC<ListingClientProps> = ({
 
 
 
-  const { address, isConnected,  } = useAccount();
-  const { connect } = useConnect({
-    connector: new InjectedConnector(),
-  });
-  const { disconnect } = useDisconnect()
-
   const loginModal = useLoginModal();
   const router = useRouter();
 
@@ -60,16 +54,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
  }, [listing.category]);
 
  const [isLoading, setIsLoading] = useState(false);
-
-  if(!isConnected){
-
-    return (
-        <Button
-      label="connect"
-      onClick={() => connect()
-      
-      }/>)
-  }
+ 
 
 
  /* const onMakeOffer = useCallback((offer: number) => {
@@ -148,7 +133,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
               
              <ListingBuy
                 price={listing.price}
-                role = {currentUser.role}
+                role = {currentUser ? currentUser.role: 'buyer'}
                 id={listing.id}
                 ></ListingBuy>
             </div>

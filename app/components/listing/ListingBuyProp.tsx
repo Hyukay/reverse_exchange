@@ -37,13 +37,13 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
   
 
   const {address} = useAccount();
-
+  
   //To read the amount to deposit for the escrow
   let {data:escrowAmount} = useContractRead({
-    address: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
+    address: '0xe7f1725e7734ce288f8367e1bb143e90bb3f0512',
     abi: escrowABI,
     functionName: 'escrowAmount',
-    args: [BigInt(id)],
+    args: [1],
     watch: true,
     })
 
@@ -51,16 +51,16 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
     //to read the price of the property
 
   let {data: purchasePrice} = useContractRead({
-    address: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
+    address: '0xe7f1725e7734ce288f8367e1bb143e90bb3f0512',
     abi: escrowABI,
     functionName:'purchasePrice',
-    args:[BigInt(id)],
+    args:[2],
     watch: true,
   })
 
   let { config: depositEarnest, isLoading: depositLoading, error: depositError,  } = usePrepareContractWrite({
 
-    address: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
+    address: '0xe7f1725e7734ce288f8367e1bb143e90bb3f0512',
     abi: escrowABI,
     functionName: 'escrowAmount',
     args: [escrowAmount],
@@ -72,10 +72,10 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
 
   let {config: lenderPurchase, error: lenderPurchaseError} = usePrepareContractWrite({
 
-    address: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
+    address: '0xe7f1725e7734ce288f8367e1bb143e90bb3f0512',
     abi: escrowABI,
     functionName: 'escrowAmount',
-    args: [BigInt(id)],
+    args: [id],
     account: address
 
   })
@@ -85,33 +85,84 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
   //Buyer approves sale
   let { config: approveSale, isLoading: approveSaleLoading, error: approveSaleError } = usePrepareContractWrite({
 
-    address: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
+    address: '0xe7f1725e7734ce288f8367e1bb143e90bb3f0512',
     abi: escrowABI,
     functionName: 'approveSale',
-    args: [BigInt(id)],
+    args: [id],
     account: address
 
   })
 
-  const {data: approveSaleData, writeAsync} = useContractWrite(approveSale);
+  const {writeAsync: writeApprove} = useContractWrite(approveSale);
 
   let {config: updateInspectionStatus, isLoading: updateInspectionStatusLoading, error: updateInspectionStatusError} = usePrepareContractWrite({
 
-    address: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
+    address: '0xe7f1725e7734ce288f8367e1bb143e90bb3f0512',
     abi: escrowABI,
     functionName:'updateInspectionStatus',
-    args: [BigInt(id),true],
+    args: [id,true],
     account: address
+
 
   })
 
   const {data: updateInspectionStatusData, writeAsync: writeInspectionStatus} = useContractWrite(updateInspectionStatus);
 
   const buyHandler = useCallback(async () => {
-
+    if(writeDeposit){
     await writeDeposit()
+    }    
+    if(writeApprove){
+    await writeApprove()
+    }
+  }, [writeDeposit, writeApprove])
 
-  }, [writeDeposit])
+  // TODO
+  const inspectHandler = useCallback(async () => {
+    if(writeDeposit){
+    await writeDeposit()
+    }    
+    if(writeApprove){
+    await writeApprove()
+    }
+  }, [writeDeposit, writeApprove])
+  // TODO 
+  const sellerHandler = useCallback(async () => {
+    if(writeDeposit){
+    await writeDeposit()
+    }    
+    if(writeApprove){
+    await writeApprove()
+    }
+  }, [writeDeposit, writeApprove])
+  // TODO
+  const notaryHandler = useCallback(async () => {
+    if(writeDeposit){
+    await writeDeposit()
+    }    
+    if(writeApprove){
+    await writeApprove()
+    }
+  }, [writeDeposit, writeApprove])
+  // TODO
+  const lenderHandler = useCallback(async () => {
+    if(writeDeposit){
+    await writeDeposit()
+    }    
+    if(writeApprove){
+    await writeApprove()
+    }
+  }, [writeDeposit, writeApprove])
+
+  
+  const formatData = (data: unknown): string => {
+    if (typeof data === 'object' || typeof data === 'number') {
+      return data.toString();
+    }
+    return 'Loading...'; 
+  }
+
+
 
   const formattedPrice = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -119,39 +170,30 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
   }).format(price);
 
   //called when a buyer wants to bBigInt(id)/ put a buying offer. (signed) (contract not modified yet)
-  /*const {data: offer } = useContractWrite({
-    abi: escrowContract.abi,
-    address: config.contracts.Escrow.address as Address,
-    functionName:'makeOffer',
-    args: [{buyer: account}, {amount: amount*1e9}],
-    signer: ethers.getSigner()
-    value: amount*1e9
-    });*/
 
   // Will have to change this for a usecontract write and then write then new price on the contract. 
   
   const [buttonLabel, setButtonLabel] = useState("Make Offer");
   const [buttonAction, setButtonAction] = useState(() => () => {});
-  const [offer, setOffer] = useState(0);
   
   useEffect(() => {
    if(role) 
     switch (role) {
       case 'inspector':
         setButtonLabel('Approve');
-     //   setButtonAction(inspectHandler);
+        setButtonAction(inspectHandler);
         break;
       case 'notary':
         setButtonLabel('Inspect');
-    //    setButtonAction(notaryHandler);
+        setButtonAction(notaryHandler);
         break;
       case 'lender':
         setButtonLabel('Lend');
-     //   setButtonAction(null);
+        setButtonAction(lenderHandler);
         break;
       case 'seller':
         setButtonLabel('Sell');
-        //setButtonAction(null);
+        setButtonAction(sellerHandler);
         break;
       default:
         setButtonLabel('Buy');
@@ -159,41 +201,32 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
           buyHandler
        });
         break;
-        
-        purchasePrice
-        escrowAmount
+   
     }
-  }, [role, escrowAmount, purchasePrice, setButtonLabel]);
+  }, [role,buyHandler, inspectHandler, lenderHandler,notaryHandler,sellerHandler ]);
 
 
   return (
     <div className="bg-white rounded-xl border-[1px] border-neutral-200 overflow-hBigInt(id)den">
       <div className="flex flex-row items-center gap-1 p-4">
         <div className="text-2xl font-semibold">
-         Asking Price: {purchasePrice as number}
+         Asking Price: {formatData(purchasePrice)}
         </div>
       </div>
-      <hr />
+      <hr/>
       <div className="p-4">
         <label>
-          Minimum deposit:
-          <input 
-            type="number" 
-            value={escrowAmount as number} 
-            //onChange={e => setOffer(Number(e.target.value))} 
-          />
+          Minimum deposit = {formatData(escrowAmount)}
         </label>
       </div>
-      <hr />
+      <hr/>
       <div className="p-4"> 
         <Button 
           label={buttonLabel} 
-          disabled={!escrowAmount ||!purchasePrice}
-          onClick={buttonAction}>
-          </Button>
+          onClick={buttonAction}/>
       </div>
     </div>
   );
 }
- 
+
 export default ListingBuy;
