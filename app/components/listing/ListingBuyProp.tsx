@@ -1,4 +1,5 @@
 'use client';
+
 import { useState, useEffect, useCallback} from "react";
 import Button from "../Button";
 import getCurrentUser from '../../actions/getCurrentUser';
@@ -34,10 +35,8 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
   id,
 }) => {
   
-  const clicked = false
 
-  const {address} = useAccount()
-
+  const {address} = useAccount();
 
   //To read the amount to deposit for the escrow
   let {data:escrowAmount} = useContractRead({
@@ -49,7 +48,6 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
     })
 
     //read the escrowAmount make it assignable to reactNode
-    
     //to read the price of the property
 
   let {data: purchasePrice} = useContractRead({
@@ -60,7 +58,6 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
     watch: true,
   })
 
-  
   let { config: depositEarnest, isLoading: depositLoading, error: depositError,  } = usePrepareContractWrite({
 
     address: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
@@ -74,7 +71,7 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
   const {writeAsync: writeDeposit} = useContractWrite(depositEarnest)
 
   let {config: lenderPurchase, error: lenderPurchaseError} = usePrepareContractWrite({
-  
+
     address: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
     abi: escrowABI,
     functionName: 'escrowAmount',
@@ -82,8 +79,6 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
     account: address
 
   })
-
-
 
   //const {data: depositData, write} = useContractWrite(depositEarnest);
 
@@ -95,7 +90,7 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
     functionName: 'approveSale',
     args: [BigInt(id)],
     account: address
-    
+
   })
 
   const {data: approveSaleData, writeAsync} = useContractWrite(approveSale);
@@ -112,20 +107,16 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
 
   const {data: updateInspectionStatusData, writeAsync: writeInspectionStatus} = useContractWrite(updateInspectionStatus);
 
-
-  
   const buyHandler = useCallback(async () => {
 
-    writeDeposit?.call
-    
-    
+    await writeDeposit()
+
   }, [writeDeposit])
 
   const formattedPrice = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD"
   }).format(price);
-
 
   //called when a buyer wants to bBigInt(id)/ put a buying offer. (signed) (contract not modified yet)
   /*const {data: offer } = useContractWrite({
@@ -139,12 +130,10 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
 
   // Will have to change this for a usecontract write and then write then new price on the contract. 
   
-  
   const [buttonLabel, setButtonLabel] = useState("Make Offer");
   const [buttonAction, setButtonAction] = useState(() => () => {});
   const [offer, setOffer] = useState(0);
-
-
+  
   useEffect(() => {
    if(role) 
     switch (role) {
@@ -166,9 +155,9 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
         break;
       default:
         setButtonLabel('Buy');
-   //     setButtonAction(() => {
-     //     null
-     //   });
+        setButtonAction(() => {
+          buyHandler
+       });
         break;
         
         purchasePrice
@@ -200,12 +189,11 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
         <Button 
           label={buttonLabel} 
           disabled={!escrowAmount ||!purchasePrice}
-          onClick={() => writeDeposit()}
-         // onClick={clicked=nul}
-        />
+          onClick={buttonAction}>
+          </Button>
       </div>
     </div>
-  ); 
+  );
 }
  
 export default ListingBuy;
