@@ -11,19 +11,15 @@ import { escrowABI } from "@/app/abis/Escrow";
 import { useWalletClient, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
 import { write } from "fs";
 import { BsFillNutFill } from "react-icons/bs";
+import { Role, EscrowData } from "@/app/types";
 
 
 
 
 interface ListingBuyProps {
   price: number;
-  role: string | null | undefined// will have to create a role type
+  role: Role | null | undefined
   id : string
- /* buyer: string | null;
-  lender: string| null;
-  inspector: string | null;
-  seller: string  | null;*/
-  
 }
 
 
@@ -39,13 +35,13 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
   const {address} = useAccount();
   
   //To read the amount to deposit for the escrow
-  let {data:escrowAmount} = useContractRead({
+  let {data : escrowAmount} = useContractRead({
     address: '0xe7f1725e7734ce288f8367e1bb143e90bb3f0512',
     abi: escrowABI,
     functionName: 'escrowAmount',
     args: [1],
     watch: true,
-    })
+    }) as {data: EscrowData | undefined}
 
     //read the escrowAmount make it assignable to reactNode
     //to read the price of the property
@@ -56,7 +52,7 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
     functionName:'purchasePrice',
     args:[2],
     watch: true,
-  })
+  }) as {data: EscrowData | undefined}
 
   let { config: depositEarnest, isLoading: depositLoading, error: depositError,  } = usePrepareContractWrite({
 
@@ -155,12 +151,6 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
   }, [writeDeposit, writeApprove])
 
   
-  const formatData = (data: unknown): string => {
-    if (typeof data === 'object' || typeof data === 'number') {
-      return data.toString();
-    }
-    return 'Loading...'; 
-  }
 
 
 
@@ -210,13 +200,13 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
     <div className="bg-white rounded-xl border-[1px] border-neutral-200 overflow-hBigInt(id)den">
       <div className="flex flex-row items-center gap-1 p-4">
         <div className="text-2xl font-semibold">
-         Asking Price: {formatData(purchasePrice)}
+         Asking Price: {purchasePrice?.purchasePrice}
         </div>
       </div>
       <hr/>
       <div className="p-4">
         <label>
-          Minimum deposit = {formatData(escrowAmount)}
+          Minimum deposit = {escrowAmount?.escrowAmount}
         </label>
       </div>
       <hr/>
