@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 
 import useLoginModal from "@/app/hooks/useLoginModal";
-import { SafeListing, SafeUser } from "@/app/types";
+import { SafeListing, SafeUser, Role } from "@/app/types";
 
 import Container from "@/app/components/Container";
 import { categories } from "@/app/components/navbar/Categories";
@@ -17,7 +17,6 @@ import ListingBuy from "@/app/components/listing/ListingBuyProp";
 
 
 import { connected } from "process";
-
 
 import Button from "../components/Button";
 
@@ -41,9 +40,6 @@ const ListingClient: React.FC<ListingClientProps> = ({
   currentUser,
   
 }) => {
-
-
-
 
   const loginModal = useLoginModal();
   const router = useRouter();
@@ -133,7 +129,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
               
              <ListingBuy
                 price={listing.price}
-                role = {currentUser ? currentUser.role: 'buyer'}
+                role = {currentUser ? currentUser.role as Role: 'buyer'} 
                 id={listing.id}
                 ></ListingBuy>
             </div>

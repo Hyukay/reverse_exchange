@@ -3,9 +3,9 @@
 import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum';
 import { Web3Modal, Web3Button } from '@web3modal/react';
 import { configureChains, createConfig, WagmiConfig, useAccount } from 'wagmi';
-import { arbitrum, mainnet, polygon, goerli } from 'wagmi/chains';
+import { arbitrum, mainnet, polygon, goerli, hardhat } from 'wagmi/chains';
 
-const chains = [arbitrum, mainnet, polygon, goerli]
+const chains = [arbitrum, mainnet, polygon, goerli,hardhat]
 const projectId = '7095620307efa91937271a9860d12dc3'
 
 const { publicClient } = configureChains(chains, [w3mProvider({ projectId })])
@@ -16,7 +16,7 @@ const wagmiConfig = createConfig({
 })
 const ethereumClient = new EthereumClient(wagmiConfig, chains)
 const WalletConnect = () => {
-  
+
   return (
     <div className="flex items-center gap-3"> {/* Add your custom styling here */}
       <WagmiConfig config={wagmiConfig}>

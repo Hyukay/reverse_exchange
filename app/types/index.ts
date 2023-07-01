@@ -10,8 +10,8 @@ export type SafeListing = Omit<Listing, "createdAt" |"isAvailable" | "isApproved
 
 export type EscrowData = {
 
-  escrowAmount: number;
-  purchasePrice: number;
+  escrowAmount: string;
+  purchasePrice: string;
   
 }
 export type SafeReservation = Omit<
@@ -26,7 +26,6 @@ export type SafeReservation = Omit<
 export type Address = `0x${string}`
 
 export type Role = 'buyer' | 'seller' | 'inspector' | 'notary' | 'lender';
-
 
 export type SafeUser = Omit<
   User,

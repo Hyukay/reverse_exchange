@@ -12,8 +12,7 @@ import { useWalletClient, usePrepareContractWrite, useWaitForTransaction } from 
 import { write } from "fs";
 import { BsFillNutFill } from "react-icons/bs";
 import { Role, EscrowData } from "@/app/types";
-
-
+import {utils} from 'ethers'
 
 
 interface ListingBuyProps {
@@ -22,41 +21,47 @@ interface ListingBuyProps {
   id : string
 }
 
-
-
-
 const ListingBuy: React.FC<ListingBuyProps> = ({
   price,
   role,
   id,
 }) => {
-  
 
   const {address} = useAccount();
-  
+
   //To read the amount to deposit for the escrow
-  let {data : escrowAmount} = useContractRead({
-    address: '0xe7f1725e7734ce288f8367e1bb143e90bb3f0512',
+  let {data : escrowAmount, isLoading: escrowLoading, error: escrowError } = useContractRead({
+    address: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
     abi: escrowABI,
     functionName: 'escrowAmount',
     args: [1],
     watch: true,
-    }) as {data: EscrowData | undefined}
+    }) as any 
 
+    console.log('ESCROW AMOUNT', escrowAmount)
     //read the escrowAmount make it assignable to reactNode
     //to read the price of the property
 
+    //read the escrowAmount from the escrow contract using ethers.js 
   let {data: purchasePrice} = useContractRead({
-    address: '0xe7f1725e7734ce288f8367e1bb143e90bb3f0512',
+    address: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
     abi: escrowABI,
     functionName:'purchasePrice',
     args:[2],
     watch: true,
   }) as {data: EscrowData | undefined}
 
+  let {data: totalSupply} = useContractRead({
+    address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+    abi: escrowABI,
+    functionName:'totalSupply',
+  }) as any
+
+  console.log('TOTAL SUPPLY', totalSupply)
+
   let { config: depositEarnest, isLoading: depositLoading, error: depositError,  } = usePrepareContractWrite({
 
-    address: '0xe7f1725e7734ce288f8367e1bb143e90bb3f0512',
+    address: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
     abi: escrowABI,
     functionName: 'escrowAmount',
     args: [escrowAmount],
@@ -99,18 +104,21 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
     args: [id,true],
     account: address
 
-
   })
 
   const {data: updateInspectionStatusData, writeAsync: writeInspectionStatus} = useContractWrite(updateInspectionStatus);
 
   const buyHandler = useCallback(async () => {
+    try{
     if(writeDeposit){
     await writeDeposit()
     }    
     if(writeApprove){
     await writeApprove()
     }
+  } catch{
+    console.error("Error in depositEarnest:", depositError)
+  }
   }, [writeDeposit, writeApprove])
 
   // TODO
@@ -150,16 +158,14 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
     }
   }, [writeDeposit, writeApprove])
 
-  
-
-
+ 
 
   const formattedPrice = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD"
   }).format(price);
 
-  //called when a buyer wants to bBigInt(id)/ put a buying offer. (signed) (contract not modified yet)
+ 
 
   // Will have to change this for a usecontract write and then write then new price on the contract. 
   
@@ -191,7 +197,6 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
           buyHandler
        });
         break;
-   
     }
   }, [role,buyHandler, inspectHandler, lenderHandler,notaryHandler,sellerHandler ]);
 
@@ -206,7 +211,7 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
       <hr/>
       <div className="p-4">
         <label>
-          Minimum deposit = {escrowAmount?.escrowAmount}
+          Minimum deposit: {escrowAmount?.escrowAmount}
         </label>
       </div>
       <hr/>

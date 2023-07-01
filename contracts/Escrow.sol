@@ -37,7 +37,7 @@ contract Escrow {
     mapping(uint256 => address) public buyer;
     mapping(uint256 => bool) public inspectionPassed;
     mapping(uint256 => mapping(address => bool)) public approval;
-    
+
     constructor(
         address _nftAddress,
         address payable _seller,
@@ -120,5 +120,10 @@ contract Escrow {
 
     function getBalance() public view returns (uint256) {
         return address(this).balance;
+    }
+
+    function getEscrowAmount(uint256 _nftID) public view returns (uint256){
+
+        return escrowAmount[_nftID];
     }
 }

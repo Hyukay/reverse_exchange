@@ -28,27 +28,12 @@ interface IParams {
 }
 
 
-
 const ListingPage = async ({ params }: { params: IParams }) => {
 
   const listing = await getListingById(params);
   const currentUser = await getCurrentUser();
   
 
-  
-
-
-  /*const {data: escrow} = useContractRead({
-    abi: escrowContract.abi,
-    address:config.contracts.Escrow.address as Address,
-  })
-
-  const { data: totalSupply } = useContractRead({
-    abi: RealEstate.abi,
-    address: config.contracts.RealEstate.address as Address,
-    functionName: 'totalSupply',
-    chainId: sepolia.id
-  })*/
   if (!listing) {
     return (
       <ClientOnly>
