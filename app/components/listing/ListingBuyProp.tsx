@@ -30,10 +30,10 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
   const {address} = useAccount();
 
   //To read the amount to deposit for the escrow
-  let {data : escrowAmount, isLoading: escrowLoading, error: escrowError } = useContractRead({
+  let {data : escrowAmount } = useContractRead({
     address: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
     abi: escrowABI,
-    functionName: 'escrowAmount',
+    functionName: 'isListed',
     args: [1],
     watch: true,
     }) as any 
@@ -52,7 +52,7 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
   }) as {data: EscrowData | undefined}
 
   let {data: totalSupply} = useContractRead({
-    address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+    address: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
     abi: escrowABI,
     functionName:'totalSupply',
   }) as any
@@ -66,7 +66,7 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
     functionName: 'escrowAmount',
     args: [escrowAmount],
     account: address
-
+    
   })
 
   const {writeAsync: writeDeposit} = useContractWrite(depositEarnest)

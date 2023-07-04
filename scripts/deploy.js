@@ -13,6 +13,12 @@ async function main() {
   const realEstate = await RealEstate.deploy()
   await realEstate.deployed()
 
+  // Show signers 
+  console.log(`Buyer: ${buyer.address}`)
+  console.log(`Seller: ${seller.address}`)
+  console.log(`Inspector: ${inspector.address}`)
+  console.log(`Lender: ${lender.address}\n`)
+
   console.log(`Deployed Real Estate Contract at: ${realEstate.address}`)
   console.log(`Minting 3 properties...\n`)
 
@@ -29,6 +35,7 @@ async function main() {
     inspector.address,
     lender.address
   )
+  
   await escrow.deployed()
 
   console.log(`Deployed Escrow Contract at: ${escrow.address}`)
