@@ -5,7 +5,7 @@ import { Web3Modal, Web3Button } from '@web3modal/react';
 import { configureChains, createConfig, WagmiConfig, useAccount } from 'wagmi';
 import { arbitrum, mainnet, polygon, goerli, hardhat } from 'wagmi/chains';
 
-const chains = [arbitrum, mainnet, polygon, goerli,hardhat]
+const chains = [hardhat]
 const projectId = '7095620307efa91937271a9860d12dc3'
 
 const { publicClient } = configureChains(chains, [w3mProvider({ projectId })])
