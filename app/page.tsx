@@ -10,6 +10,7 @@ import getListings, {
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import ClientOnly from "./components/ClientOnly";
 //import { Wallet } from './components/wallet';
+import RootProvider from './providers';
 
 interface HomeProps {
   searchParams: IListingsParams
@@ -33,6 +34,7 @@ const Home = async ({ searchParams }: HomeProps) => {
 
   return (
     <ClientOnly>
+      <RootProvider>
       <Container>
         <div 
           className="
@@ -56,6 +58,7 @@ const Home = async ({ searchParams }: HomeProps) => {
           ))}
         </div>
       </Container>
+      </RootProvider>
     </ClientOnly>
   )
 }

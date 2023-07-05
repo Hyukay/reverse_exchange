@@ -35,7 +35,7 @@ async function main() {
     inspector.address,
     lender.address
   )
-  
+
   await escrow.deployed()
 
   console.log(`Deployed Escrow Contract at: ${escrow.address}`)
@@ -56,6 +56,10 @@ async function main() {
 
   transaction = await escrow.connect(seller).list(3, buyer.address, tokens(10), tokens(5))
   await transaction.wait()
+
+  if(await escrow.connect(buyer).isListed(1)) {
+    console.log(`Property 1 is listed.`)
+  }
 
   console.log(`Finished.`)
 }
