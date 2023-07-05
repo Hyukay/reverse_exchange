@@ -1,19 +1,16 @@
 import React from 'react';
 import { WagmiConfig, createConfig, configureChains } from "wagmi";
-import { hardhat } from 'wagmi/chains';
+import { hardhat, mainnet, optimism, polygon, sepolia, goerli, avalancheFuji } from 'wagmi/chains';
 import { InjectedConnector } from 'wagmi/connectors/injected'
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
-import { useNetwork } from 'wagmi';
+import { useNetwork } from 'wagmi'
+import { infuraProvider } from 'wagmi/providers/infura'
+
+
 
 const { chains, publicClient } = configureChains(
-  [hardhat],
-  [
-    jsonRpcProvider({
-      rpc: () => ({
-        http: 'http://127.0.0.1:8545',
-      }),
-    }),
-  ]
+  [sepolia, goerli],
+  [infuraProvider({ apiKey: "172a07d206ba44ceaae66501806bd268" })],
 )
 
 const config = createConfig({

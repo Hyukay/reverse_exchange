@@ -1,74 +1,27 @@
-'use client';
-
-import { useState, useEffect, useCallback} from "react";
+'use client'
+import React, { useState, useEffect, useCallback } from "react";
+import { Contract, ethers } from 'ethers';
 import Button from "../Button";
-import getCurrentUser from '../../actions/getCurrentUser';
-import { useAccount, useContractRead, useContractWrite } from 'wagmi' 
+import { useAccount, useContractRead, useContractWrite, usePrepareContractWrite } from 'wagmi'
 import config from '../../../config.json';
-import { sepolia } from 'wagmi';
-import { Address, SafeUser } from "@/app/types";
 import { escrowABI } from "@/app/abis/Escrow";
-import { useWalletClient, usePrepareContractWrite, useWaitForTransaction } from "wagmi";
-import { write } from "fs";
-import { BsFillNutFill, BsWindowSidebar } from "react-icons/bs";
 import { Role, EscrowData } from "@/app/types";
-import {ethers, providers, utils} from 'ethers'
-import { set } from "date-fns";
-import { getAddress } from "viem";
-import { hardhat } from "viem/chains";
-import { realestateABI } from "@/app/abis/RealEstate";
-
-
+import { use } from "chai";
 
 interface ListingBuyProps {
+  home : any;
+  account : string | null;
+  escrow : Contract | null | undefined;
   price: number;
-  role: Role | null | undefined
-  id : string
+  role: Role | null | undefined;
+  id: string;
 }
 
-const ListingBuy: React.FC<ListingBuyProps> = ({
-  price,
-  role,
-  id,
-}) => {
-
+const ListingBuy: React.FC<ListingBuyProps> = ({ home, account, escrow, price, role, id }) => {
+   
   const {address, isConnected} = useAccount();
-  //const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
-
   console.log('Current connected address', address)
-  console.log('Is Connected?', isConnected)
-  const [account, setAccount] = useState<Address | null>(null);
-  const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
-  const [escrow, setEsrcow] = useState<ethers.Contract | null>(null);
-  const [realEstate, setRealEstate] = useState<ethers.Contract | null>(null);
-
-  
-  
-      //setProvider(provider)
-  
-  /*const loadBlockchainData = async () => {
-    
-  const provider = new ethers.providers.Web3Provider(window.ethereum)
-  console.log('PROVIDER', provider)
-  const escrow = new ethers.Contract('0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512', escrowABI, provider)
-  const realEstate = new ethers.Contract('0x5FbDB2315678afecb367f032d93F642f64180aa3', realestateABI, provider)
-  setEsrcow(escrow)
-  setRealEstate(realEstate)
-  const totalSupply = await realEstate.totalSupply()
-  console.log('TOTAL SUPPLY', totalSupply)
-  const escrowAmount = await escrow.escrowAmount(1)
-  console.log('ESCROW AMOUNT', escrowAmount)
-
-
-    window.ethereum.on('accountsChanged', async () => {
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const account = ethers.utils.getAddress(accounts[0]);
-      setAccount(account)
-    }
-  )}
-  */
-
-  
+  console.log('isConnected?', isConnected)
   let {data : seller, isError: sellerError, isLoading: sellerLoading, Error: errorS} = useContractRead({
 
     address: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
@@ -81,7 +34,6 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
 
     console.log('SELLER', seller, sellerError, sellerLoading, errorS)
 
-    
 
   //To read the amount to deposit for the escrow
   let {data : escrowAmount } = useContractRead({
@@ -104,7 +56,6 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
     args:[2],
     watch: true,
   }) as {data: EscrowData | undefined}
-
 
   let {data: totalSupply} = useContractRead({
     address: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
@@ -260,20 +211,21 @@ const ListingBuy: React.FC<ListingBuyProps> = ({
     <div className="bg-white rounded-xl border-[1px] border-neutral-200 overflow-hBigInt(id)den">
       <div className="flex flex-row items-center gap-1 p-4">
         <div className="text-2xl font-semibold">
-         Asking Price: {purchasePrice?.purchasePrice}
+         Asking Price: {}
         </div>
       </div>
       <hr/>
       <div className="p-4">
         <label>
-          Minimum deposit: {escrowAmount?.escrowAmount}
+          Minimum deposit: {}
         </label>
       </div>
       <hr/>
       <div className="p-4"> 
         <Button 
           label={buttonLabel} 
-          onClick={buttonAction}/>
+          onClick={buyHandler}
+          />
       </div>
     </div>
   );

@@ -4,9 +4,14 @@
 import React from 'react';
 import WagmiProvider from "../providers/wagmi";
 
+
+
+
 // Root Provider
 // ========================================================
-const RootProvider = ({ children }: { children: React.ReactNode }) => {
+const RootProvider = ({ children }: { children: React.ReactNode},) => {
+    
+
     return <div>
         <WagmiProvider>
             {children}
