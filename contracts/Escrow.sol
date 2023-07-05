@@ -126,4 +126,9 @@ contract Escrow {
 
         return escrowAmount[_nftID];
     }
+     
+    function getNumber() public pure returns (uint256){
+        return 1;
+    }
+
 }
