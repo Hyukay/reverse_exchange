@@ -23,7 +23,7 @@ export type SafeReservation = Omit<
   endDate: string;
   listing: SafeListing;
 };
-export type Address = `0x${string}`
+export type Address = string | undefined;
 
 export type Role = 'buyer' | 'seller' | 'inspector' | 'notary' | 'lender';
 
@@ -35,3 +35,10 @@ export type SafeUser = Omit<
   updatedAt: string;
   emailVerified: string | null;
 };
+
+declare global {
+  interface Window {
+    ethereum: any;
+  }
+}
+
