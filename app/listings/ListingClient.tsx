@@ -11,20 +11,17 @@ import { SafeListing, SafeUser, Role, EscrowData } from "@/app/types";
 import Container from "@/app/components/Container";
 import { categories } from "@/app/components/navbar/Categories";
 import ListingHead from "@/app/components/listing/ListingHead";
+import ListingSellerProp from "@/app/components/listing/ListingSellerProp";
 import ListingInfo from "@/app/components/listing/ListingInfo";
 import ListingBuy from "@/app/components/listing/ListingBuyProp";
-import WagmiProvider from "@/providers/wagmi";
-import { useAccount } from 'wagmi'
 import { ethers } from "ethers";
 import config from '../../config.json';
-import { escrowABI } from "@/app/abis/Escrow";
+import EscrowV2 from "../../abi/contracts/EscrowV2.sol/Escrow_v2.json";
+import { QueryClient, QueryClientProvider } from 'react-query';
 
-
-
-import { connected } from "process";
 
 import Button from "../components/Button";
-
+import { useContract,useContractRead, useContractWrite, useAddress, useConnectionStatus } from '@thirdweb-dev/react';
 
 
 
@@ -56,57 +53,21 @@ const ListingClient: React.FC<ListingClientProps> = ({
  }, [listing.category]);
 
 
- const {address, isConnected} = useAccount();
- console.log('Current connected address', address)
- console.log('Is Connected?', isConnected)
+  const userAddress = useAddress();
+  const connectionStatus = useConnectionStatus();
+  console.log('connectionStatus', connectionStatus)
+  
 
- const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
- const [escrow, setEscrow] = useState<ethers.Contract | null>(null);
- const [account, setAccount] = useState<string | null>(null);
- const [homes, setHomes] = useState<Array<any>>([]);
- const [home, setHome] = useState<any | null>(null);
- const [toggle, setToggle] = useState<boolean>(false);
-
- const loadBlockchainData = async () => {
-   const provider = new ethers.providers.Web3Provider(window.ethereum)
-   setProvider(provider);
-   const network = await provider.getNetwork()
-   const realEstate = new ethers.Contract(config.contracts.RealEstate.address, escrowABI, provider)
-   const totalSupply = await realEstate.totalSupply()
-   const homes = []
-   console.log('Total Supply', totalSupply.toString())
-
-   for (var i = 1; i <= totalSupply; i++) {
-     const uri = await realEstate.tokenURI(i)
-     const response = await fetch(uri)
-     const metadata = await response.json()
-     homes.push(metadata)
-   }
-
-   setHomes(homes);
-
-   const escrow = new ethers.Contract(config.contracts.Escrow.address, escrowABI, provider)
-   setEscrow(escrow);
-
-   window.ethereum.on('accountsChanged', async () => {
-     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-     const account = ethers.utils.getAddress(accounts[0])
-     setAccount(account);
-   })
- }
- const togglePop = (home: any) => {
-   setHome(home)
-   toggle ? setToggle(false) : setToggle(true);
- }
-
- console.log('HOMES', homes.length)
- console.log('Provider', provider)
- console.log('Escrow', escrow)
- console.log('Account', account)
-
+  const EscrowAddress = "0x8AaeD1279D8Db69ce9b3933982053671C383cCB7";
+  const { contract: escrow} = useContract(EscrowAddress);
+  const { data, isLoading, isError, error } = useContractRead(
+    escrow,
+     "_realEstateAddress"
+  )
 
 
   
+
 
  /* const onMakeOffer = useCallback((offer: number) => {
       if (!currentUser) {
@@ -181,15 +142,21 @@ const ListingClient: React.FC<ListingClientProps> = ({
                 md:col-span-3
               "
             >
-              
-             <ListingBuy
-                home = {homes.at(2)}
-                account = {account}
+
+              <ListingSellerProp
+                address = {userAddress}
+                id = {1}
+             /*<ListingBuy
+                home = {1}
+                address = {userAddress}
                 escrow = {escrow}
                 price={listing.price}
                 role = {currentUser ? currentUser.role as Role: 'buyer'} 
                 id={listing.id}
-                ></ListingBuy>
+  ></ListingBuy>*/
+            ></ListingSellerProp>
+            
+
             </div>
           </div>
         </div>

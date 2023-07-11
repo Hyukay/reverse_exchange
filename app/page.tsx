@@ -9,7 +9,6 @@ import getListings, {
 } from "@/app/actions/getListings";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import ClientOnly from "./components/ClientOnly";
-//import { Wallet } from './components/wallet';
 import RootProvider from './providers';
 
 interface HomeProps {

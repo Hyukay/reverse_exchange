@@ -11,6 +11,7 @@ import ToasterProvider from '@/app/providers/ToasterProvider';
 import './globals.css'
 import ClientOnly from './components/ClientOnly';
 import getCurrentUser from './actions/getCurrentUser';
+import RootProvider from './providers';
 
 export const metadata = {
   title: 'REverse',
@@ -32,16 +33,19 @@ export default async function RootLayout({
     <html lang="en">
       <body className={font.className}>
         <ClientOnly>
+          <RootProvider>
           <ToasterProvider />
           <LoginModal />
           <RegisterModal />
           <SearchModal />
           <RentModal />
           <Navbar currentUser={currentUser} />
-        </ClientOnly>
+          </RootProvider>
+        
         <div className="pb-20 pt-36">
           {children}
         </div>
+        </ClientOnly>
       </body>
     </html>
   )

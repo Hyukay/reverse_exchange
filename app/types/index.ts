@@ -11,7 +11,7 @@ export type SafeListing = Omit<Listing, "createdAt" |"isAvailable" | "isApproved
 export type EscrowData = {
 
   escrowAmount: string;
-  purchasePrice: string;
+  purchasePrice: number;
   
 }
 export type SafeReservation = Omit<
@@ -38,7 +38,7 @@ export type SafeUser = Omit<
 
 declare global {
   interface Window {
-    ethereum: any;
+   // ethereum: any;
   }
 }
 

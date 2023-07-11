@@ -6,20 +6,24 @@ import hre from "hardhat";
 import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum';
 import { useNetwork } from "wagmi";
 // getsigners from wagmi
-import { Web3Modal, Web3Button } from '@web3modal/react';
+
 import { configureChains, createConfig, WagmiConfig, sepolia } from 'wagmi';
 import RealEstate from 'artifacts/contracts/RealEstate.sol/RealEstate.json'
-import WalletConnect from "@/app/components/navbar/WalletConnect";
+import WalletConnect from "@/app/components/WalletConnect";
 import ClientOnly from "@/app/components/ClientOnly";
 import EmptyState from "@/app/components/EmptyState";
+
+
 
 import ListingClient from "../ListingClient";
 import { Address, useContractRead } from "wagmi";
 
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
-import WagmiProvider from "@/providers/wagmi";
+
 import  RootProvider  from '../../providers'
+
+
 
 
 interface IParams {

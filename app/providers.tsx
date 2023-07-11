@@ -1,24 +1,23 @@
-'use client';
-// Imports
-// ========================================================
-import React from 'react';
-import WagmiProvider from "../providers/wagmi";
+"use client";
+
+import React from "react";
+import { ThirdwebProvider, metamaskWallet, ThirdwebSDKProvider,coinbaseWallet } from "@thirdweb-dev/react";
+import { Sepolia } from "@thirdweb-dev/chains";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 
+const RootProvider = ({ children }: { children: React.ReactNode }) => {
 
-
-// Root Provider
-// ========================================================
-const RootProvider = ({ children }: { children: React.ReactNode},) => {
     
 
-    return <div>
-        <WagmiProvider>
-            {children}
-        </WagmiProvider>
-    </div>
+  return (
+      <ThirdwebProvider 
+      supportedWallets={[metamaskWallet()]}
+      activeChain={Sepolia}
+      >
+        {children}
+      </ThirdwebProvider>
+  );
 };
 
-// Exports
-// ========================================================
 export default RootProvider;
