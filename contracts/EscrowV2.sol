@@ -2,6 +2,9 @@
 
 pragma solidity ^0.8.1;
 
+import '@thirdweb-dev/contracts/extension/Permissions.sol';
+import '@thirdweb-dev/contracts/extension/ContractMetadata.sol';
+
 interface IERC721 {
     function transferFrom(
         address _from,
@@ -49,7 +52,6 @@ contract Escrow_v2 {
         realEstateAddress = _realEstateAddress;
         seller = _seller;
     }
-
 
     function setInspector(address _inspector) public onlySeller {
         inspector = _inspector;
@@ -134,11 +136,6 @@ contract Escrow_v2 {
         IERC721(realEstateAddress).transferFrom(address(this), buyer[_propertyID], _propertyID);
 
     }
-
-
-
-
-
 
 
 }
