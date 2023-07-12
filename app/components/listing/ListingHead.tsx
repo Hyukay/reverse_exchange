@@ -4,16 +4,29 @@ import Image from "next/image";
 
 import useCountries from "@/app/hooks/useCountries";
 import { SafeUser } from "@/app/types";
+import { useState, useEffect } from 'react';
 
 import Heading from "../Heading";
 import HeartButton from "../HeartButton";
+import { MediaRenderer } from "@thirdweb-dev/react";
+import { ThirdwebStorage } from "@thirdweb-dev/storage";
+
 
 interface ListingHeadProps {
+
   title: string;
   locationValue: string;
-  imageSrc: string;
+  imageSrc: string | null;
   id: string;
   currentUser?: SafeUser | null
+
+}
+
+const storage = new ThirdwebStorage();
+
+const handleUriToUrl = async (uri: string) => {
+  const url = await storage.resolveScheme(uri);
+  return url;
 }
 
 const ListingHead: React.FC<ListingHeadProps> = ({
@@ -26,7 +39,16 @@ const ListingHead: React.FC<ListingHeadProps> = ({
   const { getByValue } = useCountries();
 
   const location = getByValue(locationValue);
+  
+  
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (imageSrc) {
+      handleUriToUrl(imageSrc).then(setImageUrl);
+    }
+  }, [imageSrc]);
+ 
   return ( 
     <>
       <Heading
@@ -41,10 +63,10 @@ const ListingHead: React.FC<ListingHeadProps> = ({
           relative
         "
       >
-        <Image
+       <MediaRenderer
           src={imageSrc}
-          fill
-          className="object-cover w-full"
+          style={{objectFit: 'cover', width: 'auto', height: 'auto'}}
+          className="object-cover w-full h-full"
           alt="Image"
         />
         <div

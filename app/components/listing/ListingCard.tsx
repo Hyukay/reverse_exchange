@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo } from "react";
 import { format } from 'date-fns';
+import { MediaRenderer } from "@thirdweb-dev/react";
+
 
 import useCountries from "@/app/hooks/useCountries";
 import { 

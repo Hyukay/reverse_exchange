@@ -57,7 +57,7 @@ model Listing {
   category  String
   roomCount Int
   bathroomCount Int
-  ipfsUri String
+  ipfsUri String?
   guestCount Int
   locationValue String
   userId String @db.ObjectId

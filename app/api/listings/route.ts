@@ -31,8 +31,6 @@ export async function POST(
     price,
    } = body;
 
- 
-
   // Check if all fields are filled
   Object.keys(body).forEach((value: any) => {
     if (!body[value]) {
@@ -61,14 +59,16 @@ export async function POST(
     const imageUri = await storage.upload(metadata.imageSrc);
     console.log(imageUri)
     //replace the imageSrc with the IPFS URI
-    metadata.imageSrc = imageUri;
+    //upload image to IPFS
+    const imageUrl = await storage.upload(imageSrc);
+    metadata.imageSrc = imageUrl;
     console.log(metadata)
 
     //Upload metadata to IPFS
     const ipfsUri = await storage.upload(metadata);
     console.log(ipfsUri)
-   
 
+    
     const listing = await prisma.listing.create({
       data: {
         title,

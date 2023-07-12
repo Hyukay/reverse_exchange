@@ -13,6 +13,8 @@ import { categories } from "@/app/components/navbar/Categories";
 import ListingHead from "@/app/components/listing/ListingHead";
 import ListingSellerProp from "@/app/components/listing/ListingSellerProp";
 import ListingInfo from "@/app/components/listing/ListingInfo";
+import { MediaRenderer } from "@thirdweb-dev/react";
+
 
 
 
@@ -104,7 +106,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
         <div className="flex flex-col gap-6">
           <ListingHead
             title={listing.title}
-            imageSrc={listing.imageSrc}
+            imageSrc={listing.ipfsUri}
             locationValue={listing.locationValue}
             id={listing.id}
             currentUser={currentUser}

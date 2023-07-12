@@ -27,6 +27,7 @@ const nextConfig = {
     return config;
   },
   images: {
+    
     domains: [
       'a0.muscache.com',
       'avatars.dicebear.com',
@@ -34,8 +35,11 @@ const nextConfig = {
       't4.ftcdn.net',
       'res.cloudinary.com', 
       'avatars.githubusercontent.com',
-      'lh3.googleusercontent.com'
-    ],
+      'lh3.googleusercontent.com',
+      'ipfs.io',
+      'ipfs.thirdwebstorage.com', // Add this line
+      'gateway.ipfscdn.io',
+    ]
   },
 }
 

@@ -1,4 +1,5 @@
 import prisma from "@/app/libs/prismadb";
+import {ThirdwebStorage} from "@thirdweb-dev/storage";
 
 interface IParams {
   listingId?: string;
@@ -20,8 +21,31 @@ export default async function getListingById(
     });
 
     if (!listing) {
-      return null;
+      throw new Error("Listing not found");
     }
+
+    if (!listing.ipfsUri) {
+      const storage = new ThirdwebStorage();
+      let imageUri;
+      try {
+        imageUri = await storage.upload(listing.imageSrc);
+      } catch (error) {
+        console.error("Failed to upload image to IPFS:", error);
+        throw error;
+      }
+    
+      const updatedListing = await prisma.listing.update({
+        where: {
+          id: listingId,
+        },
+        data: {
+          ipfsUri: imageUri
+        }
+      });
+    
+      console.log("Updated listing:", updatedListing);
+    }
+    
 
     return {
       ...listing,
