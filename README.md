@@ -1111,7 +1111,7 @@ MGL850_Reverse_Exchange
 │  │  │  ├─ LoginModal.tsx
 │  │  │  ├─ Modal.tsx
 │  │  │  ├─ RegisterModal.tsx
-│  │  │  ├─ RentModal.tsx
+│  │  │  ├─ PropertyListingModal.tsx
 │  │  │  ├─ SearchModal.tsx
 │  │  │  └─ WalletConnectModal.tsx
 │  │  └─ navbar
@@ -1133,7 +1133,7 @@ MGL850_Reverse_Exchange
 │  │  ├─ useFavorite.ts
 │  │  ├─ useLoginModal.ts
 │  │  ├─ useRegisterModal.ts
-│  │  ├─ useRentModal.ts
+│  │  ├─ usePropertyListingModal.ts
 │  │  ├─ useSearchModal.ts
 │  │  └─ useWalletConnectModal.ts
 │  ├─ layout.tsx

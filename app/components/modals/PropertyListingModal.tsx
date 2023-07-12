@@ -11,8 +11,7 @@ import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from "react";
 
-import useRentModal from '@/app/hooks/useRentModal';
-import { ThirdwebStorage } from "@thirdweb-dev/storage";
+import usePropertyListingModal from '@/app/hooks/usePropertyListingModal';
 
 
 import Modal from "./Modal";
@@ -36,9 +35,9 @@ enum STEPS {
   PRICE = 6,
 }
 
-const RentModal = () => {
+const PropertyListingModal = () => {
   const router = useRouter();
-  const rentModal = useRentModal();
+  const PropertyListingModal = usePropertyListingModal();
 
 
   const [isLoading, setIsLoading] = useState(false);
@@ -108,7 +107,7 @@ const RentModal = () => {
       router.refresh();
       reset();
       setStep(STEPS.CATEGORY)
-      rentModal.onClose();
+      PropertyListingModal.onClose();
     })
     .catch(() => {
       toast.error('Something went wrong.');
@@ -282,16 +281,16 @@ const RentModal = () => {
   return (
     <Modal
       disabled={isLoading}
-      isOpen={rentModal.isOpen}
+      isOpen={PropertyListingModal.isOpen}
       title="REverse your home!"
       actionLabel={actionLabel}
       onSubmit={handleSubmit(onSubmit)}
       secondaryActionLabel={secondaryActionLabel}
       secondaryAction={step === STEPS.CATEGORY ? undefined : onBack}
-      onClose={rentModal.onClose}
+      onClose={PropertyListingModal.onClose}
       body={bodyContent}
     />
   );
 }
 
-export default RentModal;
+export default PropertyListingModal;

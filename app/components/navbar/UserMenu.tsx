@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 
 import useLoginModal from "@/app/hooks/useLoginModal";
 import useRegisterModal from "@/app/hooks/useRegisterModal";
-import useRentModal from "@/app/hooks/useRentModal";
+import usePropertyListingModal from "@/app/hooks/usePropertyListingModal";
 import { SafeUser } from "@/app/types";
 
 import MenuItem from "./MenuItem";
@@ -24,7 +24,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
 
   const loginModal = useLoginModal();
   const registerModal = useRegisterModal();
-  const rentModal = useRentModal();
+  const PropertyListingModal = usePropertyListingModal();
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -37,8 +37,8 @@ const UserMenu: React.FC<UserMenuProps> = ({
       return loginModal.onOpen();
     }
 
-    rentModal.onOpen();
-  }, [loginModal, rentModal, currentUser]);
+    PropertyListingModal.onOpen();
+  }, [loginModal, PropertyListingModal, currentUser]);
 
   return ( 
     <div className="relative">
@@ -112,7 +112,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
                 />
                 <MenuItem 
                   label="List Property" 
-                  onClick={rentModal.onOpen}
+                  onClick={PropertyListingModal.onOpen}
                 />
                 <hr />
                 <MenuItem 

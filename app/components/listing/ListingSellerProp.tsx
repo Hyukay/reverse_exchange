@@ -93,6 +93,7 @@ const ListingSellerProp: React.FC<sellerProps> = ({ address, id }) => {
       </div>
       <hr/>
       <div className="p-4">
+        {/*If the property exists on the blockchain, then show the option to List the property*/ }
         {tokenURI != null || undefined ? (
           <W3Button 
           outline
@@ -105,9 +106,11 @@ const ListingSellerProp: React.FC<sellerProps> = ({ address, id }) => {
           onSubmit={() => console.log("Transaction pending...")}
       >
       </W3Button>
+      
           ): (
         
          <W3Button 
+         //If the property does not exist on the blockchain, then show the option to Mint the property
          outline
          label={"Mint"}
          contractAddress={REAL_ESTATE_ADDRESS}
@@ -118,7 +121,10 @@ const ListingSellerProp: React.FC<sellerProps> = ({ address, id }) => {
          onSubmit={() => console.log("Transaction pending...")}
      >
      </W3Button>
-        )}
+    
+
+        ) 
+        }
       </div>
     </div>
   );
