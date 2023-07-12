@@ -1,7 +1,7 @@
 
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import getListingById from "@/app/actions/getListingById";
-import ethers from "ethers";
+
 import hre from "hardhat";
 
 
@@ -13,8 +13,7 @@ import EmptyState from "@/app/components/EmptyState";
 import ListingClient from "../ListingClient";
 
 
-import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { InjectedConnector } from "wagmi/connectors/injected";
+
 import  RootProvider  from '../../providers'
 
 

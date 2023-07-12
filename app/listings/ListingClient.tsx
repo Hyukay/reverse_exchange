@@ -6,18 +6,14 @@ import { useRouter } from "next/navigation";
 
 
 import useLoginModal from "@/app/hooks/useLoginModal";
-import { SafeListing, SafeUser, Role, EscrowData } from "@/app/types";
+import { SafeListing, SafeUser, } from "@/app/types";
 
 import Container from "@/app/components/Container";
 import { categories } from "@/app/components/navbar/Categories";
 import ListingHead from "@/app/components/listing/ListingHead";
 import ListingSellerProp from "@/app/components/listing/ListingSellerProp";
 import ListingInfo from "@/app/components/listing/ListingInfo";
-import ListingBuy from "@/app/components/listing/ListingBuyProp";
-import { ethers } from "ethers";
-import config from '../../config.json';
-import EscrowV2 from "../../abi/contracts/EscrowV2.sol/Escrow_v2.json";
-import { QueryClient, QueryClientProvider } from 'react-query';
+
 
 
 import Button from "../components/Button";
