@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { useMemo, useState } from "react";
 
 import useRentModal from '@/app/hooks/useRentModal';
+import { ThirdwebStorage } from "@thirdweb-dev/storage";
 
 
 import Modal from "./Modal";
@@ -19,6 +20,7 @@ import Counter from "../inputs/Counter";
 import CategoryInput from '../inputs/CategoryInput';
 import CountrySelect from "../inputs/CountrySelect";
 import { categories } from '../navbar/Categories';
+import getListings from '@/app/actions/getListings';
 import ImageUpload from '../inputs/ImageUpload';
 import Input from '../inputs/Input';
 import Heading from '../Heading';
@@ -37,6 +39,7 @@ enum STEPS {
 const RentModal = () => {
   const router = useRouter();
   const rentModal = useRentModal();
+
 
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(STEPS.CATEGORY);
@@ -99,31 +102,8 @@ const RentModal = () => {
     
     setIsLoading(true);
 
-    //Create IPFS metadata object
-    const metadata = {
-      category: data.category,
-      location: data.location,
-      area: data.area,
-      roomCount: data.roomCount,
-      bathroomCount: data.bathroomCount,
-      imageSrc: data.imageSrc,
-      price: data.price,
-      title: data.title,
-      description: data.description,
-    }
-
-
-
-  /*  //Upload image to IPFS
-    const imageUploadResult = await ipfshttpClient().add(data.imageSrc);
-    const imageIpfsLink = `https://ipfs.io/ipfs/${imageUploadResult.path}`;
-
-    metadata.imageSrc = imageIpfsLink;
-
-*/
-
-    axios.post('/api/listings', metadata)
-    .then(() => {
+    axios.post('/api/listings',data)
+      .then(() => {
       toast.success('Listing created!');
       router.refresh();
       reset();
