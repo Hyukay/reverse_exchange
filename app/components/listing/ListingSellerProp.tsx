@@ -16,20 +16,36 @@ const REAL_ESTATE_ADDRESS = "0xAd44cA225473B69022FEd05dE921b810B81a5ab0";
 
 const ListingSellerProp: React.FC<sellerProps> = ({ address, id }) => {
 
-    const { contract } = useContract(ESCROW_ADDRESS);
+    const { contract: escrow } = useContract(ESCROW_ADDRESS);
+    const { contract: realEstate } = useContract(REAL_ESTATE_ADDRESS);
+
 
     const [price, setPrice] = useState(0);
-    const [buttonLabel, setButtonLabel] = useState('null');
 
 
-
-    const { data: purchasePriceBigNumber, isLoading: priceLoading } = useContractRead(contract, "price", [id]);
-    let purchasePrice = purchasePriceBigNumber ? parseInt(purchasePriceBigNumber.toString()) : 0;
-  
     
 
-  const { mutateAsync: list, isLoading: listingIsLoading } = useContractWrite(contract, "list");
-  const { mutateAsync: updatePrice } = useContractWrite(contract, "updatePrice");
+
+    const { data: purchasePriceBigNumber, isLoading: priceLoading } = useContractRead(escrow, "price", [id]);
+    const { data: tokenURI, isLoading: tokenLoading } = useContractRead(realEstate, "tokenURI", [2]);
+    let purchasePrice = purchasePriceBigNumber ? parseInt(purchasePriceBigNumber.toString()) : 0;
+    
+    
+
+  const { mutateAsync: list, isLoading: listingIsLoading } = useContractWrite(escrow, "list");
+  const { mutateAsync: updatePrice } = useContractWrite(escrow, "updatePrice");
+  const { mutateAsync: mint, isLoading: mintLoading } = useContractWrite(realEstate, "mint");
+
+  const mintProperty = async () => {
+    try {
+      const data = await mint({ args: ['https://ipfs.io/ipfs/QmQVcpsjrA6cr1iJjZAodYwmPekYgbnXGo4DFubJiLc2EB/2.json'] });
+      console.info("contract call successs", data);
+    } catch (err) {
+      console.error("contract call failure", err);
+    }
+  }
+
+
   
   const listProperty = async () => {
     try {
@@ -39,7 +55,6 @@ const ListingSellerProp: React.FC<sellerProps> = ({ address, id }) => {
     } catch (err) {
       console.error("contract call failure", err);
     }
-    
   };
 
   const updatePropertyPrice = useCallback(async () => {
@@ -78,18 +93,32 @@ const ListingSellerProp: React.FC<sellerProps> = ({ address, id }) => {
       </div>
       <hr/>
       <div className="p-4">
-        <W3Button 
-            outline
-            label={"List Property"}
-            contractAddress={ESCROW_ADDRESS}
-            action={async () => await listProperty()}
-            isDisabled={listingIsLoading}
-            onSuccess={(result) => console.log("Transaction successful", result)}
-            onError={(error) => console.error("Transaction error", error)}
-            onSubmit={() => console.log("Transaction pending...")}
-            
-        >
-        </W3Button>
+        {tokenURI != null || undefined ? (
+          <W3Button 
+          outline
+          label={"List Property"}
+          contractAddress={ESCROW_ADDRESS}
+          action={async () => await listProperty()}
+          isDisabled={listingIsLoading}
+          onSuccess={(result) => console.log("Transaction successful", result)}
+          onError={(error) => console.error("Transaction error", error)}
+          onSubmit={() => console.log("Transaction pending...")}
+      >
+      </W3Button>
+          ): (
+        
+         <W3Button 
+         outline
+         label={"Mint"}
+         contractAddress={REAL_ESTATE_ADDRESS}
+         action={async () => await mintProperty()}
+         isDisabled={mintLoading}
+         onSuccess={(result) => console.log("Transaction successful", result)}
+         onError={(error) => console.error("Transaction error", error)}
+         onSubmit={() => console.log("Transaction pending...")}
+     >
+     </W3Button>
+        )}
       </div>
     </div>
   );

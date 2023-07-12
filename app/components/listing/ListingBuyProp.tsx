@@ -7,12 +7,14 @@ import { use } from "chai";
 import { useAddress, useConnectionStatus, useContract, useContractRead, useContractWrite} from '@thirdweb-dev/react';
 
 interface ListingBuyProps {
+  
   home : any;
   address: any;
   escrow : any;
   price: number;
   role: Role | null | undefined;
   id: string;
+  
 }
 
 
