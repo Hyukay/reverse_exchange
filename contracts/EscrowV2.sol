@@ -88,6 +88,13 @@ contract Escrow_v2 {
         inspectionPassed[_realEstateID] = _inspectionPassed;
     }
 
+    // Function to update the price of a real estate the notary will have to "Re-approve" the sale
+    function updatePrice(uint256 _realEstateID, uint256 _newPrice) public onlySeller {
+        require(isListed[_realEstateID], "Real estate is not listed for sale");
+        price[_realEstateID] = _newPrice;
+        approval[_realEstateID][notary] = false;
+    }
+
     // function to approve the sale of a real estate
     function approveSale(uint256 _realEstateID) public onlyNotary {
         approval[_realEstateID][notary] = true;
