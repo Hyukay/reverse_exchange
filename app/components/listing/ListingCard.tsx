@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import { MediaRenderer } from "@thirdweb-dev/react";
 
 
+
 import useCountries from "@/app/hooks/useCountries";
 import { 
   SafeListing, 
@@ -87,8 +88,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
             rounded-xl
           "
         >
-          <Image
-            fill
+          <MediaRenderer
+            style={{objectFit: 'fill', width: 'auto', height: 'auto'}}
             className="
               object-cover 
               h-full 
@@ -96,7 +97,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
               group-hover:scale-110 
               transition
             "
-            src={data.imageSrc}
+            src={data.image || '/images/Logo_PlaceHolder.png'}
             alt="Listing"
           />
           <div className="

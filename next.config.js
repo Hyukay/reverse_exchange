@@ -33,7 +33,6 @@ const nextConfig = {
       'avatars.dicebear.com',
       'upcdn.io',
       't4.ftcdn.net',
-      'res.cloudinary.com', 
       'avatars.githubusercontent.com',
       'lh3.googleusercontent.com',
       'ipfs.io',

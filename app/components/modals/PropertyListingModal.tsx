@@ -59,7 +59,7 @@ const PropertyListingModal = () => {
       area: 1,
       roomCount: 1,
       bathroomCount: 1,
-      imageSrc: '',
+      image: '',
       price: 1,
       title: '',
       description: '',
@@ -71,7 +71,7 @@ const PropertyListingModal = () => {
   const area = watch('area');
   const roomCount = watch('roomCount');
   const bathroomCount = watch('bathroomCount');
-  const imageSrc = watch('imageSrc');
+  const image = watch('image');
 
   const Map = useMemo(() => dynamic(() => import('../Map'), { 
     ssr: false 
@@ -220,8 +220,8 @@ const PropertyListingModal = () => {
           subtitle="Show guests what your place looks like!"
         />
         <ImageUpload
-          onChange={(value) => setCustomValue('imageSrc', value)}
-          value={imageSrc}
+          onChange={(value) => setCustomValue('image', value)}
+          value={image}
         />
       </div>
     )

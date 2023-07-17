@@ -16,38 +16,24 @@ interface ListingHeadProps {
 
   title: string;
   locationValue: string;
-  imageSrc: string | null;
+  image: string | null;
   id: string;
   currentUser?: SafeUser | null
 
 }
 
-const storage = new ThirdwebStorage();
 
-const handleUriToUrl = async (uri: string) => {
-  const url = await storage.resolveScheme(uri);
-  return url;
-}
 
 const ListingHead: React.FC<ListingHeadProps> = ({
   title,
   locationValue,
-  imageSrc,
+  image,
   id,
   currentUser
 }) => {
   const { getByValue } = useCountries();
-
+  
   const location = getByValue(locationValue);
-  
-  
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (imageSrc) {
-      handleUriToUrl(imageSrc).then(setImageUrl);
-    }
-  }, [imageSrc]);
  
   return ( 
     <>
@@ -64,7 +50,7 @@ const ListingHead: React.FC<ListingHeadProps> = ({
         "
       >
        <MediaRenderer
-          src={imageSrc}
+          src={image || 'images/Logo_PlaceHolder.png'}
           style={{objectFit: 'cover', width: 'auto', height: 'auto'}}
           className="object-cover w-full h-full"
           alt="Image"

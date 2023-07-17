@@ -20,6 +20,7 @@ import { MediaRenderer } from "@thirdweb-dev/react";
 
 import Button from "../components/Button";
 import { useContract,useContractRead, useContractWrite, useAddress, useConnectionStatus } from '@thirdweb-dev/react';
+import { use } from "chai";
 
 
 
@@ -62,7 +63,66 @@ const ListingClient: React.FC<ListingClientProps> = ({
     escrow,
      "_realEstateAddress"
   )
+  
 
+  const [metadata, setMetadata] = useState( {
+    name: listing.title,
+    description: listing.description,
+    image: listing.image,
+    attributes: [
+      {
+        trait_type: "Category",
+        value: category,
+      },
+      {
+        trait_type: "Room Count",
+        value: listing.roomCount,
+      },
+      {
+        trait_type: "Bathroom Count",
+        value: listing.bathroomCount,
+      },
+      {
+        trait_type: "Location Value",
+        value: listing.locationValue,
+      },
+      {
+        trait_type: "Price",
+        value: listing.price,
+      }
+    ]
+  });
+
+  useEffect(() => {
+    setMetadata({
+      name: listing.title,
+      description: listing.description,
+      image: listing.image,
+      attributes: [
+        {
+          trait_type: "Category",
+          value: category,
+        },
+        {
+          trait_type: "Room Count",
+          value: listing.roomCount,
+        },
+        {
+          trait_type: "Bathroom Count",
+          value: listing.bathroomCount,
+        },
+        {
+          trait_type: "Location Value",
+          value: listing.locationValue,
+        },
+        {
+          trait_type: "Price",
+          value: listing.price,
+        }
+      ]
+    });
+  }, [listing, category]);
+  
 
   
 
@@ -106,7 +166,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
         <div className="flex flex-col gap-6">
           <ListingHead
             title={listing.title}
-            imageSrc={listing.ipfsUri}
+            image={listing.image}
             locationValue={listing.locationValue}
             id={listing.id}
             currentUser={currentUser}
@@ -125,7 +185,6 @@ const ListingClient: React.FC<ListingClientProps> = ({
               category={category}
               description={listing.description}
               roomCount={listing.roomCount}
-              guestCount={listing.guestCount}
               bathroomCount={listing.bathroomCount}
               locationValue={listing.locationValue}
               isAvailable={listing.isAvailable}
@@ -143,7 +202,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
 
               <ListingSellerProp
                 address = {userAddress}
-                id = {1}
+                metadata = {JSON.stringify(metadata)}
              /*<ListingBuy
                 home = {1}
                 address = {userAddress}

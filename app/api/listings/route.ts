@@ -22,11 +22,10 @@ export async function POST(
   const { 
     title,
     description,
-    imageSrc,
+    image,
     category,
     roomCount,
     bathroomCount,
-    guestCount,
     location,
     price,
    } = body;
@@ -41,28 +40,36 @@ export async function POST(
     //Image URI
     // Here we get the IPFS URI of where our metadata has been uploaded
     
-   const metadata = {
-
-    title,
-    description,
-    imageSrc,
-    category,
-    roomCount,
-    bathroomCount,
-    guestCount,
-    location: location.value,
-    price: parseInt(price, 10),
-    userId: currentUser.id
-
-  };
-
-    const imageUri = await storage.upload(metadata.imageSrc);
-    console.log(imageUri)
-    //replace the imageSrc with the IPFS URI
+    const metadata = {
+      name: title,
+      description,
+      image: image,
+      attributes: [
+        {
+          trait_type: "Category",
+          value: category,
+        },
+        {
+          trait_type: "Room Count",
+          value: roomCount,
+        },
+        {
+          trait_type: "Bathroom Count",
+          value: bathroomCount,
+        },
+        {
+          trait_type: "Location Value",
+          value: location.value,
+        },
+        {
+          trait_type: "Price",
+          value: parseInt(price, 10),
+        }
+      ]
+    };
+    
+    //replace the image with the IPFS URI
     //upload image to IPFS
-    const imageUrl = await storage.upload(imageSrc);
-    metadata.imageSrc = imageUrl;
-    console.log(metadata)
 
     //Upload metadata to IPFS
     const ipfsUri = await storage.upload(metadata);
@@ -73,17 +80,16 @@ export async function POST(
       data: {
         title,
         description,
-        imageSrc,
+        image,
         category,
         roomCount,
         bathroomCount,
-        guestCount,
         ipfsUri: ipfsUri,
         locationValue: location.value,
         price: parseInt(price, 10),
         userId: currentUser.id
       }
     });
-
+    
   return NextResponse.json(listing);
 }

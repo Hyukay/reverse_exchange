@@ -24,27 +24,7 @@ export default async function getListingById(
       throw new Error("Listing not found");
     }
 
-    if (!listing.ipfsUri) {
-      const storage = new ThirdwebStorage();
-      let imageUri;
-      try {
-        imageUri = await storage.upload(listing.imageSrc);
-      } catch (error) {
-        console.error("Failed to upload image to IPFS:", error);
-        throw error;
-      }
-    
-      const updatedListing = await prisma.listing.update({
-        where: {
-          id: listingId,
-        },
-        data: {
-          ipfsUri: imageUri
-        }
-      });
-    
-      console.log("Updated listing:", updatedListing);
-    }
+    //if ipfsuri does not end with json, upload to ipfs
     
 
     return {
