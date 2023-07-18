@@ -29,10 +29,9 @@ enum STEPS {
   CATEGORY = 0,
   LOCATION = 1,
   AREA = 2,
-  INFO = 3,
-  IMAGES = 4,
-  DESCRIPTION = 5,
-  PRICE = 6,
+  IMAGES = 3,
+  DESCRIPTION = 4,
+  PRICE = 5,
 }
 
 const PropertyListingModal = () => {
@@ -56,11 +55,11 @@ const PropertyListingModal = () => {
     defaultValues: {
       category: '',
       location: null,
-      area: 1,
-      roomCount: 1,
-      bathroomCount: 1,
+      area: null,
+      roomCount: null,
+      bathroomCount: null,
       image: '',
-      price: 1,
+      price: null,
       title: '',
       description: '',
     }
@@ -94,7 +93,7 @@ const PropertyListingModal = () => {
     setStep((value) => value + 1);
   }
 
-  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+  const onSubmit: SubmitHandler<FieldValues> = (data) => {
     if (step !== STEPS.PRICE) {
       return onNext();
     }
@@ -180,12 +179,12 @@ const PropertyListingModal = () => {
     );
   }
 
-  if (step === STEPS.INFO) {
+  if (step === STEPS.AREA) {
     bodyContent = (
       <div className="flex flex-col gap-8">
         <Heading
           title="Share some basics about your place"
-          subtitle="What amenitis do you have?"
+          subtitle="What amenities do you have?"
         />
         <NumberInput
           onChange={(value) => setCustomValue('area', value)}
@@ -260,7 +259,6 @@ const PropertyListingModal = () => {
       <div className="flex flex-col gap-8">
         <Heading
           title="Now, set your price"
-          subtitle="How much do you charge per night?"
         />
         <Input
           id="price"

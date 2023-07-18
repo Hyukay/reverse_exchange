@@ -67,7 +67,7 @@ export async function POST(
         }
       ]
     };
-    
+
     //replace the image with the IPFS URI
     //upload image to IPFS
 

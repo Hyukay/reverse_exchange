@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Contract, ethers } from 'ethers';
 import Button from "../Button";
-import { Role, EscrowData } from "@/app/types";
+import { Role } from "@/app/types";
 import { use } from "chai";
 import { useAddress, useConnectionStatus, useContract, useContractRead, useContractWrite} from '@thirdweb-dev/react';
 

@@ -2,38 +2,44 @@
 
 import { useContractWrite, useContractRead, useContract, Web3Button , useStorageUpload} from '@thirdweb-dev/react';
 import Button from "../Button";
-import { Role, EscrowData } from "@/app/types";
+import { Role, SafeListing } from "@/app/types";
+import {Listing } from "@prisma/client";
 import W3Button from "../W3Button";
 import {ethers} from 'ethers';
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import React, { useState, useCallback, useEffect } from "react";
+import prisma from "@/app/libs/prismadb";
+import getListingById from '@/app/actions/getListingById';
+import { log } from 'console';
+import {useRouter} from 'next/navigation'
+import axios from 'axios';
 
 
 
 interface sellerProps {
   address: string | undefined;
   metadata: string;
+  listing: SafeListing;
 }
 
 const ESCROW_ADDRESS = "0x866F3598Cad6075b8e79De496074B47b3578C6Fd";
 const REAL_ESTATE_ADDRESS = "0xAd44cA225473B69022FEd05dE921b810B81a5ab0";
 
-const ListingSellerProp: React.FC<sellerProps> = ({ address, metadata }) => {
+
+const ListingSellerProp: React.FC<sellerProps> = ({ address, metadata,listing}) => {
+
     const { mutateAsync: upload } = useStorageUpload();
     const { contract: escrow } = useContract(ESCROW_ADDRESS);
     const { contract: realEstate } = useContract(REAL_ESTATE_ADDRESS);
-
-
+    
     const [price, setPrice] = useState(0);
-    const [ipfsUri, setIpfsUri] = useState('null');
+    const router = useRouter();
 
-    console.log('metadata on first render',metadata)
-    
+    const { data: purchasePriceBigNumber, isLoading: priceLoading } = useContractRead(escrow, "price", [listing.ipfsUri]);
+    console.log('tokenId', listing.tokenId)
+    const { data: tokenURI, isLoading: tokenLoading } = useContractRead(realEstate, "tokenURI", [listing.tokenId]);
 
-    const { data: purchasePriceBigNumber, isLoading: priceLoading } = useContractRead(escrow, "price", [ipfsUri]);
-    const { data: tokenURI, isLoading: tokenLoading } = useContractRead(realEstate, "tokenURI", [ipfsUri]);
-    //let purchasePrice = purchasePriceBigNumber ? parseInt(purchasePriceBigNumber.toString()) : 0;
-    
+    let purchasePrice = purchasePriceBigNumber ? parseInt(purchasePriceBigNumber.toString()) : 0;
 
     const { mutateAsync: list, isLoading: listingIsLoading } = useContractWrite(escrow, "list");
     const { mutateAsync: updatePrice } = useContractWrite(escrow, "updatePrice");
@@ -41,23 +47,45 @@ const ListingSellerProp: React.FC<sellerProps> = ({ address, metadata }) => {
 
     const mintProperty = async () => {
 
-      if(typeof ipfsUri === 'string' && ipfsUri)  {
+      if(listing.ipfsUri)  {
         try {
-          console.log('ipfsUri should be a string here',ipfsUri)
-          const data = await mint({ args: [ipfsUri] });
+
+          console.log('listing.ipfsUri should be a string here',listing.ipfsUri)
+          const data = await mint({ args: [listing.ipfsUri] });
           console.info("contract call successs", data);
+          // Fetch the "Transfer" events emitted by the contract
+          console.log('Fetching for events emitted by the contract...')
+          const events = await realEstate?.events.getEvents("Transfer")
+          console.log('events', events)
+          // Get the tokenId from the event
+          const event = events?.find(event => event.data.to === address)
+
+          // Update the listing with the tokenId
+          const tokenId = event?.data.tokenId.toString(ethers.utils.FormatTypes.hex);
+          axios.patch(`/api/listings/${listing.id}`, { 
+            tokenId: tokenId
+           })
+           .then(() => {
+            console.log('listing updated')
+            router.refresh();
+           })
+            .catch((error) => { 
+              console.log('Error:', error) 
+            })
         } catch (err) {
           console.error("contract call failure", err);
         }
       }
     };
-  
+    
+    
   const listProperty = async () => {
     try {
       
       const data = await list({ args: [REAL_ESTATE_ADDRESS, ethers.utils.parseEther('2000'),ethers.utils.parseEther('30')] });
       console.info("contract call successs", data);
       return data;
+
     } catch (err) {
       console.error("contract call failure", err);
     }
@@ -79,16 +107,22 @@ const ListingSellerProp: React.FC<sellerProps> = ({ address, metadata }) => {
         const dataToUpload = [metadata];
         const uris = await upload({ data: dataToUpload });
         const ipfsUri = uris[0];  // Assuming only one file is uploaded
-        console.log('ipfsUri',ipfsUri);
-        setIpfsUri(ipfsUri);
+        axios.patch(`/api/listings/${listing.id}`, {
+          ipfsUri: ipfsUri
+        })
+        .then(() => {
+          console.log('listing updated')
+        })
       } catch (err) {
         console.log('Metadata is not a string:', metadata);
       }
     }
-  
+    if(listing.ipfsUri === null || listing.ipfsUri === undefined){
     fetchId();
-  }, [metadata, upload]);
-    
+    }
+  }, [metadata, upload, tokenURI, listing.ipfsUri, listing]);
+
+  console.log('tokenURI',tokenURI);
   
   return (
     <div className="bg-white rounded-xl border-[1px] border-neutral-200 overflow-hidden">

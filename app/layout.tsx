@@ -41,11 +41,10 @@ export default async function RootLayout({
           <PropertyListingModal />
           <Navbar currentUser={currentUser} />
           </RootProvider>
-        
+          </ClientOnly>
         <div className="pb-20 pt-36">
           {children}
         </div>
-        </ClientOnly>
       </body>
     </html>
   )

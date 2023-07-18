@@ -7,13 +7,6 @@ export type SafeListing = Omit<Listing, "createdAt" |"isAvailable" | "isApproved
   isInspected: boolean;
 
 };
-
-export type EscrowData = {
-
-  escrowAmount: string;
-  purchasePrice: number;
-  
-}
 export type SafeReservation = Omit<
   Reservation, 
   "createdAt" | "startDate" | "endDate" | "listing"

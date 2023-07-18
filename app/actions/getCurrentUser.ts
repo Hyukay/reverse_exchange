@@ -9,6 +9,7 @@ export function getSession() {
 // If you need to get data from the database, you can use and create functions in the actions folder. (This is a server component)
 export default async function getCurrentUser() {
   try {
+    
     const session = await getSession();
 
     if (!session?.user?.email) {

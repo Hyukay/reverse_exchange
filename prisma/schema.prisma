@@ -22,7 +22,6 @@ model User {
   updatedAt       DateTime @updatedAt
   favoriteIds     String[] @db.ObjectId
   role            String?   @default("user")
-  
 
   accounts Account[]
   listings Listing[]
@@ -49,8 +48,10 @@ model Account {
 }
 
 model Listing {
-  
+
   id             String @id @default(auto()) @map("_id") @db.ObjectId
+  // Give a tokenID to each listing that is incremented by 1 every time a listing is MINTED on the blockchain (could be null if not minted)
+  tokenId        Int?
   title String
   description String
   image String?
@@ -59,7 +60,6 @@ model Listing {
   roomCount Int
   bathroomCount Int
   ipfsUri String?
-  imageUri String?
   locationValue String
   userId String @db.ObjectId
   price Int

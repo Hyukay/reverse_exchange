@@ -14,9 +14,18 @@ const NumberInput: React.FC<NumberInputProps> = ({
   value,
   onChange,
 }) => {
+  const formatValue = (value: number) => {
+    return value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") : "";
+  };
+  
+  
+  const parseValue = (valueString: string) => {
+    return parseInt(valueString.replace(/\s/g, ""), 10);
+  };
+
   const onInputChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      const inputValue = parseInt(event.target.value);
+      const inputValue = parseValue(event.target.value);
       if (!isNaN(inputValue)) {
         onChange(inputValue);
       }
@@ -32,9 +41,9 @@ const NumberInput: React.FC<NumberInputProps> = ({
       </div>
       <div className="flex flex-row items-center gap-4">
         <input
-          type="number"
+          type="text"
           className="font-light text-xl text-neutral-600"
-          value={value}
+          value={formatValue(value)}
           onChange={onInputChange}
         />
       </div>

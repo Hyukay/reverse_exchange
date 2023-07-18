@@ -35,8 +35,6 @@ interface ListingClientProps {
   
 }
 
-
-
 const ListingClient: React.FC<ListingClientProps> = ({
   listing,
   currentUser,
@@ -201,6 +199,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
             >
 
               <ListingSellerProp
+                listing = {listing}
                 address = {userAddress}
                 metadata = {JSON.stringify(metadata)}
              /*<ListingBuy

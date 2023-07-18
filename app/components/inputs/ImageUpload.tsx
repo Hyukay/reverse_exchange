@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { TbPhotoPlus } from 'react-icons/tb'
 import Image from 'next/image';
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
+import { MediaRenderer } from '@thirdweb-dev/react';
 
 interface ImageUploadProps {
   onChange: (value: string) => void;
@@ -64,9 +65,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         {loading && <div>Loading...</div>}
         {value && (
           <div className="absolute inset-0 w-full h-full">
-            <Image
-              fill 
-              style={{ objectFit: 'cover' }} 
+            <MediaRenderer
+              style={{ objectFit: 'fill', width: 'fit-content', height: '-webkit-fill-available', margin: 'auto' }} 
               src={value} 
               alt="House" 
             />
