@@ -20,6 +20,8 @@ import Input from "../inputs/Input";
 import Heading from "../Heading";
 import Button from "../Button";
 
+
+
 const RegisterModal= () => {
   const registerModal = useRegisterModal();
   const loginModal = useLoginModal();

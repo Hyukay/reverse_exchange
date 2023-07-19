@@ -13,7 +13,9 @@ import getListingById from '@/app/actions/getListingById';
 import { log } from 'console';
 import {useRouter} from 'next/navigation'
 import axios from 'axios';
-
+import { set } from 'date-fns';
+import Loader from '../Loader';
+import { BigNumber } from 'ethers';
 
 
 interface sellerProps {
@@ -28,26 +30,47 @@ const REAL_ESTATE_ADDRESS = "0xAd44cA225473B69022FEd05dE921b810B81a5ab0";
 
 const ListingSellerProp: React.FC<sellerProps> = ({ address, metadata,listing}) => {
 
-    const { mutateAsync: upload } = useStorageUpload();
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+
     const { contract: escrow } = useContract(ESCROW_ADDRESS);
     const { contract: realEstate } = useContract(REAL_ESTATE_ADDRESS);
     
     const [price, setPrice] = useState(0);
-    const router = useRouter();
+    const [tokenId, setTokenId] = useState(0);
+
+    if(listing.tokenId!==null) {
+      setTokenId(listing.tokenId)
+    }
 
     const { data: purchasePriceBigNumber, isLoading: priceLoading } = useContractRead(escrow, "price", [listing.ipfsUri]);
+    
+    console.log('ipfsUri', listing.ipfsUri)
     console.log('tokenId', listing.tokenId)
-    const { data: tokenURI, isLoading: tokenLoading } = useContractRead(realEstate, "tokenURI", [listing.tokenId]);
+
+    const { data: tokenURI, isLoading: tokenURILoading } = useContractRead(realEstate, "tokenURI", [listing.tokenId]);
 
     let purchasePrice = purchasePriceBigNumber ? parseInt(purchasePriceBigNumber.toString()) : 0;
 
     const { mutateAsync: list, isLoading: listingIsLoading } = useContractWrite(escrow, "list");
-    const { mutateAsync: updatePrice } = useContractWrite(escrow, "updatePrice");
+    const { mutateAsync: updatePrice , isLoading: priceUpdateIsLoading} = useContractWrite(escrow, "updatePrice");
     const { mutateAsync: mint, isLoading: mintLoading } = useContractWrite(realEstate, "mint");
 
-    const mintProperty = async () => {
+    const setListingTokenId = async (bigNumberTokenId: BigNumber) => {
+      const tokenId = parseInt(bigNumberTokenId.toString());
+      try {
+        await axios.patch(`/api/listings/${listing.id}`, { tokenId });
+        console.log('listing updated');
+      } catch (error) {
+        console.log('Error:', error);
+      }
+      setTokenId(tokenId);
+    };
+
+    const mintProperty = useCallback(async () => {
 
       if(listing.ipfsUri)  {
+
         try {
 
           console.log('listing.ipfsUri should be a string here',listing.ipfsUri)
@@ -55,19 +78,19 @@ const ListingSellerProp: React.FC<sellerProps> = ({ address, metadata,listing}) 
           console.info("contract call successs", data);
           // Fetch the "Transfer" events emitted by the contract
           console.log('Fetching for events emitted by the contract...')
-          const events = await realEstate?.events.getEvents("Transfer")
-          console.log('events', events)
+          const bigNumberTokenId = await data.receipt?.logs[1].data
+          console.log('bigNumberTokenId', bigNumberTokenId)
           // Get the tokenId from the event
-          const event = events?.find(event => event.data.to === address)
-
           // Update the listing with the tokenId
-          const tokenId = event?.data.tokenId.toString(ethers.utils.FormatTypes.hex);
+          // convert the bigNumber to a string and then to an integer
+          const tokenId = parseInt(bigNumberTokenId.toString())
+          console.log('tokenId', tokenId)
+          setTokenId(tokenId)
           axios.patch(`/api/listings/${listing.id}`, { 
             tokenId: tokenId
            })
            .then(() => {
             console.log('listing updated')
-            router.refresh();
            })
             .catch((error) => { 
               console.log('Error:', error) 
@@ -76,12 +99,12 @@ const ListingSellerProp: React.FC<sellerProps> = ({ address, metadata,listing}) 
           console.error("contract call failure", err);
         }
       }
-    };
+    },[listing.ipfsUri, mint, listing.id]);
     
     
   const listProperty = async () => {
+    
     try {
-      
       const data = await list({ args: [REAL_ESTATE_ADDRESS, ethers.utils.parseEther('2000'),ethers.utils.parseEther('30')] });
       console.info("contract call successs", data);
       return data;
@@ -99,30 +122,16 @@ const ListingSellerProp: React.FC<sellerProps> = ({ address, metadata,listing}) 
       console.error("contract call failure", err);
     }
   }, [updatePrice, price]);
-  
-
-  useEffect(() => {
-    async function fetchId() {
-      try {
-        const dataToUpload = [metadata];
-        const uris = await upload({ data: dataToUpload });
-        const ipfsUri = uris[0];  // Assuming only one file is uploaded
-        axios.patch(`/api/listings/${listing.id}`, {
-          ipfsUri: ipfsUri
-        })
-        .then(() => {
-          console.log('listing updated')
-        })
-      } catch (err) {
-        console.log('Metadata is not a string:', metadata);
-      }
-    }
-    if(listing.ipfsUri === null || listing.ipfsUri === undefined){
-    fetchId();
-    }
-  }, [metadata, upload, tokenURI, listing.ipfsUri, listing]);
 
   console.log('tokenURI',tokenURI);
+
+
+    // Then, in your useEffect
+    useEffect(() => {
+      if (!tokenURILoading) {
+        setHasLoaded(true);
+      }
+    }, [tokenURILoading]);
   
   return (
     <div className="bg-white rounded-xl border-[1px] border-neutral-200 overflow-hidden">
@@ -138,8 +147,10 @@ const ListingSellerProp: React.FC<sellerProps> = ({ address, metadata,listing}) 
       <hr/>
           <div className="p-4">
       {/* If the property exists on the blockchain, show the option to List or Update Price of the property */}
-      {(tokenURI !== null && tokenURI !== undefined) ? (
-        purchasePriceBigNumber !== null && purchasePriceBigNumber !== undefined ? (
+      {(!hasLoaded || tokenURILoading) ? (
+        <Loader />
+        ) : tokenURI ? (
+          purchasePriceBigNumber ? (
           <W3Button 
             outline
             label={"Update Price"}
@@ -180,4 +191,4 @@ const ListingSellerProp: React.FC<sellerProps> = ({ address, metadata,listing}) 
   );
 }
 
-export default ListingSellerProp;
+export default React.memo(ListingSellerProp);

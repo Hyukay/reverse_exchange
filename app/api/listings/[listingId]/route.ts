@@ -39,8 +39,7 @@ export async function PATCH(
   { params }: { params: IParams }
 ) {
   const currentUser = await getCurrentUser();
-
-  console.log(request)
+  
 
   if (!currentUser) {
     return NextResponse.error();
@@ -53,17 +52,22 @@ export async function PATCH(
   }
 
   const { tokenId } = await request.json(); // Extract tokenId from request body
-
-  const updatedListing = await prisma.listing.update({
-    where: {
-      id: listingId,
-      userId: currentUser.id
-    },
-    data: {
-      tokenId: tokenId,
-    }
-  });
-
-  return NextResponse.json(updatedListing);
-
+  try {
+    const updatedListing = await prisma.listing.update({
+      where: {
+        id: listingId,
+        //I put this in commentary because you couldn't update the listing on the database if you are not the owner 
+        // but the minting would work
+       // userId: currentUser.id
+      },
+      data: {
+        tokenId: tokenId,
+      }
+    });
+  
+    return NextResponse.json(updatedListing);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.error();
+  }
 }

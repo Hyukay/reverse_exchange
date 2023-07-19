@@ -4,8 +4,6 @@ pragma solidity ^0.8.1;
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import '@thirdweb-dev/contracts/extension/Permissions.sol';
-import '@thirdweb-dev/contracts/extension/ContractMetadata.sol';
 
 contract RealEstate is ERC721URIStorage {
     
@@ -15,9 +13,8 @@ contract RealEstate is ERC721URIStorage {
     constructor() ERC721("Real Estate", "REAL") {}
 
     function mint(string memory tokenURI) public returns (uint256) {
-
         _tokenIds.increment();
-        
+
         uint256 newItemId = _tokenIds.current();
         _mint(msg.sender, newItemId);
         _setTokenURI(newItemId, tokenURI);

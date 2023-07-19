@@ -8,7 +8,7 @@ async function main() {
   
 
   // Setup accounts
-  const REverseAdmin = await hre.ethers.getSigners()
+  const REverseAdmin = await hre.ethers.getSigner()
   // Deploy Real Estate
   console.log(`REverse Admin connected!: ${REverseAdmin.address}`)
 
