@@ -21,7 +21,6 @@ import Heading from "../Heading";
 import Button from "../Button";
 
 
-
 const RegisterModal= () => {
   const registerModal = useRegisterModal();
   const loginModal = useLoginModal();
@@ -37,12 +36,18 @@ const RegisterModal= () => {
     defaultValues: {
       name: '',
       email: '',
-      password: ''
+      password: '',
+      role: '',
     },
   });
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     setIsLoading(true);
+
+    if (data.role === "") {
+      toast.error("Please select a role");
+      return;
+    }
 
     axios.post('/api/register', data)
     .then(() => {
@@ -94,6 +99,20 @@ const RegisterModal= () => {
         errors={errors}
         required
       />
+      <fieldset className="border border-gray-400 p-4 my-4">
+        <legend>Role</legend>
+        <select
+          id="role"
+          {...register("role", { required: true })}
+          disabled={isLoading}
+          style={{ width: '100%' }}
+        >
+          <option value="">Select Role</option>
+          <option value="buyer/seller">I'm looking to buy/sell</option>
+          <option value="notary">Notary</option>
+          <option value="inspector">Inspector</option>
+        </select>
+      </fieldset>
     </div>
   )
 

@@ -11,6 +11,7 @@ export async function POST(
     email,
     name,
     password,
+    role,
    } = body;
 
    const existingUser = await prisma.user.findUnique({
@@ -30,6 +31,7 @@ export async function POST(
       email,
       name,
       hashedPassword,
+      role,
     }
   });
 
