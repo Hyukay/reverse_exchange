@@ -16,5 +16,8 @@ module.exports = {
       url: INFURA_API_KEY,
       accounts: [`0x${SEPOLIA_PRIVATE_KEY}`]
       }
-    }
+    },
+     mocha: {
+      timeout: 120000
+  }
 }

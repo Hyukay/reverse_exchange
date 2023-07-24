@@ -1,136 +1,53 @@
 'use client'
+import { useContract, useContractWrite, useContractRead } from "@thirdweb-dev/react";
+import { ethers } from 'ethers';
+import W3Button from "../W3Button";
 
-import React, { useState, useEffect, useCallback } from "react";
-import { Contract, ethers } from 'ethers';
-import Button from "../Button";
-import { Role } from "@/app/types";
-import { use } from "chai";
-import { useAddress, useConnectionStatus, useContract, useContractRead, useContractWrite} from '@thirdweb-dev/react';
+const ESCROW_ADDRESS = "0x20D026Ed02d945d8456b8Fa5393F1FcCb78e8218";
+const REAL_ESTATE_ADDRESS = "0xAd44cA225473B69022FEd05dE921b810B81a5ab0";
 
-interface ListingBuyProps {
-  
-  home : any;
-  address: any;
-  escrow : any;
-  price: number;
-  role: Role | null | undefined;
-  id: string;
-  
+interface ListingBuyerProp {
+  propertyID: number | null;
 }
 
-
-
-const ListingBuy: React.FC<ListingBuyProps> = ({ home, address, escrow, price, role, id }) => {
+const ListingBuyer: React.FC<ListingBuyerProp> = ({ propertyID }) => {
+  const { contract: escrow } = useContract(ESCROW_ADDRESS);
+  const { contract: realEstate } = useContract(REAL_ESTATE_ADDRESS);
   
-
-  const connectionStatus = useConnectionStatus();
-  console.log('Current connected address', address)
-  console.log('isConnected?', connectionStatus)
-  
-  const [isApproved, setIsApproved] = useState(false);
-  const [inspectionStatus, setInspectionStatus] = useState(false);
-
-
-  const { contract } = useContract("0x866F3598Cad6075b8e79De496074B47b3578C6Fd");
-  const { mutateAsync: list, isLoading: listLoading } = useContractWrite(contract, "list")
-  const { mutateAsync: makeOffer, isLoading: makeOfferLoading } = useContractWrite(contract, "makeOffer")
-  const { mutateAsync: approveSale, isLoading: approveLoading } = useContractWrite(contract, "approveSale")
-  const { mutateAsync: updateInspectionStatus, isLoading: inspectLoading } = useContractWrite(contract, "updateInspectionStatus")
-  const { mutateAsync: lend, isLoading: lendLoading} = useContractWrite(contract, "lend")
-  
-
-  const sellerHandler = useCallback(async () => {
+  const { data: propertyData, isLoading: propertyLoading } = useContractRead(escrow, "properties", [propertyID]);
+  const { mutateAsync: makeOffer, isLoading: offerLoading } = useContractWrite(escrow, "makeOffer");
+  const price = propertyData ? ethers.utils.formatEther(propertyData.price.toString()) : 0;
+  const {data: seller, isLoading: sellerLoading} = useContractRead(realEstate, "ownerOf", [propertyID]);
+  const makeOfferHandler = async () => {
     try {
-      const data = await list({ args: [1, 20, 30] });
+      const data = await makeOffer({ args: [propertyID, { value: ethers.utils.parseEther(propertyData.price.toString()) }] });
       console.info("contract call successs", data);
     } catch (err) {
       console.error("contract call failure", err);
     }
-   },[list]);
+  }
 
-   const buyerHandler = useCallback(async () => {
-    try {
-      const data = await makeOffer({ args: [id] });
-      console.info("contract call successs", data);
-    } catch (err) {
-      console.error("contract call failure", err);
-    }
-  }, [makeOffer, id]);
-
-  const inspectorHandler = useCallback(async () => {
-    
-    try {
-      const data = await updateInspectionStatus({ args: [id, inspectionStatus ] });
-      console.info("contract call successs", data);
-    } catch (err) {
-      console.error("contract call failure", err);
-    }
-  }, [updateInspectionStatus, id, inspectionStatus]);
-
-  const notaryHandler = useCallback(async () => {
-
-    try {
-      const data = await approveSale({ args: [1] });
-      console.info("contract call successs", data);
-    } catch (err) {
-      console.error("contract call failure", err);
-    }
-  }, [approveSale, 1]);
- 
-    
-  
-  const [buttonLabel, setButtonLabel] = useState("Make Offer");
-  const [buttonAction, setButtonAction] = useState(() => () => {});
-  
-  useEffect(() => {
-   if(role) 
-    switch (role) {
-      case 'inspector':
-        setButtonLabel('Approve');
-     //   setButtonAction( );
-        break;
-      case 'notary':
-        setButtonLabel('Inspect');
-     //   setButtonAction(undefined);
-        break;
-      case 'lender':
-        setButtonLabel('Lend');
-      //  setButtonAction(undefined);
-        break;
-      case 'seller':
-        setButtonLabel('List');
-        setButtonAction(sellerHandler);
-        break;
-      default:
-        setButtonLabel('Buy');
-        setButtonAction(() => {
-       });
-        break;
-    }
-  }, [role, sellerHandler]);
+  if (propertyLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="bg-white rounded-xl border-[1px] border-neutral-200 overflow-hBigInt(id)den">
-      <div className="flex flex-row items-center gap-1 p-4">
-        <div className="text-2xl font-semibold">
-         Asking Price: {}
-        </div>
-      </div>
-      <hr/>
-      <div className="p-4">
-        <label>
-          Minimum deposit: {}
-        </label>
-      </div>
-      <hr/>
-      <div className="p-4"> 
-        <Button 
-          label={buttonLabel} 
-          onClick={buttonAction}
-          />
-      </div>
+    <div>
+      <h2>Property ID: {propertyID}</h2>
+      <p>Seller: {seller}</p>
+      <p>Price: {price}</p>
+      <W3Button 
+        outline
+        label={"Make Offer"}
+        contractAddress={ESCROW_ADDRESS}
+        action={async () => await makeOfferHandler()}
+        isDisabled={offerLoading}
+        onSuccess={(result) => console.log("Transaction successful", result)}
+        onError={(error) => console.error("Transaction error", error)}
+        onSubmit={() => console.log("Transaction pending...")}
+      />
     </div>
   );
 }
 
-export default ListingBuy;
+export default ListingBuyer;

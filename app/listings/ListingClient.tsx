@@ -14,7 +14,8 @@ import ListingHead from "@/app/components/listing/ListingHead";
 import ListingSellerProp from "@/app/components/listing/ListingSellerProp";
 import ListingInfo from "@/app/components/listing/ListingInfo";
 import { MediaRenderer } from "@thirdweb-dev/react";
-
+import NotaryView from "../components/listing/ListingNotaryProp";
+import ListingBuy from "../components/listing/ListingBuyProp";
 
 
 
@@ -41,117 +42,14 @@ const ListingClient: React.FC<ListingClientProps> = ({
   
 }) => {
 
-  const loginModal = useLoginModal();
-  const router = useRouter();
-
   const category = useMemo(() => {
     return categories.find((items) => 
      items.label === listing.category);
  }, [listing.category]);
 
-
-  const userAddress = useAddress();
+ 
   const connectionStatus = useConnectionStatus();
   console.log('connectionStatus', connectionStatus)
-  
-
-  const EscrowAddress = "0x8AaeD1279D8Db69ce9b3933982053671C383cCB7";
-  const { contract: escrow} = useContract(EscrowAddress);
-  const { data, isLoading, isError, error } = useContractRead(
-    escrow,
-     "_realEstateAddress"
-  )
-  
-
-  const [metadata, setMetadata] = useState( {
-    name: listing.title,
-    description: listing.description,
-    image: listing.image,
-    attributes: [
-      {
-        trait_type: "Category",
-        value: category,
-      },
-      {
-        trait_type: "Room Count",
-        value: listing.roomCount,
-      },
-      {
-        trait_type: "Bathroom Count",
-        value: listing.bathroomCount,
-      },
-      {
-        trait_type: "Location Value",
-        value: listing.locationValue,
-      },
-      {
-        trait_type: "Price",
-        value: listing.price,
-      }
-    ]
-  });
-
-  useEffect(() => {
-    setMetadata({
-      name: listing.title,
-      description: listing.description,
-      image: listing.image,
-      attributes: [
-        {
-          trait_type: "Category",
-          value: category,
-        },
-        {
-          trait_type: "Room Count",
-          value: listing.roomCount,
-        },
-        {
-          trait_type: "Bathroom Count",
-          value: listing.bathroomCount,
-        },
-        {
-          trait_type: "Location Value",
-          value: listing.locationValue,
-        },
-        {
-          trait_type: "Price",
-          value: listing.price,
-        }
-      ]
-    });
-  }, [listing, category]);
-  
-
-  
-
-
- /* const onMakeOffer = useCallback((offer: number) => {
-      if (!currentUser) {
-        return loginModal.onOpen();
-      }
-      setIsLoading(true);
-
-      axios.post('/api/offers', {
-        offer,
-        listingId: listing?.id
-      })
-      .then(() => {
-        toast.success('Offer made!');
-        router.push('/offers');
-      })
-      .catch(() => {
-        toast.error('Something went wrong.');
-      })
-      .finally(() => {
-        setIsLoading(false);
-      })
-  },
-  [
-    listing?.id,
-    router,
-    currentUser,
-    loginModal
-  ]);*/
 
   return ( 
     <Container>
@@ -198,10 +96,20 @@ const ListingClient: React.FC<ListingClientProps> = ({
               "
             >
 
+          <ListingBuy
+            tokenId={listing.tokenId}
+            >
+          </ListingBuy>
+
+{/* 
+
               <ListingSellerProp
-                listing = {listing}
-                address = {userAddress}
-                metadata = {JSON.stringify(metadata)}
+                id = {listing.id}
+                tokenId={listing.tokenId}
+                ipfsUri={listing.ipfsUri}
+                price={listing.price}
+
+              ></ListingSellerProp>
              /*<ListingBuy
                 home = {1}
                 address = {userAddress}
@@ -209,8 +117,8 @@ const ListingClient: React.FC<ListingClientProps> = ({
                 price={listing.price}
                 role = {currentUser ? currentUser.role as Role: 'buyer'} 
                 id={listing.id}
-  ></ListingBuy>*/
-            ></ListingSellerProp>
+  ></ListingBuy>*/ }
+
             
 
             </div>

@@ -14,8 +14,6 @@ const Search = () => {
   const { getByValue } = useCountries();
 
   const  locationValue = params?.get('locationValue'); 
-  const  startDate = params?.get('startDate');
-  const  endDate = params?.get('endDate');
 
   const locationLabel = useMemo(() => {
     if (locationValue) {

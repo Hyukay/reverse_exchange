@@ -1,129 +1,101 @@
 'use client'
 
-import { useContractWrite, useContractRead, useContract, Web3Button , useStorageUpload} from '@thirdweb-dev/react';
-import Button from "../Button";
+import { useContractWrite, useContractRead, useContract, Web3Button } from '@thirdweb-dev/react';
 import { Role, SafeListing } from "@/app/types";
-import {Listing } from "@prisma/client";
 import W3Button from "../W3Button";
 import {ethers} from 'ethers';
-import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import React, { useState, useCallback, useEffect } from "react";
-import prisma from "@/app/libs/prismadb";
-import getListingById from '@/app/actions/getListingById';
-import { log } from 'console';
-import {useRouter} from 'next/navigation'
 import axios from 'axios';
-import { set } from 'date-fns';
 import Loader from '../Loader';
-import { BigNumber } from 'ethers';
-
+import { toast } from "react-hot-toast";
 
 interface sellerProps {
-  address: string | undefined;
-  metadata: string;
-  listing: SafeListing;
+
+  id: string;
+  tokenId: number | null;
+  price: number;
+  ipfsUri: string | null;
+
 }
 
-const ESCROW_ADDRESS = "0x866F3598Cad6075b8e79De496074B47b3578C6Fd";
+
+const ESCROW_ADDRESS = "0x20D026Ed02d945d8456b8Fa5393F1FcCb78e8218";
 const REAL_ESTATE_ADDRESS = "0xAd44cA225473B69022FEd05dE921b810B81a5ab0";
 
 
-const ListingSellerProp: React.FC<sellerProps> = ({ address, metadata,listing}) => {
+const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri}) => {
 
-  const [hasLoaded, setHasLoaded] = useState(false);
+    const [hasLoaded, setHasLoaded] = useState(false);
 
 
     const { contract: escrow } = useContract(ESCROW_ADDRESS);
     const { contract: realEstate } = useContract(REAL_ESTATE_ADDRESS);
+    const [tokenIdd, setTokenIdd] = useState(0);
+
+
     
-    const [price, setPrice] = useState(0);
-    const [tokenId, setTokenId] = useState(0);
+    const { data: tokenURI, isLoading: tokenURILoading } = useContractRead(realEstate, "tokenURI", [tokenIdd]);
+    const { data: propertyData, isLoading: propertyLoading } = useContractRead(escrow, "properties", [tokenIdd]);
 
-    if(listing.tokenId!==null) {
-      setTokenId(listing.tokenId)
-    }
+    let purchasePrice = propertyData ? parseInt(propertyData.price.toString()) : 0;
 
-    const { data: purchasePriceBigNumber, isLoading: priceLoading } = useContractRead(escrow, "price", [listing.ipfsUri]);
-    
-    console.log('ipfsUri', listing.ipfsUri)
-    console.log('tokenId', listing.tokenId)
-
-    const { data: tokenURI, isLoading: tokenURILoading } = useContractRead(realEstate, "tokenURI", [listing.tokenId]);
-
-    let purchasePrice = purchasePriceBigNumber ? parseInt(purchasePriceBigNumber.toString()) : 0;
-
+    const { mutateAsync: approve, isLoading: approveLoading } = useContractWrite(realEstate, "approve");
     const { mutateAsync: list, isLoading: listingIsLoading } = useContractWrite(escrow, "list");
     const { mutateAsync: updatePrice , isLoading: priceUpdateIsLoading} = useContractWrite(escrow, "updatePrice");
     const { mutateAsync: mint, isLoading: mintLoading } = useContractWrite(realEstate, "mint");
 
-    const setListingTokenId = async (bigNumberTokenId: BigNumber) => {
-      const tokenId = parseInt(bigNumberTokenId.toString());
+    const setListingTokenId = useCallback(async (_tokenId: string) => {
+      const tokenId = parseInt(_tokenId);
       try {
-        await axios.patch(`/api/listings/${listing.id}`, { tokenId });
+        await axios.patch(`/api/listings/${id}`, { tokenId });
         console.log('listing updated');
+        toast.success('Listing updated');
       } catch (error) {
         console.log('Error:', error);
+        toast.error('Error updating listing');
       }
-      setTokenId(tokenId);
-    };
+      setTokenIdd(tokenId);
+    }, [id, setTokenIdd]);
 
     const mintProperty = useCallback(async () => {
-
-      if(listing.ipfsUri)  {
-
-        try {
-
-          console.log('listing.ipfsUri should be a string here',listing.ipfsUri)
-          const data = await mint({ args: [listing.ipfsUri] });
-          console.info("contract call successs", data);
-          // Fetch the "Transfer" events emitted by the contract
-          console.log('Fetching for events emitted by the contract...')
-          const bigNumberTokenId = await data.receipt?.logs[1].data
-          console.log('bigNumberTokenId', bigNumberTokenId)
-          // Get the tokenId from the event
-          // Update the listing with the tokenId
-          // convert the bigNumber to a string and then to an integer
-          const tokenId = parseInt(bigNumberTokenId.toString())
-          console.log('tokenId', tokenId)
-          setTokenId(tokenId)
-          axios.patch(`/api/listings/${listing.id}`, { 
-            tokenId: tokenId
-           })
-           .then(() => {
-            console.log('listing updated')
-           })
-            .catch((error) => { 
-              console.log('Error:', error) 
-            })
+      
+      try {
+          const data = await mint({ args: [ipfsUri] });
+          const bigNumberTokenId = data.receipt?.logs[1].data;
+          setListingTokenId(bigNumberTokenId);
         } catch (err) {
           console.error("contract call failure", err);
+          toast.error( "An error occurred while minting the property");
         }
-      }
-    },[listing.ipfsUri, mint, listing.id]);
-    
-    
-  const listProperty = async () => {
-    
-    try {
-      const data = await list({ args: [REAL_ESTATE_ADDRESS, ethers.utils.parseEther('2000'),ethers.utils.parseEther('30')] });
-      console.info("contract call successs", data);
-      return data;
-
-    } catch (err) {
-      console.error("contract call failure", err);
-    }
-  };
+      }, [mint, ipfsUri, setListingTokenId]);
+ 
+      const listProperty = async () => {
+        try {
+          // First, approve the escrow contract to manage the token on behalf of the owner
+          await approve({ args: [ESCROW_ADDRESS, tokenIdd] });
+          const data = await list({ args: [tokenIdd, ethers.utils.parseEther('2000')] });
+          console.info("contract call successs", data);
+          toast.success("Property listed successfully")
+          return data;
+        } catch (err) {
+          console.error("contract call failure", err);
+          toast.error("An error occurred while listing the property");
+        }
+      };
 
   const updatePropertyPrice = useCallback(async () => {
+    
     try {
       const data = await updatePrice({ args: [price] });
       console.info("contract call successs", data);
+      toast.success("Property price updated successfully")
+
     } catch (err) {
       console.error("contract call failure", err);
+      toast.error("An error occurred while updating the property price")
     }
   }, [updatePrice, price]);
-
-  console.log('tokenURI',tokenURI);
+  
 
 
     // Then, in your useEffect
@@ -131,7 +103,57 @@ const ListingSellerProp: React.FC<sellerProps> = ({ address, metadata,listing}) 
       if (!tokenURILoading) {
         setHasLoaded(true);
       }
-    }, [tokenURILoading]);
+      if(tokenId!==null) {
+        setTokenIdd(tokenId)
+      }
+    }, [tokenURILoading, tokenId]);
+
+
+    let button;
+if (!hasLoaded || tokenURILoading) {
+  button = <Loader />;
+} else if (tokenURI) {
+  if (purchasePrice) {
+    button = (
+      <W3Button 
+        outline
+        label={"Update Price"}
+        contractAddress={ESCROW_ADDRESS}
+        action={async () => await updatePropertyPrice()}
+        isDisabled={propertyLoading}
+        onSuccess={(result) => console.log("Transaction successful", result)}
+        onError={(error) => console.error("Transaction error", error)}
+        onSubmit={() => console.log("Transaction pending...")}
+      />
+    );
+  } else {
+    button = (
+      <W3Button 
+        outline
+        label={"List Property"}
+        contractAddress={ESCROW_ADDRESS}
+        action={async () => await listProperty()}
+        isDisabled={listingIsLoading}
+        onSuccess={(result) => console.log("Transaction successful", result)}
+        onError={(error) => console.error("Transaction error", error)}
+        onSubmit={() => console.log("Transaction pending...")}
+      />
+    );
+  }
+} else {
+  button = (
+    <W3Button 
+      outline
+      label={"Mint"}
+      contractAddress={REAL_ESTATE_ADDRESS}
+      action={async () => await mintProperty()}
+      isDisabled={mintLoading}
+      onSuccess={(result) => console.log("Transaction successful", result)}
+      onError={(error) => console.error("Transaction error", error)}
+      onSubmit={() => console.log("Transaction pending...")}
+    />
+  );
+}
   
   return (
     <div className="bg-white rounded-xl border-[1px] border-neutral-200 overflow-hidden">
@@ -140,52 +162,13 @@ const ListingSellerProp: React.FC<sellerProps> = ({ address, metadata,listing}) 
         {price > 0 ? (
             `Asking Price: ${price}`
         ): (
-            `Not Listed ${purchasePriceBigNumber}`
+            `Not Listed ${purchasePrice}`
             )}
         </div>
       </div>
       <hr/>
           <div className="p-4">
-      {/* If the property exists on the blockchain, show the option to List or Update Price of the property */}
-      {(!hasLoaded || tokenURILoading) ? (
-        <Loader />
-        ) : tokenURI ? (
-          purchasePriceBigNumber ? (
-          <W3Button 
-            outline
-            label={"Update Price"}
-            contractAddress={ESCROW_ADDRESS}
-            action={async () => await updatePropertyPrice()}
-            isDisabled={priceLoading}
-            onSuccess={(result) => console.log("Transaction successful", result)}
-            onError={(error) => console.error("Transaction error", error)}
-            onSubmit={() => console.log("Transaction pending...")}
-          />
-        ) : (
-          <W3Button 
-            outline
-            label={"List Property"}
-            contractAddress={ESCROW_ADDRESS}
-            action={async () => await listProperty()}
-            isDisabled={listingIsLoading}
-            onSuccess={(result) => console.log("Transaction successful", result)}
-            onError={(error) => console.error("Transaction error", error)}
-            onSubmit={() => console.log("Transaction pending...")}
-          />
-        )
-      ) : (
-        /* If the property does not exist on the blockchain, show the option to Mint the property */
-        <W3Button 
-          outline
-          label={"Mint"}
-          contractAddress={REAL_ESTATE_ADDRESS}
-          action={async () => await mintProperty()}
-          isDisabled={mintLoading}
-          onSuccess={(result) => console.log("Transaction successful", result)}
-          onError={(error) => console.error("Transaction error", error)}
-          onSubmit={() => console.log("Transaction pending...")}
-        />
-      )}
+            {button}
     </div>
     </div>
   );
