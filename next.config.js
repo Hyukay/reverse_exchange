@@ -27,7 +27,6 @@ const nextConfig = {
     return config;
   },
   images: {
-    
     domains: [
       'a0.muscache.com',
       'avatars.dicebear.com',

@@ -14,7 +14,7 @@ contract Escrow_v3 is ReentrancyGuard {
         address payable buyer;
         uint256 price;
     }
-    
+
     mapping(uint256 => Property) public properties;
     mapping(uint256 => bool) public inspections;
 
@@ -39,10 +39,8 @@ contract Escrow_v3 is ReentrancyGuard {
     function completePayment(uint256 _propertyID) public payable nonReentrant {
         require(properties[_propertyID].seller != address(0), "Property is not listed for sale");
         require(properties[_propertyID].buyer == msg.sender, "Only the buyer can call this method");
-        //verify that the contract funds are equal to the price of the property
-        require(address(this) + msg.value >= properties[_propertyID].price, "The contract does not have enough funds to complete the payment");
-        //transfer the funds to the contract
-
+        //verify that the sum of the msg.value added to the balance of the contract is equal to the price of the property
+        require(address(this).balance >= properties[_propertyID].price, "The price is not correct");
         }
 
     function updateInspectionStatus(uint256 _propertyID, bool _status) public {

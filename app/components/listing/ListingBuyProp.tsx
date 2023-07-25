@@ -7,13 +7,10 @@ import Loader from "../Loader";
 import { useForm, FieldError } from "react-hook-form";
 import { ESCROW_ADDRESS } from "@/app/libs/constant";
 import Input from "../inputs/Input";
-import { get } from "http";
+
 import Button from "../Button";
 import { useAddress } from "@thirdweb-dev/react";
-import { add } from "date-fns";
 import { useState } from "react";
-import { InjectedWallet } from "@thirdweb-dev/wallets"
-import { walletActions } from "viem";
 import { toast } from "react-hot-toast";
 
 interface ListingBuyerProp {

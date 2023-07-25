@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import Loader from "../Loader";
 import {ethers} from "ethers";
 import { ESCROW_ADDRESS } from "@/app/libs/constant";
+import Heading from "../Heading";
 interface NotaryProps {
   tokenId: number | null;
 }
@@ -35,15 +36,20 @@ const NotaryView: React.FC<NotaryProps> = ({tokenId}) => {
     return <Loader/>
   }
 
-  if (!propertyData) {
-    return <div>No property data found for this token ID.</div>;
+  if (!propertyData?.seller || propertyData?.seller === ethers.constants.AddressZero) {
+    return <Heading
+      title="Property not listed"
+      subtitle="This property is not listed for sale."
+    />
   }
 
   return (
     <div className="notary-view">
       <h2>Notary View</h2>
-      <p>Property ID: {tokenId}</p>
-      <p>Price: {price} ETH</p>
+      <Heading
+        title = {`Property ID: ${tokenId}`}
+        subtitle = {`Property Price: ${price} ETH`}
+      />
       <W3Button
         outline
         label={"Finalize Sale"}
