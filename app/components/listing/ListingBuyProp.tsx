@@ -1,3 +1,4 @@
+'use client'
 import { useContract, useContractWrite, useContractRead } from "@thirdweb-dev/react";
 import { ethers } from 'ethers';
 import W3Button from "../W3Button";
@@ -8,36 +9,63 @@ import { ESCROW_ADDRESS } from "@/app/libs/constant";
 import Input from "../inputs/Input";
 import { get } from "http";
 import Button from "../Button";
+import { useAddress } from "@thirdweb-dev/react";
+import { add } from "date-fns";
+import { useState } from "react";
+import { InjectedWallet } from "@thirdweb-dev/wallets"
+import { walletActions } from "viem";
+import { toast } from "react-hot-toast";
 
 interface ListingBuyerProp {
   propertyID: number | null;
 }
 
-type PriceForm = {
-  price: string;
-}
+
 
 const ListingBuyer: React.FC<ListingBuyerProp> = ({ propertyID }) => {
 
+  const address = useAddress();
 
   const { contract: escrow } = useContract(ESCROW_ADDRESS);
   
   const { data: propertyData, isLoading: propertyLoading } = useContractRead(escrow, "properties", [propertyID]);
-  const { mutateAsync: makeOffer, isLoading: offerLoading } = useContractWrite(escrow, "makeOffer");
+  const { mutateAsync: makeOffer, isLoading: offerLoading, isError: offerError } = useContractWrite(escrow, "makeOffer");
   const price = propertyData ? parseInt(ethers.utils.formatEther(propertyData.price.toString())) : 0;
+  const { mutateAsync: completePayment, isLoading: paymentLoading } = useContractWrite(escrow, "completePayment");
+
+  //set a state for when the payment is completed
+  const [paymentCompleted, setPaymentCompleted] = useState(false);
+
   const makeOfferHandler = async () => {
     const { price } = getValues();
+    const priceInWei = ethers.utils.parseEther(price);
     try {
-      const data = await makeOffer({ args: [propertyID, { value: price }] });
+      const data = await makeOffer({ args: [propertyID, priceInWei] });
       console.info("contract call successs", data);
     } catch (err) {
       console.error("contract call failure", err);
     }
   }
-  //convert a price from ether to wei
 
-  const { register, getValues, handleSubmit, formState: {errors} } = useForm()
+  const completePaymentHandler = async () => {
 
+    const { price } = getValues();
+    const priceInWei = ethers.utils.parseEther(price.toString());      
+
+    try {
+      const data = await completePayment({ args: [propertyID], overrides: {
+        value: priceInWei
+      } }); 
+      console.log("contract call success", data);
+      toast.success("Payment completed successfully");
+      setPaymentCompleted(true)
+    } catch (err) {
+      console.error("contract call failure", err);
+      toast.error("Error completing payment");
+    }
+  }
+
+  const { register, handleSubmit, getValues, formState: {errors} } = useForm();
 
   if (propertyLoading) {
     return <Loader/>;
@@ -51,6 +79,36 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({ propertyID }) => {
     />
   }
 
+  if(paymentCompleted) {
+    return <Heading
+      title="Waiting for approval come back later"
+      subtitle="The payment has been completed and we are waiting for approval from the notary."
+    />
+  }
+
+  
+  let button;
+  //If the property's buyer is equal to the connected address, then show the completePayment button
+  // show loader if the property is loading or the payment is loading or the offer is loading
+  if(propertyLoading) {
+    return <div>Loading...<Loader/></div>
+      }
+  if (propertyData?.buyer === address) {
+    button = <Button
+      onClick={handleSubmit(completePaymentHandler)}
+      label="Complete Payment"
+      disabled={paymentLoading}
+    />
+  }
+  else {
+    button = <Button
+      onClick={handleSubmit(makeOfferHandler)}
+      label="Make Offer"
+      disabled={offerLoading}
+    />
+  }
+
+
   return (
     <div>
       <h2>Property ID: {propertyID}</h2>
@@ -61,17 +119,13 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({ propertyID }) => {
       <p>Price: {price}</p>
       <Input
         id="price"
-        label="Offer"
+        label="Amount"
         type="number"
         register={register}
         errors={errors}
         required
       />
-      <Button
-        onClick={handleSubmit(makeOfferHandler)}
-        label="Make Offer"
-        disabled={offerLoading}
-      />
+      {button}
     </div>
   );
 }

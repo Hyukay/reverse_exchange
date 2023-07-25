@@ -5,7 +5,7 @@ const tokens = (n) => {
     return ethers.utils.parseUnits(n.toString(), 'ether')
 }
 
-describe('Escrow_v2', () => {
+describe('Escrow_v3', () => {
 
     let buyer, seller, inspector;
     let realEstate, escrow;
@@ -23,7 +23,7 @@ describe('Escrow_v2', () => {
         await transaction.wait()
 
         // Deploy Escrow
-        const Escrow_v2 = await ethers.getContractFactory('Escrow_v2')
+        const Escrow_v2 = await ethers.getContractFactory('Escrow_v3')
         escrow = await Escrow_v2.deploy(realEstate.address)
 
         // Approve Property

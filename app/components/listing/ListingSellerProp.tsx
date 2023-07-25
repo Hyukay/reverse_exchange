@@ -46,6 +46,8 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri})
     const { mutateAsync: updatePrice , isLoading: priceUpdateIsLoading} = useContractWrite(escrow, "updatePrice");
     const { mutateAsync: mint, isLoading: mintLoading } = useContractWrite(realEstate, "mint");
 
+
+
     const setListingTokenId = useCallback(async (_tokenId: string) => {
       const tokenId = parseInt(_tokenId);
       try {
@@ -72,10 +74,11 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri})
       }, [mint, ipfsUri, setListingTokenId]);
  
       const listProperty = async () => {
+
         try {
           // First, approve the escrow contract to manage the token on behalf of the owner
           await approve({ args: [ESCROW_ADDRESS, tokenIdd] });
-          const data = await list({ args: [tokenIdd, ethers.utils.parseEther('2000')] });
+          const data = await list({ args: [tokenIdd, ethers.utils.parseEther('0.2')] });
           console.info("contract call successs", data);
           toast.success("Property listed successfully")
           return data;

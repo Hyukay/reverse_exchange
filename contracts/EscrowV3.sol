@@ -14,7 +14,7 @@ contract Escrow_v3 is ReentrancyGuard {
         address payable buyer;
         uint256 price;
     }
-
+    
     mapping(uint256 => Property) public properties;
     mapping(uint256 => bool) public inspections;
 
@@ -28,18 +28,22 @@ contract Escrow_v3 is ReentrancyGuard {
         properties[_propertyID] = Property(payable(msg.sender), payable(address(0)), _price);
     }
 
+        // create function to make an offer on a property
     function makeOffer(uint256 _propertyID, uint256 _priceOffer) public payable nonReentrant {
-        require(properties[_propertyID].seller != address(0), "Property is not listed for sale");
-        // the price has to be at least 20% of the asked price
-        require(_priceOffer >= properties[_propertyID].price * 20 / 100, "The offer price has to be at least 20% of the asked price");
-        properties[_propertyID].buyer = payable(msg.sender);
+        require(properties[_propertyID].seller != address(0), "Property is not listed for sale"); // require that the property is listed for sale
+        require(_priceOffer >= properties[_propertyID].price * 20 / 100, "The offer price has to be at least 20% of the asked price"); // require that the offer price is at least 20% of the asked price
+        
+        properties[_propertyID].buyer = payable(msg.sender); // set the buyer of the property to the sender
     }
 
     function completePayment(uint256 _propertyID) public payable nonReentrant {
         require(properties[_propertyID].seller != address(0), "Property is not listed for sale");
         require(properties[_propertyID].buyer == msg.sender, "Only the buyer can call this method");
-        require(msg.value == properties[_propertyID].price, "Incorrect amount");
-    }
+        //verify that the contract funds are equal to the price of the property
+        require(address(this) + msg.value >= properties[_propertyID].price, "The contract does not have enough funds to complete the payment");
+        //transfer the funds to the contract
+
+        }
 
     function updateInspectionStatus(uint256 _propertyID, bool _status) public {
         // TODO: Add condition to allow only inspector to call this function
