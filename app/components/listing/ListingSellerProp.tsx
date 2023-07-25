@@ -109,7 +109,7 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri})
     }, [tokenURILoading, tokenId]);
 
 
-    let button;
+let button;
 if (!hasLoaded || tokenURILoading) {
   button = <Loader />;
 } else if (tokenURI) {

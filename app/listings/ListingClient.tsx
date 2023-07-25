@@ -97,7 +97,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
             >
 
           <ListingBuy
-            tokenId={listing.tokenId}
+            propertyID={listing.tokenId}
             >
           </ListingBuy>
 

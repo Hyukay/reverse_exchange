@@ -1,0 +1,4 @@
+
+// Smart contract addresses
+export const ESCROW_ADDRESS = "0x20D026Ed02d945d8456b8Fa5393F1FcCb78e8218";
+export const REAL_ESTATE_ADDRESS = "0xAd44cA225473B69022FEd05dE921b810B81a5ab0";
