@@ -16,7 +16,7 @@ import ListingInfo from "@/app/components/listing/ListingInfo";
 import { MediaRenderer } from "@thirdweb-dev/react";
 import NotaryView from "../components/listing/ListingNotaryProp";
 import ListingBuy from "../components/listing/ListingBuyProp";
-
+import ListingInspector from "../components/listing/ListingInspectorProp";
 
 
 import Button from "../components/Button";
@@ -50,6 +50,25 @@ const ListingClient: React.FC<ListingClientProps> = ({
  
   const connectionStatus = useConnectionStatus();
   console.log('connectionStatus', connectionStatus)
+
+
+  const renderComponentBasedOnRole = () => {
+    switch(currentUser?.role) {
+      case 'inspector':
+        return <ListingInspector tokenId={listing.tokenId} />;
+      case 'notary':
+        return <NotaryView tokenId={listing.tokenId} />;
+      default:
+        return currentUser?.id === listing.seller.id 
+          ? <ListingSellerProp 
+              id = {listing.id}
+              tokenId={listing.tokenId}
+              ipfsUri={listing.ipfsUri}
+              price={listing.price}
+            />
+          : <ListingBuy propertyID={listing.tokenId} />;
+    }
+  }
 
   return ( 
     <Container>
@@ -96,30 +115,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
               "
             >
 
-          <ListingBuy
-            propertyID={listing.tokenId}
-            >
-          </ListingBuy>
-
-{/* 
-
-              <ListingSellerProp
-                id = {listing.id}
-                tokenId={listing.tokenId}
-                ipfsUri={listing.ipfsUri}
-                price={listing.price}
-
-              ></ListingSellerProp>
-             /*<ListingBuy
-                home = {1}
-                address = {userAddress}
-                escrow = {escrow}
-                price={listing.price}
-                role = {currentUser ? currentUser.role as Role: 'buyer'} 
-                id={listing.id}
-  ></ListingBuy>*/ }
-
-            
+              {renderComponentBasedOnRole()}
 
             </div>
           </div>

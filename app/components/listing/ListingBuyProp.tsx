@@ -38,14 +38,12 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({ propertyID }) => {
   const { register: registerPrice, getValues} = useForm<PriceForm>()
 
 
-
-
   if (propertyLoading) {
     return <Loader/>;
   }
 
   // Check if the property is listed
-  if (!propertyData.seller || propertyData.seller === ethers.constants.AddressZero) {
+  if (!propertyData?.seller || propertyData?.seller === ethers.constants.AddressZero) {
     return <Heading
       title="Property not listed"
       subtitle="This property is not listed for sale."
@@ -76,6 +74,7 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({ propertyID }) => {
         onSubmit={() => console.log("Transaction pending...")}
       />
       </form>
+
     </div>
   );
 }
