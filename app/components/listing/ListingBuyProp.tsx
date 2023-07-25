@@ -3,10 +3,11 @@ import { ethers } from 'ethers';
 import W3Button from "../W3Button";
 import Heading from "../Heading";
 import Loader from "../Loader";
-import { useForm } from "react-hook-form";
+import { useForm, FieldError } from "react-hook-form";
 import { ESCROW_ADDRESS } from "@/app/libs/constant";
 import Input from "../inputs/Input";
 import { get } from "http";
+import Button from "../Button";
 
 interface ListingBuyerProp {
   propertyID: number | null;
@@ -27,7 +28,7 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({ propertyID }) => {
   const makeOfferHandler = async () => {
     const { price } = getValues();
     try {
-      const data = await makeOffer({ args: [propertyID, { value: ethers.utils.formatEther(price.toString()) }] });
+      const data = await makeOffer({ args: [propertyID, { value: price }] });
       console.info("contract call successs", data);
     } catch (err) {
       console.error("contract call failure", err);
@@ -35,7 +36,7 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({ propertyID }) => {
   }
   //convert a price from ether to wei
 
-  const { register: registerPrice, getValues} = useForm<PriceForm>()
+  const { register, getValues, handleSubmit, formState: {errors} } = useForm()
 
 
   if (propertyLoading) {
@@ -48,7 +49,6 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({ propertyID }) => {
       title="Property not listed"
       subtitle="This property is not listed for sale."
     />
-
   }
 
   return (
@@ -59,22 +59,19 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({ propertyID }) => {
       */}
       <p>Down Payment: {price * 0.2}</p>
       <p>Price: {price}</p>
-      <form>
-      <input
-        {...registerPrice("price", { required: true })}
+      <Input
+        id="price"
+        label="Offer"
+        type="number"
+        register={register}
+        errors={errors}
+        required
       />
-      <W3Button 
-        outline
-        label={"Make Offer"}
-        contractAddress={ESCROW_ADDRESS}
-        action={async () => await makeOfferHandler()}
-        isDisabled={offerLoading}
-        onSuccess={(result) => console.log("Transaction successful", result)}
-        onError={(error) => console.error("Transaction error", error)}
-        onSubmit={() => console.log("Transaction pending...")}
+      <Button
+        onClick={handleSubmit(makeOfferHandler)}
+        label="Make Offer"
+        disabled={offerLoading}
       />
-      </form>
-
     </div>
   );
 }

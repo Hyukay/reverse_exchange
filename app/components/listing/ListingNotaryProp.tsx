@@ -3,12 +3,12 @@ import W3Button from "../W3Button";
 import { toast } from "react-hot-toast";
 import Loader from "../Loader";
 import {ethers} from "ethers";
-
+import { ESCROW_ADDRESS } from "@/app/libs/constant";
 interface NotaryProps {
   tokenId: number | null;
 }
 
-const ESCROW_ADDRESS = "0x20D026Ed02d945d8456b8Fa5393F1FcCb78e8218";
+
 
 const NotaryView: React.FC<NotaryProps> = ({tokenId}) => {
 

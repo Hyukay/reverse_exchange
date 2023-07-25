@@ -8,6 +8,8 @@ import React, { useState, useCallback, useEffect } from "react";
 import axios from 'axios';
 import Loader from '../Loader';
 import { toast } from "react-hot-toast";
+import Heading from '../Heading';
+import { ESCROW_ADDRESS, REAL_ESTATE_ADDRESS } from "@/app/libs/constant";
 
 interface sellerProps {
 
@@ -19,8 +21,8 @@ interface sellerProps {
 }
 
 
-const ESCROW_ADDRESS = "0x20D026Ed02d945d8456b8Fa5393F1FcCb78e8218";
-const REAL_ESTATE_ADDRESS = "0xAd44cA225473B69022FEd05dE921b810B81a5ab0";
+
+
 
 
 const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri}) => {
@@ -111,9 +113,9 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri})
 
 let button;
 if (!hasLoaded || tokenURILoading) {
-  button = <Loader />;
+  button = <div>Loading...<Loader /></div>;
 } else if (tokenURI) {
-  if (purchasePrice) {
+  if (purchasePrice>0) {
     button = (
       <W3Button 
         outline
@@ -160,9 +162,9 @@ if (!hasLoaded || tokenURILoading) {
       < div className="flex flex-row items-center gap-1 p-4">
         <div className="text-2xl font-semibold">
         {price > 0 ? (
-            `Asking Price: ${price}`
+            <Heading title= {`Your price $ ${price}`}/>
         ): (
-            `Not Listed ${purchasePrice}`
+            <Heading title ={`Not Listed ${purchasePrice}`}/>
             )}
         </div>
       </div>
