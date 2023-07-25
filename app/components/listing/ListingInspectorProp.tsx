@@ -12,7 +12,7 @@ interface ListingInspectorProps {
 const ListingInspector: React.FC<ListingInspectorProps> = ({tokenId}) => {
   const { contract: escrow } = useContract(ESCROW_ADDRESS);
   const { mutateAsync: updateInspectionStatus, isLoading: inspectorLoading} = useContractWrite(escrow, "updateInspectionStatus");
-  const { data: inspectionStatus, isLoading } = useContractRead(
+  const { data: inspectionStatus, isLoading: inspectionIsLoading } = useContractRead(
     escrow, 
     "inspections", 
     [tokenId]
@@ -29,7 +29,7 @@ const ListingInspector: React.FC<ListingInspectorProps> = ({tokenId}) => {
   };
   
   const renderInspectionStatus = () => {
-    if(isLoading){
+    if(inspectionIsLoading){
       return <Loader />;
     }else{
       return inspectionStatus ? "Passed" : "Not Passed";
