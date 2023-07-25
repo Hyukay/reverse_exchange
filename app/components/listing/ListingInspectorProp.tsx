@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useContract, useContractRead, useContractWrite } from "@thirdweb-dev/react";
 import { ESCROW_ADDRESS } from "@/app/libs/constant";
 import Loader from "../Loader";
+import Button from "../Button";
 
 
 interface ListingInspectorProps {
@@ -10,14 +11,14 @@ interface ListingInspectorProps {
 
 const ListingInspector: React.FC<ListingInspectorProps> = ({tokenId}) => {
   const { contract: escrow } = useContract(ESCROW_ADDRESS);
-  const { mutateAsync: updateInspectionStatus } = useContractWrite(escrow, "updateInspectionStatus");
+  const { mutateAsync: updateInspectionStatus, isLoading: inspectorLoading} = useContractWrite(escrow, "updateInspectionStatus");
   const { data: inspectionStatus, isLoading } = useContractRead(
     escrow, 
     "inspections", 
     [tokenId]
   );
 
-  const handleInspectionUpdate = async (newStatus: boolean) => {
+  const handleInspectionUpdate: (newStatus: boolean) => Promise<void> = async (newStatus: boolean) => {
     if (tokenId !== null) {
       try {
         await updateInspectionStatus({args: [tokenId, newStatus]});
@@ -26,17 +27,34 @@ const ListingInspector: React.FC<ListingInspectorProps> = ({tokenId}) => {
       }
     }
   };
+  
+  const renderInspectionStatus = () => {
+    if(isLoading){
+      return <Loader />;
+    }else{
+      return inspectionStatus ? "Passed" : "Not Passed";
+    }
+  }
 
   return (
     <div>
       <h1>Inspector View</h1>
-        <p>Property ID: {tokenId}</p>
-        <h2>Inspection Status</h2>
-      <p>
-        Current inspection status: {isLoading ? <Loader></Loader> : inspectionStatus ? "Passed" : "Not Passed"}
-      </p>
-      <button onClick={() => handleInspectionUpdate(true)}>Mark as Passed</button>
-      <button onClick={() => handleInspectionUpdate(false)}>Mark as Not Passed</button>
+      <p>Property ID: {tokenId}</p>
+      <h2>Inspection Status</h2>
+      <p>Current inspection status: {renderInspectionStatus()}</p>
+      {inspectionStatus ? (
+        <Button 
+            label="Mark as Not Passed" 
+            onClick={() => handleInspectionUpdate(false)} 
+            disabled={inspectorLoading}
+          /> 
+      ) : (
+        <Button 
+          label="Mark as Passed" 
+          onClick={() => handleInspectionUpdate(true)}
+          disabled={inspectorLoading}
+        />
+      )}
     </div>
   );
 }
