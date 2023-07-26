@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 contract Escrow_v2 is ReentrancyGuard {
 
     address public realEstateAddress;
+    address public admin;
 
     struct Property {
         address payable seller;
@@ -15,11 +16,30 @@ contract Escrow_v2 is ReentrancyGuard {
         uint256 price;
     }
 
+    modifier onlyInspector() {
+        require(inspectors[msg.sender], "Only inspectors can call this function");
+        _;
+    }
+
+    modifier onlyAdmin(){
+       
+        require(msg.sender == admin, "Only admin can call this function");
+    }
+    
+   
+
+    mapping(address => bool) public inspectors;
     mapping(uint256 => Property) public properties;
     mapping(uint256 => bool) public inspections;
+    
 
     constructor(address _realEstateAddress) {
         realEstateAddress = _realEstateAddress;
+    }
+    
+     // function to approve inspector address
+    function approveInspector(address _inspectorAddress) onlyAdmin public {
+        inspectors[_inspectorAddress] = true;
     }
 
     function list(uint256 _propertyID, uint256 _price) public {
@@ -34,8 +54,8 @@ contract Escrow_v2 is ReentrancyGuard {
         properties[_propertyID].buyer = payable(msg.sender);
     }
 
-    function updateInspectionStatus(uint256 _propertyID, bool _status) public {
-        // TODO: Add condition to allow only inspector to call this function
+    function updateInspectionStatus(uint256 _propertyID, bool _status) onlyInspector {
+        
         inspections[_propertyID] = _status;
     }
 
