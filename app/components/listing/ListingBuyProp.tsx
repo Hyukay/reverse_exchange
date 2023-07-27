@@ -12,6 +12,7 @@ import Button from "../Button";
 import { useAddress } from "@thirdweb-dev/react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import formatNumber  from "@/app/libs/formatNumber";
 
 interface ListingBuyerProp {
   propertyID: number | null;
@@ -113,7 +114,7 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({ propertyID }) => {
       {/**Let the buy make an offer (has to be 20% of the initial price minimum) its the down payment 
       */}
       <p>Down Payment: {price * 0.2}</p>
-      <p>Price: {price}</p>
+      <p>Price: {formatNumber(price)}</p>
       <Input
         id="price"
         label="Amount"

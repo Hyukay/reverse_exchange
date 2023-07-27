@@ -10,6 +10,7 @@ import Loader from '../Loader';
 import { toast } from "react-hot-toast";
 import Heading from '../Heading';
 import { ESCROW_ADDRESS, REAL_ESTATE_ADDRESS } from "@/app/libs/constant";
+import formatNumber from '@/app/libs/formatNumber';
 
 interface sellerProps {
 
@@ -165,9 +166,9 @@ if (!hasLoaded || tokenURILoading) {
       < div className="flex flex-row items-center gap-1 p-4">
         <div className="text-2xl font-semibold">
         {price > 0 ? (
-            <Heading title= {`Your price $ ${price}`}/>
+            <Heading title= {`Your price $ ${formatNumber(price)}`}/>
         ): (
-            <Heading title ={`Not Listed ${purchasePrice}`}/>
+            <Heading title ={`Not Listed ${formatNumber(purchasePrice)}`}/>
             )}
         </div>
       </div>

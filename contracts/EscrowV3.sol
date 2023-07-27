@@ -17,12 +17,13 @@ contract Escrow_v3 is ReentrancyGuard {
 
     mapping(uint256 => Property) public properties;
     mapping(uint256 => bool) public inspections;
-
+    
     constructor(address _realEstateAddress) {
         realEstateAddress = _realEstateAddress;
     }
 
     function list(uint256 _propertyID, uint256 _price) public {
+
         require(IERC721(realEstateAddress).ownerOf(_propertyID) == msg.sender, "Only the owner of the token can list it for sale");
         IERC721(realEstateAddress).transferFrom(msg.sender, address(this), _propertyID);
         properties[_propertyID] = Property(payable(msg.sender), payable(address(0)), _price);

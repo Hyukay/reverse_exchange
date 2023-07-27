@@ -71,10 +71,11 @@ const PropertyListingModal = () => {
   const roomCount = watch('roomCount');
   const bathroomCount = watch('bathroomCount');
   const image = watch('image');
+  const price = watch('price');
 
   const Map = useMemo(() => dynamic(() => import('../Map'), { 
     ssr: false 
-  }), [location]);
+  }), []);
 
 
   const setCustomValue = (id: string, value: any) => {
@@ -189,9 +190,13 @@ const PropertyListingModal = () => {
         <NumberInput
           onChange={(value) => setCustomValue('area', value)}
           value={area}
-          title="Area"
+          id="Area"
           subtitle="How big is your place?"
+          placeholder='Enter your area size'
           suffix="m²"
+          register={register}
+          errors={errors}
+          required
         />
         <hr />
         <Counter 
@@ -260,12 +265,13 @@ const PropertyListingModal = () => {
         <Heading
           title="Now, set your price"
         />
-        <Input
-          id="price"
-          label="Price"
-          formatPrice 
-          type="number" 
-          disabled={isLoading}
+        <NumberInput
+          onChange={(value) => setCustomValue('price', value)}
+          value={price}
+          id="Price"
+          subtitle="How much do you want to sell for?"
+          placeholder='Enter your price'
+          suffix="USD"
           register={register}
           errors={errors}
           required
