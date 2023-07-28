@@ -114,8 +114,8 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
           tokenId: nft?.metadata.id,
           startDate: new Date(),
           endDate: new Date(),
-          floorPrice: "0",
-          buyoutPrice: "0",
+          floorPrice: undefined,
+          buyoutPrice: undefined,
         },
       });
   
@@ -127,7 +127,7 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
           tokenId: nft?.metadata.id,
           startDate: new Date(),
           endDate: new Date(),
-          price: "0",
+          price: undefined,
         },
       });
 
@@ -139,7 +139,7 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
           tokenId: nft?.metadata.id,
           startDate: new Date(),
           endDate: new Date(),
-          price: "0",
+          price: undefined,
         },
       });
 
@@ -285,14 +285,14 @@ if (!hasLoaded || tokenURILoading) {
       ${tab === "direct" ? profileStyles.activeTab : ""}`}
           onClick={() => setTab("direct")}
         >
-          Direct
+          Direct Listing
         </h3>
         <h3
           className={`${profileStyles.tab} 
       ${tab === "auction" ? profileStyles.activeTab : ""}`}
           onClick={() => setTab("auction")}
         >
-          Auction
+          Auction Listing
         </h3>
       </div>
 
@@ -305,16 +305,16 @@ if (!hasLoaded || tokenURILoading) {
         }`}
         style={{ flexDirection: "column" }}
       >
-        <h4 className={styles.formSectionTitle}>When </h4>
+        <h4 className={styles.formSectionTitle}>Listing Duration</h4>
 
         {/* Input field for auction start date */}
-        <legend className={styles.legend}> Listing Starts on </legend>
+        <legend className={styles.legend}> Start Date and Time</legend>
         <Input<DirectFormData>
           id="startDate"
           type="datetime-local"
           register={registerDirect}
           errors = {directErrors}
-          label="Auction Start Date"
+          label="Start of Listing"
         />
 
         {/* Input field for auction end date */}
@@ -324,12 +324,12 @@ if (!hasLoaded || tokenURILoading) {
           type="datetime-local"
           register={registerDirect}
           errors = {directErrors}
-          label="Auction End Date"
+          label="End of Listing"
         />
         <h4 className={styles.formSectionTitle}>Price </h4>
 
         {/* Input field for buyout price */}
-        <legend className={styles.legend}> Price per token</legend>
+        <legend className={styles.legend}>Your Price</legend>
         <Input<DirectFormData>
           id="price"
           type="number"
@@ -362,7 +362,7 @@ if (!hasLoaded || tokenURILoading) {
             );*/
           }}
         >
-          Create Direct Listing
+          Create Listing
         </Web3Button>
       </div>
 
@@ -375,10 +375,10 @@ if (!hasLoaded || tokenURILoading) {
         }`}
         style={{ flexDirection: "column" }}
       >
-        <h4 className={styles.formSectionTitle}>When </h4>
+        <h4 className={styles.formSectionTitle}>Auction It</h4>
 
         {/* Input field for auction start date */}
-        <legend className={styles.legend}> Auction Starts on </legend>
+        <legend className={styles.legend}>Begin</legend>
         <Input<AuctionFormData>
           id = 'startDate'
           type="datetime-local"
@@ -388,7 +388,7 @@ if (!hasLoaded || tokenURILoading) {
         />
 
         {/* Input field for auction end date */}
-        <legend className={styles.legend}> Auction Ends on </legend>
+        <legend className={styles.legend}>End</legend>
         <Input<AuctionFormData>
           id = 'endDate'
           type="datetime-local"
@@ -396,7 +396,7 @@ if (!hasLoaded || tokenURILoading) {
           errors={auctionErrors}
           label="Auction End Date"
         />
-        <h4 className={styles.formSectionTitle}>Price </h4>
+        <h4 className={styles.formSectionTitle}>Set the Prices </h4>
 
         {/* Input field for minimum bid price */}
         <legend className={styles.legend}> Allow bids starting from </legend>
@@ -452,7 +452,7 @@ else if (tokenURI && directListing) {
   bodyContent = (
     <>
         <h3>
-          Update Listing
+          Update your Listing
         </h3>
       {/* Update listing fields */}
       <div
@@ -461,16 +461,16 @@ else if (tokenURI && directListing) {
         }`}
         style={{ flexDirection: "column" }}
       >
-        <h4 className={styles.formSectionTitle}>When </h4>
+        <h4 className={styles.formSectionTitle}>Listing Duration </h4>
 
         {/* Input field for auction start date */}
-        <legend className={styles.legend}> Listing Starts on </legend>
+        <legend className={styles.legend}>New Start Date</legend>
         <Input<UpdateFormData>
           id="startDate"
           type="datetime-local"
           register={registerUpdate}
           errors = {updateErrors}
-          label="Auction Start Date"
+          label="Listing Start Date"
         />
 
         {/* Input field for auction end date */}
@@ -480,18 +480,18 @@ else if (tokenURI && directListing) {
           type="datetime-local"
           register={registerUpdate}
           errors = {updateErrors}
-          label="Auction End Date"
+          label="Listing End Date"
         />
-        <h4 className={styles.formSectionTitle}>Price </h4>
+        <h4 className={styles.formSectionTitle}>New Price</h4>
 
         {/* Input field for buyout price */}
-        <legend className={styles.legend}> Price per token</legend>
+        <legend className={styles.legend}>Price</legend>
         <Input<UpdateFormData>
           id="price"
           type="number"
           register={registerUpdate}
           errors = {updateErrors}
-          label = "Price"
+          label = "Your Price"
         />
 
         <Web3Button

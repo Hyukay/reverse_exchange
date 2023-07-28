@@ -31,7 +31,7 @@
     border-radius: 16px;
     width: 100% !important;
     height: auto !important;
-    background-color: rgba(255, 255, 255, 0.04);
+    background-color: rgba(255, 255, 255, 0);
   }
   
   .input {
@@ -68,7 +68,7 @@
   
   .crossButton:hover {
     cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.8) !important;
+    background-color: rgba(0, 0, 0, 0.8) !important;
   }
   
   .collectionImage {
@@ -124,7 +124,7 @@
     border-radius: 50%;
   
     opacity: 0.9;
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(0, 0, 0, 1);
   }
   
   .nftOwnerInfo {
@@ -137,7 +137,7 @@
   }
   
   .label {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(0, 0, 0, 0.6);
     margin: 0px;
     margin-bottom: 4px;
   }
@@ -145,7 +145,7 @@
   .nftOwnerAddress {
     font-weight: 600;
     margin: 0px;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.9);
   }
   
   .descriptionContainer {
@@ -170,7 +170,7 @@
     flex-direction: column;
     flex-grow: 1;
     gap: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0);
     padding: 8px 12px;
     min-width: 128px;
     border-radius: 16px;
@@ -194,13 +194,13 @@
   .traitValue {
     font-weight: 600;
     margin: 0px;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 1);
   }
   
   .traitName {
     font-weight: 400;
     margin: 0px;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(0, 0, 0, 1);
   }
   
   .eventContainer {
@@ -232,7 +232,7 @@
   .pricingInfo {
     padding: 16px;
     border-radius: 14px;
-    background-color: rgba(255, 255, 255, 0.04);
+    background-color: rgba(255, 255, 255, 0);
     width: 100%;
     margin: 0px;
     margin-bottom: 12px;
@@ -242,7 +242,7 @@
     font-size: 18px;
     line-height: 24px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 1);
     margin: 0px;
     border-radius: 8px;
   }
@@ -264,7 +264,7 @@
     font-size: 14px;
     line-height: 24px;
     font-weight: 400;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(0, 0, 0, 1);
     margin: 0px;
   }
   
