@@ -5,6 +5,7 @@ import { useContractWrite, useContractRead, useContract, Web3Button, useAddress,
   useCancelDirectListing,
   useCancelEnglishAuction,
   useValidDirectListings,
+  useValidEnglishAuctions,
 
 } from '@thirdweb-dev/react';
 import React, { useState, useCallback, useEffect } from "react";
@@ -95,13 +96,20 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
     const { mutateAsync: cancelListing } =
       useCancelDirectListing(escrow);
     
-    const { data: directListing, isLoading: loadingDirect } =
+    const { data: directListing, isLoading: loadingValidDirect, isError: errorValidDirect } =
       useValidDirectListings(escrow, {
         tokenContract: REAL_ESTATE_ADDRESS,
         tokenId: nft?.metadata.id,
       });
 
+      const { data: auctionListing, isLoading: loadingValidAuction, isError: errorValidAuction } =
+      useValidEnglishAuctions(escrow, {
+        tokenContract: REAL_ESTATE_ADDRESS,
+        tokenId: nft?.metadata.id,
+      });
+
     const listingId = directListing?.[0]?.id;
+    const auctionId = auctionListing?.[0]?.id;
 
     // Manage form submission state using tabs and conditional rendering
     const [tab, setTab] = useState<"direct" | "auction">("direct");
@@ -160,8 +168,8 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
         ]);
   
         if (txResult) {
-          toast.success("Marketplace approval granted", {
-            icon: "👍",
+          toast.success("Exchange approval granted", {
+            icon: "✅",
             style: toastStyle,
             position: "bottom-center",
           });
@@ -276,7 +284,7 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
 let bodyContent;
 if (!hasLoaded || tokenURILoading) {
   bodyContent = <div>Loading...<Loader /></div>;
-} else if (tokenURI) {
+} else if (tokenURI && !listingId || !auctionId) {
   bodyContent = (
   <>
       <div className={profileStyles.tabs}>
@@ -448,12 +456,13 @@ if (!hasLoaded || tokenURILoading) {
     );
 }
 // If the NFT has a tokenURI and is listed for sale, show the option to update the listing
-else if (tokenURI && directListing) {
+else if (tokenURI && listingId || auctionId) {
   bodyContent = (
     <>
-        <h3>
-          Update your Listing
-        </h3>
+        <Heading
+          title='Update Listing'
+          subtitle=''
+        />
       {/* Update listing fields */}
       <div
         className={`${
@@ -461,7 +470,7 @@ else if (tokenURI && directListing) {
         }`}
         style={{ flexDirection: "column" }}
       >
-        <h4 className={styles.formSectionTitle}>Listing Duration </h4>
+        
 
         {/* Input field for auction start date */}
         <legend className={styles.legend}>New Start Date</legend>
