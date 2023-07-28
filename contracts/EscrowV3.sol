@@ -4,8 +4,8 @@ pragma solidity ^0.8.1;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
-contract Escrow_v3 is ReentrancyGuard {
+import '@thirdweb-dev/contracts/marketplace/entrypoint/MarketplaceV3.sol';
+abstract contract Escrow_v3 is MarketplaceV3 {
 
     address public realEstateAddress;
 
@@ -17,13 +17,12 @@ contract Escrow_v3 is ReentrancyGuard {
 
     mapping(uint256 => Property) public properties;
     mapping(uint256 => bool) public inspections;
-    
+
     constructor(address _realEstateAddress) {
         realEstateAddress = _realEstateAddress;
     }
 
     function list(uint256 _propertyID, uint256 _price) public {
-
         require(IERC721(realEstateAddress).ownerOf(_propertyID) == msg.sender, "Only the owner of the token can list it for sale");
         IERC721(realEstateAddress).transferFrom(msg.sender, address(this), _propertyID);
         properties[_propertyID] = Property(payable(msg.sender), payable(address(0)), _price);
@@ -41,7 +40,6 @@ contract Escrow_v3 is ReentrancyGuard {
         require(properties[_propertyID].seller != address(0), "Property is not listed for sale");
         require(properties[_propertyID].buyer == msg.sender, "Only the buyer can call this method");
         //verify that the sum of the msg.value added to the balance of the contract is equal to the price of the property
-        require(address(this).balance >= properties[_propertyID].price, "The price is not correct");
         }
 
     function updateInspectionStatus(uint256 _propertyID, bool _status) public {

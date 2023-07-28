@@ -1,6 +1,6 @@
 'use client'
 
-import { useContractWrite, useContractRead, useContract, Web3Button } from '@thirdweb-dev/react';
+import { useContractWrite, useContractRead, useContract, Web3Button, useAddress, useContractEvents } from '@thirdweb-dev/react';
 import { Role, SafeListing } from "@/app/types";
 import W3Button from "../W3Button";
 import {ethers} from 'ethers';
@@ -28,12 +28,16 @@ interface sellerProps {
 
 const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri}) => {
 
+
+
+    const  account  = useAddress();
+
     const [hasLoaded, setHasLoaded] = useState(false);
 
 
     const { contract: escrow } = useContract(ESCROW_ADDRESS);
     const { contract: realEstate } = useContract(REAL_ESTATE_ADDRESS);
-    const [tokenIdd, setTokenIdd] = useState(0);
+    const [tokenIdd, setTokenIdd] = useState<number | null>(null);
 
 
     
@@ -45,11 +49,10 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri})
     const { mutateAsync: approve, isLoading: approveLoading } = useContractWrite(realEstate, "approve");
     const { mutateAsync: list, isLoading: listingIsLoading } = useContractWrite(escrow, "list");
     const { mutateAsync: updatePrice , isLoading: priceUpdateIsLoading} = useContractWrite(escrow, "updatePrice");
-    const { mutateAsync: mint, isLoading: mintLoading } = useContractWrite(realEstate, "mint");
-
-
-
+    const { mutateAsync: mintTo, isLoading: mintLoading } = useContractWrite(realEstate, "mintTo");
+   
     const setListingTokenId = useCallback(async (_tokenId: string) => {
+
       const tokenId = parseInt(_tokenId);
       try {
         await axios.patch(`/api/listings/${id}`, { tokenId });
@@ -62,24 +65,38 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri})
       setTokenIdd(tokenId);
     }, [id, setTokenIdd]);
 
-    const mintProperty = useCallback(async () => {
-      
-      try {
-          const data = await mint({ args: [ipfsUri] });
-          const bigNumberTokenId = data.receipt?.logs[1].data;
+  
+      const mintProperty = useCallback(async () => {
+        try {
+
+          const data = await mintTo({ args: [account,ipfsUri] });
+          const bigNumberTokenId = data.receipt?.logs[0].topics[3];
           setListingTokenId(bigNumberTokenId);
-        } catch (err) {
+          console.info('contract call successs', data);
+          toast.success('Property minted successfully');
+
+      } catch (err) {
           console.error("contract call failure", err);
           toast.error( "An error occurred while minting the property");
-        }
-      }, [mint, ipfsUri, setListingTokenId]);
+      }
+      
+      }, [mintTo, ipfsUri, setListingTokenId, account]);
  
       const listProperty = async () => {
-
+        const params = {
+          assetContract: REAL_ESTATE_ADDRESS, 
+          tokenId: tokenIdd, 
+          quantity: 1, 
+          currency: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', 
+          pricePerToken: 0.001, 
+          startTimestamp: Math.floor(Date.now() / 1000), 
+          endTimestamp: Math.floor(Date.now() / 1000) + 3600,  // For example, 1 hour from now
+          reserved: false 
+            }
         try {
           // First, approve the escrow contract to manage the token on behalf of the owner
-          await approve({ args: [ESCROW_ADDRESS, tokenIdd] });
-          const data = await list({ args: [tokenIdd, ethers.utils.parseEther('0.2')] });
+          //await approve({ args: [ESCROW_ADDRESS, tokenIdd] });
+          const data = await list({ args: [params]});
           console.info("contract call successs", data);
           toast.success("Property listed successfully")
           return data;
