@@ -29,9 +29,4 @@ export type SafeUser = Omit<
   emailVerified: string | null;
 };
 
-declare global {
-  interface Window {
-   // ethereum: any;
-  }
-}
 

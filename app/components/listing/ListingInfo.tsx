@@ -5,6 +5,9 @@ import { FiCheckCircle, FiXCircle } from "react-icons/fi";
 
 import useCountries from "@/app/hooks/useCountries";
 import { SafeUser } from "@/app/types";
+import ListingHistory from "./ListingHistory";
+import { NFT as NFTType } from "@thirdweb-dev/sdk";
+
 
 import Avatar from "../Avatar";
 import ListingCategory from "./ListingCategory";
@@ -27,6 +30,7 @@ interface ListingInfoProps {
   isAvailable: boolean;
   isInspected: boolean;
   isApproved: boolean;
+  nft: NFTType | undefined;
 }
 
 const ListingInfo: React.FC<ListingInfoProps> = ({
@@ -38,7 +42,8 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
   locationValue,
   isApproved,
   isAvailable,
-  isInspected
+  isInspected,
+  nft,
 }) => {
   const { getByValue } = useCountries();
   
@@ -97,6 +102,9 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
       </div>
       <hr />
       <Map center={coordinates} />
+      <ListingHistory 
+        nft = {nft}
+      />
     </div>
    );
 }

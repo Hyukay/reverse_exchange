@@ -4,7 +4,7 @@ import { Toaster } from "react-hot-toast";
 
 const ToasterProvider = () => {
   return ( 
-    <Toaster />
+    <Toaster position="bottom-center" reverseOrder={false} />
    );
 }
  

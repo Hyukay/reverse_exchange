@@ -3,30 +3,33 @@
 import { 
   FieldErrors, 
   FieldValues, 
-  UseFormRegister 
+  UseFormRegister,
+  Path
 } from "react-hook-form";
 import { BiDollar } from "react-icons/bi";
-interface InputProps {
-  id: string;
+interface InputProps<T extends FieldValues = FieldValues> {
+  id: Path<T>;
   label: string;
   type?: string;
   disabled?: boolean;
   formatPrice?: boolean;
   required?: boolean;
-  register: UseFormRegister<FieldValues>,
+  register: UseFormRegister<T>,
   errors: FieldErrors
 }
 
-const Input: React.FC<InputProps> = ({
+const Input: <T extends FieldValues = FieldValues>(props: InputProps<T>) => JSX.Element = ({
   id,
   label,
-  type = "text", 
+  type, 
   disabled, 
   formatPrice,
   register,
   required,
   errors,
 }) => {
+
+  
   return (
     <div className="w-full relative">
       {formatPrice && (
@@ -41,7 +44,7 @@ const Input: React.FC<InputProps> = ({
         />
       )}
       <input
-        id={id}
+        id={String(id)}
         disabled={disabled}
         {...register(id, { required })}
         placeholder=" "

@@ -20,8 +20,8 @@ import ListingInspector from "../components/listing/ListingInspectorProp";
 
 
 import Button from "../components/Button";
-import { useContract,useContractRead, useContractWrite, useAddress, useConnectionStatus } from '@thirdweb-dev/react';
-import { use } from "chai";
+import { useContract,useContractRead, useNFT, useContractWrite, useAddress, useConnectionStatus } from '@thirdweb-dev/react';
+import { REAL_ESTATE_ADDRESS } from "../libs/constant";
 
 
 
@@ -51,6 +51,14 @@ const ListingClient: React.FC<ListingClientProps> = ({
   const connectionStatus = useConnectionStatus();
   console.log('connectionStatus', connectionStatus)
 
+  const account = useAddress();
+ 
+  const { contract: realEstate } = useContract(REAL_ESTATE_ADDRESS);
+
+  const { data: nft } = useNFT(realEstate,listing.tokenId);
+
+
+
 
   const renderComponentBasedOnRole = () => {
     switch(currentUser?.role) {
@@ -65,6 +73,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
               tokenId={listing.tokenId}
               ipfsUri={listing.ipfsUri}
               price={listing.price}
+              nft = {nft}
             />
           : <ListingBuy propertyID={listing.tokenId} />;
     }
@@ -105,6 +114,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
               isAvailable={listing.isAvailable}
               isApproved={listing.isApproved}
               isInspected={listing.isInspected}
+              nft={nft}
             />
             <div 
               className="
