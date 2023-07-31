@@ -11,20 +11,30 @@ import {
   SubmitHandler,
   useForm
 } from "react-hook-form";
+import { ESCROW_ADDRESS } from "@/app/libs/constant";
 
 import useLoginModal from "@/app/hooks/useLoginModal";
 import useRegisterModal from "@/app/hooks/useRegisterModal";
+import { useAddress, useContract, useContractWrite, useGrantRole } from "@thirdweb-dev/react";
 
 import Modal from "./Modal";
 import Input from "../inputs/Input";
 import Heading from "../Heading";
 import Button from "../Button";
+import { use } from "chai";
 
 
 const RegisterModal= () => {
   const registerModal = useRegisterModal();
   const loginModal = useLoginModal();
   const [isLoading, setIsLoading] = useState(false);
+  const account = useAddress();
+  const { contract: escrow } = useContract(ESCROW_ADDRESS);
+  const {
+    mutate: grantRole,
+    isLoading: loadingGrant,
+    error: errorGrant,
+  } = useGrantRole(escrow);
 
   const { 
     register, 
@@ -52,6 +62,10 @@ const RegisterModal= () => {
     axios.post('/api/register', data)
     .then(() => {
       toast.success('Registered!');
+      grantRole({
+        role: data.role,
+        address: account?
+      });
       registerModal.onClose();
       loginModal.onOpen();
     })

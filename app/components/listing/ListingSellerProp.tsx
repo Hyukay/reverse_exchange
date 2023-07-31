@@ -231,8 +231,6 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
     
     const { data: tokenURI, isLoading: tokenURILoading } = useContractRead(realEstate, "tokenURI", [tokenIdd]);
     
-
-    const { mutateAsync: approve, isLoading: approveLoading } = useContractWrite(realEstate, "approve");
     const { mutateAsync: mintTo, isLoading: mintLoading } = useContractWrite(realEstate, "mintTo");
    
     const setListingTokenId = useCallback(async (_tokenId: string) => {
@@ -533,6 +531,56 @@ else if (tokenURI && listingId || auctionId) {
       </>
   );
 }
+else if (!tokenURI) {
+  bodyContent = (
+    <>
+      <Heading
+        title='Minting property'
+        subtitle=''
+      />
+      <div
+        className={`${
+          styles.activeTabContent
+        }`}
+        style={{ flexDirection: "column" }}
+      >
+        <h4 className={styles.formSectionTitle}>Minting</h4>
+        <Web3Button
+          contractAddress={REAL_ESTATE_ADDRESS}
+          action={async () => { 
+            await mintProperty()
+            }
+          }
+          onError={(error) => {
+            toast(`Minting property failed! Reason: ${error.cause}`, {
+              icon: "❌",
+              style: toastStyle,
+              position: "bottom-center",
+            });
+          }}
+          onSuccess={(txResult) => {
+            toast("Your Property Got Minted Successfully!", {
+              icon: "🥳",
+              style: toastStyle,
+              position: "bottom-center",
+            });
+            /*
+            router.push(
+              `/token/${NFT_COLLECTION_ADDRESS}/${nft.metadata.id}`
+            );*/
+          }}
+        >
+          Mint Property
+        </Web3Button>
+      </div>
+    </>
+  );
+}
+
+
+        
+  
+
 
   return (
     <div>

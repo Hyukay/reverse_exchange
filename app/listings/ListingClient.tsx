@@ -18,7 +18,6 @@ import NotaryView from "../components/listing/ListingNotaryProp";
 import ListingBuy from "../components/listing/ListingBuyProp";
 import ListingInspector from "../components/listing/ListingInspectorProp";
 
-
 import Button from "../components/Button";
 import { useContract,useContractRead, useNFT, useContractWrite, useAddress, useConnectionStatus } from '@thirdweb-dev/react';
 import { REAL_ESTATE_ADDRESS } from "../libs/constant";
@@ -39,7 +38,6 @@ interface ListingClientProps {
 const ListingClient: React.FC<ListingClientProps> = ({
   listing,
   currentUser,
-  
 }) => {
 
   const category = useMemo(() => {
@@ -75,7 +73,10 @@ const ListingClient: React.FC<ListingClientProps> = ({
               price={listing.price}
               nft = {nft}
             />
-          : <ListingBuy propertyID={listing.tokenId} />;
+          : <ListingBuy 
+          tokenId={listing.tokenId}
+          nft={nft}
+          />;
     }
   }
 

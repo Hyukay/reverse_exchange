@@ -1,132 +1,251 @@
 'use client'
-import { useContract, useContractWrite, useContractRead } from "@thirdweb-dev/react";
+
+import { useContractWrite, useContractRead, useContract, Web3Button, useAddress,  useCreateAuctionListing,
+  useCreateDirectListing, 
+  useCancelDirectListing,
+  useCancelEnglishAuction,
+  useValidDirectListings,
+  useValidEnglishAuctions,
+
+} from "@thirdweb-dev/react";
 import { ethers } from 'ethers';
 import W3Button from "../W3Button";
 import Heading from "../Heading";
 import Loader from "../Loader";
-import { useForm, FieldError } from "react-hook-form";
-import { ESCROW_ADDRESS } from "@/app/libs/constant";
+import { ESCROW_ADDRESS, REAL_ESTATE_ADDRESS} from "@/app/libs/constant";
 import Input from "../inputs/Input";
-
+import { NFT as NFTType} from '@thirdweb-dev/sdk'
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/router";
+import toast from "react-hot-toast";
+import toastStyle from "@/app/libs/toastConfig";
+import styles from "../../styles/Token.module.css";
+import profileStyles from "../../styles/Profile.module.css";
 import Button from "../Button";
-import { useAddress } from "@thirdweb-dev/react";
 import { useState } from "react";
-import { toast } from "react-hot-toast";
 import formatNumber  from "@/app/libs/formatNumber";
+import Placeholder from "../Placeholder";
 
 interface ListingBuyerProp {
-  propertyID: number | null;
+  tokenId: number | null;
+  nft?: NFTType;
 }
 
 
 
-const ListingBuyer: React.FC<ListingBuyerProp> = ({ propertyID }) => {
+const ListingBuyer: React.FC<ListingBuyerProp> = ({ tokenId, nft }) => {
 
   const address = useAddress();
-
-  const { contract: escrow } = useContract(ESCROW_ADDRESS);
-  
-  const { data: propertyData, isLoading: propertyLoading } = useContractRead(escrow, "properties", [propertyID]);
-  const { mutateAsync: makeOffer, isLoading: offerLoading, isError: offerError } = useContractWrite(escrow, "makeOffer");
-  const price = propertyData ? parseInt(ethers.utils.formatEther(propertyData.price.toString())) : 0;
-  const { mutateAsync: completePayment, isLoading: paymentLoading } = useContractWrite(escrow, "completePayment");
-
-  //set a state for when the payment is completed
-  const [paymentCompleted, setPaymentCompleted] = useState(false);
-
-  const makeOfferHandler = async () => {
-    const { price } = getValues();
-    const priceInWei = ethers.utils.parseEther(price);
-    try {
-      const data = await makeOffer({ args: [propertyID, priceInWei] });
-      console.info("contract call successs", data);
-    } catch (err) {
-      console.error("contract call failure", err);
-    }
-  }
-
-  const completePaymentHandler = async () => {
-
-    const { price } = getValues();
-    const priceInWei = ethers.utils.parseEther(price.toString());      
-
-    try {
-      const data = await completePayment({ args: [propertyID], overrides: {
-        value: priceInWei
-      } }); 
-      console.log("contract call success", data);
-      toast.success("Payment completed successfully");
-      setPaymentCompleted(true)
-    } catch (err) {
-      console.error("contract call failure", err);
-      toast.error("Error completing payment");
-    }
-  }
-
-  const { register, handleSubmit, getValues, formState: {errors} } = useForm();
-
-  if (propertyLoading) {
-    return <Loader/>;
-  }
-
-  // Check if the property is listed
-  if (!propertyData?.seller || propertyData?.seller === ethers.constants.AddressZero) {
-    return <Heading
-      title="Property not listed"
-      subtitle="This property is not listed for sale."
-    />
-  }
-
-  if(paymentCompleted) {
-    return <Heading
-      title="Waiting for approval come back later"
-      subtitle="The payment has been completed and we are waiting for approval from the notary."
-    />
-  }
-
-  
-  let button;
-  //If the property's buyer is equal to the connected address, then show the completePayment button
-  // show loader if the property is loading or the payment is loading or the offer is loading
-  if(propertyLoading) {
-    return <div>Loading...<Loader/></div>
-      }
-  if (propertyData?.buyer === address) {
-    button = <Button
-      onClick={handleSubmit(completePaymentHandler)}
-      label="Complete Payment"
-      disabled={paymentLoading}
-    />
-  }
-  else {
-    button = <Button
-      onClick={handleSubmit(makeOfferHandler)}
-      label="Make Offer"
-      disabled={offerLoading}
-    />
-  }
+  const [bidValue, setBidValue] = useState<string>();
 
 
-  return (
-    <div>
-      <h2>Property ID: {propertyID}</h2>
-      <p>Seller: {propertyData.seller}</p>
-      {/**Let the buy make an offer (has to be 20% of the initial price minimum) its the down payment 
-      */}
-      <p>Down Payment: {price * 0.2}</p>
-      <p>Price: {formatNumber(price)}</p>
-      <Input
-        id="price"
-        label="Amount"
-        type="number"
-        register={register}
-        errors={errors}
-        required
-      />
-      {button}
-    </div>
+  // Connect to escrow contract
+  const { contract: escrow, isLoading: loadingContract} = useContract(
+    ESCROW_ADDRESS,
+    "marketplace-v3"
   );
+
+  const { contract: noHooksEscrow} = useContract(ESCROW_ADDRESS)
+    
+  // useContract is a React hook that returns an object with the contract key.
+  // The value of the contract key is an instance of an REAL_ESTATE_ADDRESS on the blockchain.
+  // This instance is created from the contract address (REAL_ESTATE_ADDRESS)
+  const { contract: realEstate } = useContract(REAL_ESTATE_ADDRESS);
+
+
+
+  const { data: directListing, isLoading: loadingValidDirect, isError: errorValidDirect } =
+  useValidDirectListings(escrow, {
+    tokenContract: REAL_ESTATE_ADDRESS,
+    tokenId: nft?.metadata.id,
+  });
+
+  const { data: auctionListing, isLoading: loadingValidAuction, isError: errorValidAuction } =
+  useValidEnglishAuctions(escrow, {
+    tokenContract: REAL_ESTATE_ADDRESS,
+    tokenId: nft?.metadata.id,
+  });
+
+
+  async function createBidOrOffer() {
+    let txResult;
+    if (!bidValue) {
+      toast(`Please enter a bid value`, {
+        icon: "❌",
+        style: toastStyle,
+        position: "bottom-center",
+      });
+      return;
+    }
+
+    if (auctionListing?.[0]) {
+      txResult = await escrow?.englishAuctions.makeBid(
+        auctionListing[0].id,
+        bidValue
+      );
+    } else if (directListing?.[0]) {
+      txResult = await escrow?.offers.makeOffer({
+        assetContractAddress: ESCROW_ADDRESS,
+        tokenId: nft?.metadata.id ||'0',
+        totalPrice: bidValue,
+      });
+    } else {
+      throw new Error("No valid listing found for this NFT");
+    }
+
+    return txResult;
+  }
+
+  async function buyListing() {
+    let txResult;
+
+    if (auctionListing?.[0]) {
+      txResult = await escrow?.englishAuctions.buyoutAuction(
+        auctionListing[0].id
+      );
+    } else if (directListing?.[0]) {
+      txResult = await escrow?.directListings.buyFromListing(
+        directListing[0].id,
+        1
+      );
+    } else {
+      throw new Error("No valid listing found for this NFT");
+    }
+    return txResult;
+  }
+  
+return (
+  <div className={styles.pricingContainer}>
+    <div className={styles.pricingInfo}>
+      <p className={styles.label}>Price</p>
+      <div className={styles.pricingValue}>
+        {
+          loadingContract || loadingValidDirect || loadingValidAuction ? (
+            <Placeholder width="120" height="24" />
+          ) : (
+            <>
+              {
+                directListing && directListing[0] ? (
+                  <>
+                    {directListing[0]?.currencyValuePerToken.displayValue}
+                    {" " + directListing[0]?.currencyValuePerToken.symbol}
+                  </>
+                ) : auctionListing && auctionListing[0] ? (
+                  <>
+                    {auctionListing[0]?.buyoutCurrencyValue.displayValue}
+                    {" " + auctionListing[0]?.buyoutCurrencyValue.symbol}
+                  </>
+                ) : (
+                  <Heading
+                    title = "This property is not listed"
+                    subtitle="Come back later!"
+                  />
+                )
+              }
+            </>
+          )
+        }
+      </div>
+
+      <div>
+        {
+          loadingValidAuction ? (
+            <Placeholder width="120" height="24" />
+          ) : (
+            <>
+              {
+                auctionListing && auctionListing[0] && (
+                  <>
+                    <p className={styles.label} style={{ marginTop: 12 }}>
+                      Bids starting from
+                    </p>
+                    <div className={styles.pricingValue}>
+                      {
+                        auctionListing[0]?.minimumBidCurrencyValue.displayValue
+                      }
+                      {" " + auctionListing[0]?.minimumBidCurrencyValue.symbol}
+                    </div>
+                  </>
+                )
+              }
+            </>
+          )
+        }
+      </div>
+    </div>
+
+  {
+    loadingContract || loadingValidDirect || loadingValidAuction ? (
+      <Placeholder width="100%" height="164" />
+    ) : (
+      <>
+        <Web3Button
+          contractAddress={ESCROW_ADDRESS}
+          action={async () => await buyListing()}
+          className={styles.btn}
+          onSuccess={() => {
+            toast(`Purchase success!`, {
+              icon: "✅",
+              style: toastStyle,
+              position: "bottom-center",
+            });
+          }}
+          onError={(e) => {
+            toast(`Purchase failed! Reason: ${e.message}`, {
+              icon: "❌",
+              style: toastStyle,
+              position: "bottom-center",
+            });
+          }}
+        >
+          Buy at asking price
+        </Web3Button>
+
+        <div className={`${styles.listingTimeContainer} ${styles.or}`}>
+          <p className={styles.listingTime}>or</p>
+        </div>
+
+        <input
+          className={styles.input}
+          defaultValue={
+            auctionListing?.[0]?.minimumBidCurrencyValue?.displayValue || 0
+          }
+          type="number"
+          onChange={(e) => setBidValue(e.target.value)}
+        />
+
+        <Web3Button
+          contractAddress={ESCROW_ADDRESS}
+          action={async () => await createBidOrOffer()}
+          className={styles.btn}
+          onSuccess={() => {
+            toast(`Bid success!`, {
+              icon: "✅",
+              style: toastStyle,
+              position: "bottom-center",
+            });
+          }}
+          onError={(e) => {
+            console.log(e);
+            toast(`Bid failed! Reason: ${e.message}`, {
+              icon: "❌",
+              style: toastStyle,
+              position: "bottom-center",
+            });
+          }}
+        >
+          Place bid
+        </Web3Button>
+      </>
+    )
+  }
+
+  </div>
+);
 }
+
+
+
 
 export default ListingBuyer;
 
