@@ -4,6 +4,7 @@
     display: flex;
     flex-direction: row;
     gap: 32px;
+    border: 2px solid #444444;  /* dark grey border */
     margin-top: 128px;
   }
   
@@ -40,7 +41,7 @@
     padding: 12px 16px;
     margin-bottom: 0.5rem;
     background: transparent;
-    border: none;
+    border: 2px solid #dddddd; 
     font-size: 16px;
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
     border-radius: 8px;
@@ -137,7 +138,9 @@
   }
   
   .label {
-    color: rgba(0, 0, 0, 0.6);
+    color: rgba(0, 0, 0, 1);
+    color: #666666;  /* lighter grey label */
+
     margin: 0px;
     margin-bottom: 4px;
   }
@@ -185,6 +188,7 @@
     flex-grow: 1;
     gap: 4px;
     border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid #DDDDDD;  /* light grey border */
     padding: 8px 12px;
     min-width: 128px;
     border-radius: 16px;
@@ -195,10 +199,13 @@
     font-weight: 600;
     margin: 0px;
     color: rgba(0, 0, 0, 1);
+    color: #333333;  /* dark grey for traits text */
+
   }
   
   .traitName {
     font-weight: 400;
+    color: #333333;  /* dark grey for traits text */
     margin: 0px;
     color: rgba(0, 0, 0, 1);
   }
@@ -241,6 +248,7 @@
   .pricingValue {
     font-size: 18px;
     line-height: 24px;
+    color: #000000;  /* black for pricing value */
     font-weight: 600;
     color: rgba(0, 0, 0, 1);
     margin: 0px;
@@ -265,6 +273,7 @@
     line-height: 24px;
     font-weight: 400;
     color: rgba(0, 0, 0, 1);
+    color: #333333;  /* dark grey for listing time */
     margin: 0px;
   }
   

@@ -62,10 +62,10 @@ const RegisterModal= () => {
     axios.post('/api/register', data)
     .then(() => {
       toast.success('Registered!');
-      grantRole({
+     /* grantRole({
         role: data.role,
         address: account?
-      });
+      });*/ //trouver ou le mettre
       registerModal.onClose();
       loginModal.onOpen();
     })

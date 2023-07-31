@@ -16,7 +16,6 @@ import { ESCROW_ADDRESS, REAL_ESTATE_ADDRESS} from "@/app/libs/constant";
 import Input from "../inputs/Input";
 import { NFT as NFTType} from '@thirdweb-dev/sdk'
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/router";
 import toast from "react-hot-toast";
 import toastStyle from "@/app/libs/toastConfig";
 import styles from "../../styles/Token.module.css";
@@ -25,6 +24,8 @@ import Button from "../Button";
 import { useState } from "react";
 import formatNumber  from "@/app/libs/formatNumber";
 import Placeholder from "../Placeholder";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 interface ListingBuyerProp {
   tokenId: number | null;
@@ -37,7 +38,7 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({ tokenId, nft }) => {
 
   const address = useAddress();
   const [bidValue, setBidValue] = useState<string>();
-
+  const router = useRouter();
 
   // Connect to escrow contract
   const { contract: escrow, isLoading: loadingContract} = useContract(
@@ -146,7 +147,6 @@ return (
           )
         }
       </div>
-
       <div>
         {
           loadingValidAuction ? (
@@ -189,6 +189,7 @@ return (
               style: toastStyle,
               position: "bottom-center",
             });
+            router.refresh();
           }}
           onError={(e) => {
             toast(`Purchase failed! Reason: ${e.message}`, {
@@ -224,6 +225,7 @@ return (
               style: toastStyle,
               position: "bottom-center",
             });
+            router.refresh();
           }}
           onError={(e) => {
             console.log(e);

@@ -20,7 +20,7 @@
     border: 2px solid #dddddd; /* Light gray border */
     color: #333333; /* Dark gray color for the input text */
     font-size: 16px;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0); /* No box shadow */
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);    /* No box shadow */
     border-radius: 8px;
     margin-bottom: 16px;
     margin-left: 2px;

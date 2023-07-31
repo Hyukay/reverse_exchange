@@ -7,61 +7,181 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import '@thirdweb-dev/contracts/marketplace/entrypoint/MarketplaceV3.sol';
 abstract contract Escrow_v3 is MarketplaceV3 {
 
+    bytes32 public constant NOTARY_ROLE = keccak256("NOTARY_ROLE");
+    bytes32 public constant INSPECTOR_ROLE = keccak256("INSPECTOR_ROLE");
+
     address public realEstateAddress;
-
-    struct Property {
-        address payable seller;
-        address payable buyer;
-        uint256 price;
-    }
-
-    mapping(uint256 => Property) public properties;
+    enum SaleStatus { Open, WaitingForApproval, Completed }
+    
     mapping(uint256 => bool) public inspections;
 
     constructor(address _realEstateAddress) {
         realEstateAddress = _realEstateAddress;
     }
 
-    function list(uint256 _propertyID, uint256 _price) public {
-        require(IERC721(realEstateAddress).ownerOf(_propertyID) == msg.sender, "Only the owner of the token can list it for sale");
-        IERC721(realEstateAddress).transferFrom(msg.sender, address(this), _propertyID);
-        properties[_propertyID] = Property(payable(msg.sender), payable(address(0)), _price);
-    }
-
-        // create function to make an offer on a property
-    function makeOffer(uint256 _propertyID, uint256 _priceOffer) public payable nonReentrant {
-        require(properties[_propertyID].seller != address(0), "Property is not listed for sale"); // require that the property is listed for sale
-        require(_priceOffer >= properties[_propertyID].price * 20 / 100, "The offer price has to be at least 20% of the asked price"); // require that the offer price is at least 20% of the asked price
-        
-        properties[_propertyID].buyer = payable(msg.sender); // set the buyer of the property to the sender
-    }
-
-    function completePayment(uint256 _propertyID) public payable nonReentrant {
-        require(properties[_propertyID].seller != address(0), "Property is not listed for sale");
-        require(properties[_propertyID].buyer == msg.sender, "Only the buyer can call this method");
-        //verify that the sum of the msg.value added to the balance of the contract is equal to the price of the property
-        }
-
-    function updateInspectionStatus(uint256 _propertyID, bool _status) public {
-        // TODO: Add condition to allow only inspector to call this function
+    function updateInspectionStatus(uint256 _propertyID, bool _status) onlyInspector public {
         inspections[_propertyID] = _status;
     }
 
-    function updatePrice(uint256 _propertyID, uint256 _newPrice) public {
-        require(properties[_propertyID].seller == msg.sender, "Only the seller can update the price");
-        properties[_propertyID].price = _newPrice;
+    function acceptOffer(
+    uint256 _listingId,
+    address _offeror,
+    address _currency,
+    uint256 _pricePerToken
+    ) external override nonReentrant onlyListingCreator(_listingId) onlyExistingListing(_listingId) {
+        Offer memory targetOffer = offers[_listingId][_offeror];
+        Listing memory targetListing = listings[_listingId];
+
+        require(_currency == targetOffer.currency && _pricePerToken == targetOffer.pricePerToken, "!PRICE");
+        require(targetOffer.expirationTimestamp > block.timestamp, "EXPIRED");
+
+        delete offers[_listingId][_offeror];
+
+        // Store the accepted offer
+        acceptedOffers[_listingId] = targetOffer;
+
+        emit OfferAccepted(_listingId, _offeror);
     }
 
-    function finalizeSale(uint256 _propertyID) public nonReentrant {
-        require(properties[_propertyID].seller != address(0), "Property is not listed for sale");
-        require(inspections[_propertyID], "Property has not passed inspection");
-        require(address(this).balance >= properties[_propertyID].price, "Price is not correct");
+
+    function approveSale(uint256 _listingId) external onlyNotary {
         
-        Property memory property = properties[_propertyID];
-        property.seller.transfer(property.price);
-        IERC721(realEstateAddress).transferFrom(address(this), property.buyer, _propertyID);
+    Offer memory acceptedOffer = acceptedOffers[_listingId];
+    require(acceptedOffer.offeror != address(0), "No accepted offer");
+    require(inspections[_listingId] == true, "Inspection not done");
 
-        delete properties[_propertyID];
-        delete inspections[_propertyID];
+    Listing memory targetListing = listings[_listingId];
+    
+    // Delete the accepted offer
+    delete acceptedOffers[_listingId];
+
     }
+
+
+
+
+  /// @dev Processes an incoming bid in an auction.
+    function handleBid(Listing memory _targetListing, Offer memory _incomingBid) internal {
+        Offer memory currentWinningBid = winningBid[_targetListing.listingId];
+        uint256 currentOfferAmount = currentWinningBid.pricePerToken * currentWinningBid.quantityWanted;
+        uint256 incomingOfferAmount = _incomingBid.pricePerToken * _incomingBid.quantityWanted;
+        address _nativeTokenWrapper = nativeTokenWrapper;
+
+        // Mark auction as waiting for approval if there's a buyout price and incoming offer amount is buyout price.
+        if (
+            _targetListing.buyoutPricePerToken > 0 &&
+            incomingOfferAmount >= _targetListing.buyoutPricePerToken * _targetListing.quantity
+        ) {
+            _targetListing.saleStatus = SaleStatus.WaitingForApproval;
+            listings[_targetListing.listingId] = _targetListing;
+        } else {
+            /**
+             *      If there's an exisitng winning bid, incoming bid amount must be bid buffer % greater.
+             *      Else, bid amount must be at least as great as reserve price
+             */
+            require(
+                isNewWinningBid(
+                    _targetListing.reservePricePerToken * _targetListing.quantity,
+                    currentOfferAmount,
+                    incomingOfferAmount
+                ),
+                "not winning bid."
+            );
+
+            // Update the winning bid and listing's end time before external contract calls.
+            winningBid[_targetListing.listingId] = _incomingBid;
+
+            if (_targetListing.endTime - block.timestamp <= timeBuffer) {
+                _targetListing.endTime += timeBuffer;
+                listings[_targetListing.listingId] = _targetListing;
+            }
+        }
+
+        // Payout previous highest bid.
+        if (currentWinningBid.offeror != address(0) && currentOfferAmount > 0) {
+            CurrencyTransferLib.transferCurrencyWithWrapper(
+                _targetListing.currency,
+                address(this),
+                currentWinningBid.offeror,
+                currentOfferAmount,
+                _nativeTokenWrapper
+            );
+        }
+
+        // Collect incoming bid
+        CurrencyTransferLib.transferCurrencyWithWrapper(
+            _targetListing.currency,
+            _incomingBid.offeror,
+            address(this),
+            incomingOfferAmount,
+            _nativeTokenWrapper
+        );
+
+        emit NewOffer(
+            _targetListing.listingId,
+            _incomingBid.offeror,
+            _targetListing.listingType,
+            _incomingBid.quantityWanted,
+            _incomingBid.pricePerToken * _incomingBid.quantityWanted,
+            _incomingBid.currency
+        );
+    }
+
+
+    /// @dev Closes an auction for the winning bidder; changes status to 'waiting for approval'.
+    function _closeAuctionForBidder(Listing memory _targetListing, Offer memory _winningBid) internal {
+        uint256 quantityToSend = _winningBid.quantityWanted;
+
+        _targetListing.endTime = block.timestamp;
+        _winningBid.quantityWanted = 0;
+
+        winningBid[_targetListing.listingId] = _winningBid;
+        listings[_targetListing.listingId] = _targetListing;
+
+
+        _targetListing.saleStatus = SaleStatus.WaitingForApproval;
+        listings[_targetListing.listingId] = _targetListing;
+
+        emit AuctionClosed(
+            _targetListing.listingId,
+            _msgSender(),
+            false,
+            _targetListing.tokenOwner,
+            _winningBid.offeror
+        );
+    }
+
+    /// @dev Executes the sale after all approvals are obtained.
+    function executeSaleAfterApproval(uint256 _listingId) external {
+        Listing memory targetListing = listings[_listingId];
+        
+        require(hasRole(NOTARY_ROLE, msg.sender), "Caller is not a notary");
+        require(targetListing.saleStatus == SaleStatus.WaitingForApproval, "Sale is not waiting for approval.");
+        require(checkInspectorApproval(targetListing.tokenId), "Inspector has not approved this asset.");
+        require(checkNotaryApproval(_msgSender()), "Notary has not approved this transaction.");
+        
+        Offer memory winningBid = winningBid[_listingId];
+
+        // Execute the sale
+        executeSale(
+            targetListing,
+            winningBid.offeror,
+            winningBid.offeror,
+            winningBid.currency,
+            winningBid.pricePerToken * winningBid.quantityWanted,
+            winningBid.quantityWanted
+        );
+
+        // Update listing status.
+        targetListing.saleStatus = SaleStatus.Completed;
+        listings[_listingId] = targetListing;
+        
+        emit SaleExecuted(_listingId, targetListing.tokenOwner, winningBid.offeror);
+    }
+
+
+    
+
+
+ 
 }
