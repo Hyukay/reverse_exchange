@@ -51,7 +51,7 @@ model Listing {
 
   id             String @id @default(auto()) @map("_id") @db.ObjectId
   // Give a tokenID to each listing that is incremented by 1 every time a listing is MINTED on the blockchain (could be null if not minted)
-  tokenId        Int?
+  tokenId  Int?
   title String
   description String
   image String?

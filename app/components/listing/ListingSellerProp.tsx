@@ -36,6 +36,7 @@ interface sellerProps {
 }
 
 type AuctionFormData = {
+
   nftContractAddress: string;
   tokenId: string;
   startDate: Date;
@@ -65,13 +66,14 @@ type UpdateFormData = {
 const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, nft}) => {
 
     const  account  = useAddress();
-    
 
     // Connect to marketplace contract
     const { contract: escrow } = useContract(
       ESCROW_ADDRESS,
       "marketplace-v3"
-    );
+    ); 
+
+    
 
     const { contract: noHooksEscrow} = useContract(ESCROW_ADDRESS)
       
@@ -107,13 +109,13 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
         tokenContract: REAL_ESTATE_ADDRESS,
         tokenId: nft?.metadata.id,
       });
-
+    
     const listingId = directListing?.[0]?.id;
     const auctionId = auctionListing?.[0]?.id;
 
     // Manage form submission state using tabs and conditional rendering
     const [tab, setTab] = useState<"direct" | "auction">("direct");
-      
+        
     // Manage form values using react-hook-form library: Auction form
     let { register: registerAuction, handleSubmit: handleSubmitAuction, formState: {errors: auctionErrors}} =
       useForm<AuctionFormData>({
@@ -122,8 +124,8 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
           tokenId: nft?.metadata.id,
           startDate: new Date(),
           endDate: new Date(),
-          floorPrice: undefined,
-          buyoutPrice: undefined,
+          floorPrice: "0",
+          buyoutPrice: "0",
         },
       });
   
@@ -135,7 +137,7 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
           tokenId: nft?.metadata.id,
           startDate: new Date(),
           endDate: new Date(),
-          price: undefined,
+          price: '0',
         },
       });
 
@@ -147,7 +149,7 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
           tokenId: nft?.metadata.id,
           startDate: new Date(),
           endDate: new Date(),
-          price: undefined,
+          price: '0',
         },
       });
 
@@ -182,9 +184,10 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
     async function handleSubmissionAuction(data: AuctionFormData) {
 
       await checkAndProvideApproval();
+      
       const txResult = await createAuctionListing({
-        assetContractAddress: data.nftContractAddress,
         tokenId: data.tokenId,
+        assetContractAddress: data.nftContractAddress,
         buyoutBidAmount: data.buyoutPrice,
         minimumBidAmount: data.floorPrice,
         startTimestamp: new Date(data.startDate),
@@ -196,6 +199,7 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
   
     async function handleSubmissionDirect(data: DirectFormData) {
       await checkAndProvideApproval();
+
       const txResult = await createDirectListing({
         assetContractAddress: data.nftContractAddress,
         tokenId: data.tokenId,
@@ -267,22 +271,69 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
 
 
 
-    // Then, in your useEffect
-    useEffect(() => {
-      if (!tokenURILoading) {
-        setHasLoaded(true);
-      }
-      if(tokenId!==null) {
-        setTokenIdd(tokenId)
-      }
-    }, [tokenURILoading, tokenId]);
+  // Then, in your useEffect
+useEffect(() => {
+  if (!tokenURILoading) {
+      setHasLoaded(true);
+    }
+  if(tokenId!==null) {
+    setTokenIdd(tokenId)
+    }
+    
+  }, [tokenURILoading, tokenId]);
 
 
 
 let bodyContent;
 if (!hasLoaded || tokenURILoading) {
   bodyContent = <div>Loading...<Loader /></div>;
-} else if (tokenURI && !listingId || !auctionId) {
+}
+else if (!tokenIdd) {
+  bodyContent = (
+    <>
+      <Heading
+        title='Minting property'
+        subtitle=''
+      />
+      <div
+        className={`${
+          styles.activeTabContent
+        }`}
+        style={{ flexDirection: "column" }}
+      >
+        <h4 className={styles.formSectionTitle}>Minting</h4>
+        <Web3Button
+          contractAddress={REAL_ESTATE_ADDRESS}
+          action={async () => { 
+            await mintProperty()
+            }
+          }
+          onError={(error) => {
+            toast(`Minting property failed! Reason: ${error.cause}`, {
+              icon: "❌",
+              style: toastStyle,
+              position: "bottom-center",
+            });
+          }}
+          onSuccess={(txResult) => {
+            toast("Your Property Got Minted Successfully!", {
+              icon: "🥳",
+              style: toastStyle,
+              position: "bottom-center",
+            });
+            /*
+            router.push(
+              `/token/${NFT_COLLECTION_ADDRESS}/${nft.metadata.id}`
+            );*/
+          }}
+        >
+          Mint Property
+        </Web3Button>
+      </div>
+    </>
+  );
+} 
+else if (tokenURI && !listingId || !auctionId) {
   bodyContent = (
   <>
       <div className={profileStyles.tabs}>
@@ -454,7 +505,7 @@ if (!hasLoaded || tokenURILoading) {
     );
 }
 // If the NFT has a tokenURI and is listed for sale, show the option to update the listing
-else if (tokenURI && listingId || auctionId) {
+else if (tokenURI && (auctionId || listingId)) {
   bodyContent = (
     <>
         <Heading
@@ -531,55 +582,8 @@ else if (tokenURI && listingId || auctionId) {
       </>
   );
 }
-else if (!tokenURI) {
-  bodyContent = (
-    <>
-      <Heading
-        title='Minting property'
-        subtitle=''
-      />
-      <div
-        className={`${
-          styles.activeTabContent
-        }`}
-        style={{ flexDirection: "column" }}
-      >
-        <h4 className={styles.formSectionTitle}>Minting</h4>
-        <Web3Button
-          contractAddress={REAL_ESTATE_ADDRESS}
-          action={async () => { 
-            await mintProperty()
-            }
-          }
-          onError={(error) => {
-            toast(`Minting property failed! Reason: ${error.cause}`, {
-              icon: "❌",
-              style: toastStyle,
-              position: "bottom-center",
-            });
-          }}
-          onSuccess={(txResult) => {
-            toast("Your Property Got Minted Successfully!", {
-              icon: "🥳",
-              style: toastStyle,
-              position: "bottom-center",
-            });
-            /*
-            router.push(
-              `/token/${NFT_COLLECTION_ADDRESS}/${nft.metadata.id}`
-            );*/
-          }}
-        >
-          Mint Property
-        </Web3Button>
-      </div>
-    </>
-  );
-}
 
 
-        
-  
 
 
   return (

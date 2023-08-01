@@ -19,8 +19,9 @@ import ListingBuy from "../components/listing/ListingBuyProp";
 import ListingInspector from "../components/listing/ListingInspectorProp";
 
 import Button from "../components/Button";
-import { useContract,useContractRead, useNFT, useContractWrite, useAddress, useConnectionStatus } from '@thirdweb-dev/react';
-import { REAL_ESTATE_ADDRESS } from "../libs/constant";
+import { useContract,useContractRead, useNFT, useContractWrite, useAddress, useConnectionStatus, useValidEnglishAuctions } from '@thirdweb-dev/react';
+import { ESCROW_ADDRESS, REAL_ESTATE_ADDRESS } from "../libs/constant";
+import { is } from "date-fns/locale";
 
 
 
@@ -32,7 +33,6 @@ interface ListingClientProps {
     isInspected: boolean;
   };
   currentUser?: SafeUser | null ;
-  
 }
 
 const ListingClient: React.FC<ListingClientProps> = ({
@@ -45,18 +45,37 @@ const ListingClient: React.FC<ListingClientProps> = ({
      items.label === listing.category);
  }, [listing.category]);
 
- 
+  const { contract: escrow } = useContract(ESCROW_ADDRESS, "marketplace-v3");
   const connectionStatus = useConnectionStatus();
   console.log('connectionStatus', connectionStatus)
 
   const account = useAddress();
- 
+  
   const { contract: realEstate } = useContract(REAL_ESTATE_ADDRESS);
-
   const { data: nft } = useNFT(realEstate,listing.tokenId);
+  const { data: owner } = useContractRead(realEstate, "ownerOf", [listing.tokenId]);
 
+   //Look if the tokenId is in a validAuctionListing
+   const { data: validAuctionListing } = useValidEnglishAuctions(escrow, {
+    tokenContract: REAL_ESTATE_ADDRESS,
+    tokenId: nft?.metadata.id
+  });
+    
+  const auctionCreator = validAuctionListing?.[1]?.creatorAddress;
+  //look if the user owns the NFT (only works with direct listings because the NFT is transfered to the escrow contract in the case of an auction)
+  function isOwner() {
 
+    if(auctionCreator == account) {
+      return true;
+    } else if(owner == account) {
+      return true;
+    }
+    else{
+      return false;
+    }
 
+    }
+    
 
   const renderComponentBasedOnRole = () => {
     switch(currentUser?.role) {
@@ -65,7 +84,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
       case 'notary':
         return <NotaryView tokenId={listing.tokenId} />;
       default:
-        return currentUser?.id === listing.seller.id 
+        return isOwner() || currentUser?.id === listing.seller.id
           ? <ListingSellerProp 
               id = {listing.id}
               tokenId={listing.tokenId}
