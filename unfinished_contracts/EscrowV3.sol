@@ -11,15 +11,29 @@ abstract contract Escrow_v3 is MarketplaceV3 {
     bytes32 public constant INSPECTOR_ROLE = keccak256("INSPECTOR_ROLE");
 
     address public realEstateAddress;
+
     enum SaleStatus { Open, WaitingForApproval, Completed }
     
     mapping(uint256 => bool) public inspections;
 
-    constructor(address _realEstateAddress) {
-        realEstateAddress = _realEstateAddress;
+
+    // Adding permissionned roles
+
+    modifier onlyNotaryRole() {
+        require(PermissionsLogic(address(this)).hasRoleWithSwitch(NOTARY_ROLE, _msgSender()), "!NOTARY_ROLE");
+        _;
+    }
+    modifier onlyInspectorRole() {
+        require(PermissionsLogic(address(this)).hasRoleWithSwitch(INSPECTOR_ROLE, _msgSender()), "!INSPECTOR_ROLE");
+        _;
     }
 
-    function updateInspectionStatus(uint256 _propertyID, bool _status) onlyInspector public {
+    constructor(address _realEstateAddress) {
+        realEstateAddress = _realEstateAddress;
+        grantRole(ASSET_ROLE, _realEstateAddress);
+    }
+
+    function updateInspectionStatus(uint256 _propertyID, bool _status) onlyInspectorRole public {
         inspections[_propertyID] = _status;
     }
 
@@ -28,7 +42,8 @@ abstract contract Escrow_v3 is MarketplaceV3 {
     address _offeror,
     address _currency,
     uint256 _pricePerToken
-    ) external override nonReentrant onlyListingCreator(_listingId) onlyExistingListing(_listingId) {
+    ) external override nonReentrant onlyAuctionCreator(_auctionId) onlyExistingAuction(_auctionId) {
+
         Offer memory targetOffer = offers[_listingId][_offeror];
         Listing memory targetListing = listings[_listingId];
 
@@ -44,24 +59,26 @@ abstract contract Escrow_v3 is MarketplaceV3 {
     }
 
 
-    function approveSale(uint256 _listingId) external onlyNotary {
-        
-    Offer memory acceptedOffer = acceptedOffers[_listingId];
-    require(acceptedOffer.offeror != address(0), "No accepted offer");
-    require(inspections[_listingId] == true, "Inspection not done");
+    /// @dev Approves a sale, changing its status to 'WaitingForApproval'.
+    function approveSale(uint256 _listingId) external onlyNotaryRole {
+        Offer memory acceptedOffer = acceptedOffers[_listingId];
+        require(acceptedOffer.offeror != address(0), "No accepted offer");
+        require(inspections[_listingId] == true, "Inspection not done");
 
-    Listing memory targetListing = listings[_listingId];
-    
-    // Delete the accepted offer
-    delete acceptedOffers[_listingId];
+        Listing memory targetListing = listings[_listingId];
 
+        // Delete the accepted offer
+        delete acceptedOffers[_listingId];
+
+        // Update listing's status to 'WaitingForApproval'.
+        targetListing.saleStatus = SaleStatus.WaitingForApproval;
+        listings[_listingId] = targetListing;
     }
 
 
-
-
   /// @dev Processes an incoming bid in an auction.
-    function handleBid(Listing memory _targetListing, Offer memory _incomingBid) internal {
+    function _handleBid(Listing memory _targetListing, Offer memory _incomingBid) override internal {
+        
         Offer memory currentWinningBid = winningBid[_targetListing.listingId];
         uint256 currentOfferAmount = currentWinningBid.pricePerToken * currentWinningBid.quantityWanted;
         uint256 incomingOfferAmount = _incomingBid.pricePerToken * _incomingBid.quantityWanted;
@@ -140,7 +157,6 @@ abstract contract Escrow_v3 is MarketplaceV3 {
 
 
         _targetListing.saleStatus = SaleStatus.WaitingForApproval;
-        listings[_targetListing.listingId] = _targetListing;
 
         emit AuctionClosed(
             _targetListing.listingId,
@@ -151,37 +167,26 @@ abstract contract Escrow_v3 is MarketplaceV3 {
         );
     }
 
-    /// @dev Executes the sale after all approvals are obtained.
-    function executeSaleAfterApproval(uint256 _listingId) external {
-        Listing memory targetListing = listings[_listingId];
-        
-        require(hasRole(NOTARY_ROLE, msg.sender), "Caller is not a notary");
-        require(targetListing.saleStatus == SaleStatus.WaitingForApproval, "Sale is not waiting for approval.");
-        require(checkInspectorApproval(targetListing.tokenId), "Inspector has not approved this asset.");
-        require(checkNotaryApproval(_msgSender()), "Notary has not approved this transaction.");
-        
-        Offer memory winningBid = winningBid[_listingId];
+    function collectAuctionPayout(uint256 _auctionId) override external nonReentrant onlyNotary{
 
-        // Execute the sale
-        executeSale(
-            targetListing,
-            winningBid.offeror,
-            winningBid.offeror,
-            winningBid.currency,
-            winningBid.pricePerToken * winningBid.quantityWanted,
-            winningBid.quantityWanted
-        );
+            EnglishAuctionsStorage.Data storage data = EnglishAuctionsStorage.englishAuctionsStorage();
 
-        // Update listing status.
-        targetListing.saleStatus = SaleStatus.Completed;
-        listings[_listingId] = targetListing;
-        
-        emit SaleExecuted(_listingId, targetListing.tokenOwner, winningBid.offeror);
-    }
+            require(!data.payoutStatus[_auctionId].paidOutBidAmount, "Marketplace: payout already completed.");
+            data.payoutStatus[_auctionId].paidOutBidAmount = true;
 
+            Auction memory _targetAuction = data.auctions[_auctionId];
+            Bid memory _winningBid = data.winningBid[_auctionId];
 
+            require(_targetAuction.status != IEnglishAuctions.Status.CANCELLED, "Marketplace: invalid auction.");
+            require(_targetAuction.endTimestamp <= block.timestamp, "Marketplace: auction still active.");
+            require(_winningBid.bidder != address(0), "Marketplace: no bids were made.");
+            require(inspections[targetListing.tokenId] == true, "Inspector has not approved this property.");
+
+            _closeAuctionForAuctionCreator(_targetAuction, _winningBid);
+
+            if (_targetAuction.status != IEnglishAuctions.Status.COMPLETED) {
+                data.auctions[_auctionId].status = IEnglishAuctions.Status.COMPLETED;
+            }
+        }
     
-
-
- 
 }

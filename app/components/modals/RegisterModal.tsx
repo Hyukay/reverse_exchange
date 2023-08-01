@@ -122,7 +122,7 @@ const RegisterModal= () => {
           style={{ width: '100%' }}
         >
           <option value="">Select Role</option>
-          <option value="buyer/seller">I'm looking to buy/sell</option>
+          <option value="buyer/seller">Im looking to buy/sell</option>
           <option value="notary">Notary</option>
           <option value="inspector">Inspector</option>
         </select>
