@@ -52,7 +52,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
   const { contract: realEstate } = useContract(REAL_ESTATE_ADDRESS);
  
   const { data: nft, error: nftError } = useNFT(realEstate,listing.tokenId);
-
+  const realTokenId = useMemo(() => nft?.metadata.id, [nft]);
   const { data: owner } = useContractRead(realEstate, 'ownerOf', [listing.tokenId]);
 
 
@@ -74,6 +74,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
               ipfsUri={listing.ipfsUri}
               price={listing.price}
               nft = {nft}
+              realTokenId={realTokenId}
             />
           : <ListingBuy 
           account={account}
@@ -119,7 +120,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
               isAvailable={listing.isAvailable}
               isApproved={listing.isApproved}
               isInspected={listing.isInspected}
-              nft={nft}
+              realTokenId={realTokenId}
             />
             <div 
               className="

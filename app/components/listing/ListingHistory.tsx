@@ -7,9 +7,9 @@ import {
     useValidEnglishAuctions,
     Web3Button,
   } from "@thirdweb-dev/react";
-  import React, { useState } from "react";
+  import React, { useState, useMemo } from "react";
   import { GetStaticProps, GetStaticPaths } from "next";
-  import { NFT, ThirdwebSDK } from "@thirdweb-dev/sdk";
+  import { ContractEvent, NFT, ThirdwebSDK } from "@thirdweb-dev/sdk";
   import {
     ETHERSCAN_URL,
     ESCROW_ADDRESS,
@@ -25,10 +25,10 @@ import {
 
   
   type Props = {
-    nft: NFTType | undefined;
+    realTokenId: string | undefined;
   };
   
-const ListingHistory: React.FC<Props> = ({ nft }) => {
+const ListingHistory: React.FC<Props> = ({ realTokenId }) => {
      
     // Connect to escrow smart contract
     const { contract: escrow, isLoading: loadingContract } = useContract(
@@ -42,19 +42,21 @@ const ListingHistory: React.FC<Props> = ({ nft }) => {
       const { data: directListing, isLoading: loadingDirect } =
         useValidDirectListings(escrow, {
           tokenContract: REAL_ESTATE_ADDRESS,
-          tokenId: nft?.metadata.id,
+          tokenId: realTokenId,
         });
 
          // Load historical transfer events: TODO - more event types like sale
-        const { data: transferEvents, isLoading: loadingTransferEvents } =
+        const { data: transferEventsHook, isLoading: loadingTransferEvents } =
         useContractEvents(realEstate, "Transfer", {
             queryFilter: {
             filters: {
-                tokenId: nft?.metadata.id,
+                tokenId: realTokenId,
             },
             order: "desc",
             },
         });
+
+        const transferEvents = useMemo(() => transferEventsHook, [transferEventsHook]) as ContractEvent<Record<string, any>>[] | undefined
 
 
         return (

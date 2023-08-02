@@ -30,7 +30,7 @@ interface ListingInfoProps {
   isAvailable: boolean;
   isInspected: boolean;
   isApproved: boolean;
-  nft: NFTType | undefined;
+  realTokenId: string | undefined;
 }
 
 const ListingInfo: React.FC<ListingInfoProps> = ({
@@ -43,7 +43,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
   isApproved,
   isAvailable,
   isInspected,
-  nft,
+  realTokenId
 }) => {
   const { getByValue } = useCountries();
   
@@ -103,7 +103,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
       <hr />
       <Map center={coordinates} />
       <ListingHistory 
-        nft = {nft}
+        realTokenId={realTokenId}
       />
     </div>
    );
