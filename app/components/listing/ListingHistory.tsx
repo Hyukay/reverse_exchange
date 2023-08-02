@@ -58,16 +58,18 @@ const ListingHistory: React.FC<Props> = ({ realTokenId }) => {
 
         const transferEvents = useMemo(() => transferEventsHook, [transferEventsHook]) as ContractEvent<Record<string, any>>[] | undefined
 
-
         return (
             <div>
             <Heading
                 title="Transaction History"
                 subtitle="View the transaction history for this property."
             />
-              {transferEvents?.map((event, index) => (
+              {loadingTransferEvents ? (
+                   <div>Loading history...</div>
+               ) : (
+              transferEvents?.map((event, index) => (
                 <div
-                  key={event.transaction.transactionHash}
+                  key={`${event.transaction.transactionHash}-${index}`}
                   className={styles.eventsContainer}
                 >
                   <div className={styles.eventContainer}>
@@ -108,7 +110,8 @@ const ListingHistory: React.FC<Props> = ({ realTokenId }) => {
                     </Link>
                   </div>
                 </div>
-              ))}
+              ))
+               )}
             </div>
         );
 
