@@ -5,6 +5,7 @@ import Loader from "../Loader";
 import {ethers} from "ethers";
 import { ESCROW_ADDRESS } from "@/app/libs/constant";
 import Heading from "../Heading";
+import NoListing from "./NoListing";
 interface NotaryProps {
   tokenId: number | null;
 }
@@ -37,10 +38,7 @@ const NotaryView: React.FC<NotaryProps> = ({tokenId}) => {
   }
 
   if (!propertyData?.seller || propertyData?.seller === ethers.constants.AddressZero) {
-    return <Heading
-      title="Property not listed"
-      subtitle="This property is not listed for sale."
-    />
+    return <NoListing/>;
   }
 
   return (

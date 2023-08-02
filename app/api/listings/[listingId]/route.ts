@@ -56,12 +56,10 @@ export async function PATCH(
     const updatedListing = await prisma.listing.update({
       where: {
         id: listingId,
-        //I put this in commentary because you couldn't update the listing on the database if you are not the owner 
-        // but the minting would work
-       // userId: currentUser.id
       },
       data: {
         tokenId: tokenId,
+        userId: currentUser.id
       }
     });
   

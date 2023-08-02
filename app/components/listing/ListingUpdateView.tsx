@@ -49,6 +49,14 @@ const ListingUpdateView: React.FC<ListingUpdateViewProp> = ({realTokenId, nft, e
 
     const { contract: noHooksEscrow} = useContract(ESCROW_ADDRESS)
 
+    // Hook provides an async function to cancel a direct listing
+    const { mutateAsync: cancelListing } =
+      useCancelDirectListing(escrow);
+
+    // Hook provides an async function to cancel an auction
+    const { mutateAsync: cancelAuction } =
+        useCancelEnglishAuction(escrow);
+
        // Hook provides an async function to update a listing
        const { mutateAsync: updateListing, isLoading }
        = useContractWrite(noHooksEscrow, "updateListing")

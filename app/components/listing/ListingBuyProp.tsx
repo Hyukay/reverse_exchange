@@ -26,16 +26,18 @@ import formatNumber  from "@/app/libs/formatNumber";
 import Placeholder from "../Placeholder";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import NoListing from "./NoListing";
 
 interface ListingBuyerProp {
   account : string | undefined
+  id : string;
   tokenId: number | null;
   nft?: NFTType;
 }
 
 
 
-const ListingBuyer: React.FC<ListingBuyerProp> = ({ tokenId, nft }) => {
+const ListingBuyer: React.FC<ListingBuyerProp> = ({id, tokenId, nft }) => {
 
   
   const [bidValue, setBidValue] = useState<string>();
@@ -115,6 +117,10 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({ tokenId, nft }) => {
     }
     return txResult;
   }
+  // return NoListing if there is no auction or direct listing
+  if (!auctionListing?.[0] && !directListing?.[0]) {
+    return <NoListing />;
+  }
   
 return (
   <div className={styles.pricingContainer}>
@@ -137,11 +143,9 @@ return (
                     {auctionListing[0]?.buyoutCurrencyValue.displayValue}
                     {" " + auctionListing[0]?.buyoutCurrencyValue.symbol}
                   </>
-                ) : (
-                  <Heading
-                    title = "This property is not listed"
-                    subtitle="Come back later!"
-                  />
+                )
+                : (
+                  <Placeholder width="120" height="24" />
                 )
               }
             </>
@@ -185,11 +189,19 @@ return (
           action={async () => await buyListing()}
           className={styles.btn}
           onSuccess={() => {
+            try {
+            axios.patch(`/api/listings/${id}`, {
+              status: "SOLD",
+            });
+          } catch (error) {
+            console.log(error);
+          }
             toast(`Purchase success!`, {
               icon: "✅",
               style: toastStyle,
               position: "bottom-center",
             });
+
             router.refresh();
           }}
           onError={(e) => {
@@ -221,6 +233,7 @@ return (
           action={async () => await createBidOrOffer()}
           className={styles.btn}
           onSuccess={() => {
+            //change the owner in the db to the new owner
             toast(`Bid success!`, {
               icon: "✅",
               style: toastStyle,
