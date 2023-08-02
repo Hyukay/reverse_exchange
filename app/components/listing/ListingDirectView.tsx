@@ -49,9 +49,7 @@ const ListingDirectView: React.FC<ListingDirectViewProps> = ({tokenId, nft, escr
     const { mutateAsync: createDirectListing } =
       useCreateDirectListing(escrow);
 
-    // Hook provides an async function to cancel a direct listing
-    const { mutateAsync: cancelListing } =
-      useCancelDirectListing(escrow);
+    
 
     const { checkAndProvideApproval } = useCheckAndProvideApproval(nft?.owner);
 
