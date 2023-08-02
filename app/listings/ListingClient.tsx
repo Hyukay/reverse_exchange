@@ -44,48 +44,31 @@ const ListingClient: React.FC<ListingClientProps> = ({
     return categories.find((items) => 
      items.label === listing.category);
  }, [listing.category]);
-
-  const { contract: escrow } = useContract(ESCROW_ADDRESS, "marketplace-v3");
+  
   const connectionStatus = useConnectionStatus();
   console.log('connectionStatus', connectionStatus)
-
   const account = useAddress();
   
   const { contract: realEstate } = useContract(REAL_ESTATE_ADDRESS);
-  const { data: nft } = useNFT(realEstate,listing.tokenId);
-  const { data: owner } = useContractRead(realEstate, "ownerOf", [listing.tokenId]);
+ 
+  const { data: nft, error: nftError } = useNFT(realEstate,listing.tokenId);
 
-   //Look if the tokenId is in a validAuctionListing
-   const { data: validAuctionListing } = useValidEnglishAuctions(escrow, {
-    tokenContract: REAL_ESTATE_ADDRESS,
-    tokenId: nft?.metadata.id
-  });
-    
-  const auctionCreator = validAuctionListing?.[1]?.creatorAddress;
-  //look if the user owns the NFT (only works with direct listings because the NFT is transfered to the escrow contract in the case of an auction)
-  function isOwner() {
+  const { data: owner } = useContractRead(realEstate, 'ownerOf', [listing.tokenId]);
 
-    if(auctionCreator == account) {
-      return true;
-    } else if(owner == account) {
-      return true;
-    }
-    else{
-      return false;
-    }
-
-    }
-    
 
   const renderComponentBasedOnRole = () => {
+    if(!nft && listing.tokenId) {
+      return <div>Loading...</div>
+    }
     switch(currentUser?.role) {
       case 'inspector':
         return <ListingInspector tokenId={listing.tokenId} />;
       case 'notary':
         return <NotaryView tokenId={listing.tokenId} />;
       default:
-        return isOwner() || currentUser?.id === listing.seller.id
+        return currentUser?.id === listing.seller.id || owner == account
           ? <ListingSellerProp 
+              account={account}
               id = {listing.id}
               tokenId={listing.tokenId}
               ipfsUri={listing.ipfsUri}
@@ -93,6 +76,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
               nft = {nft}
             />
           : <ListingBuy 
+          account={account}
           tokenId={listing.tokenId}
           nft={nft}
           />;

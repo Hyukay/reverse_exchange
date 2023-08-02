@@ -28,6 +28,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 
 interface ListingBuyerProp {
+  account : string | undefined
   tokenId: number | null;
   nft?: NFTType;
 }
@@ -36,7 +37,7 @@ interface ListingBuyerProp {
 
 const ListingBuyer: React.FC<ListingBuyerProp> = ({ tokenId, nft }) => {
 
-  const address = useAddress();
+  
   const [bidValue, setBidValue] = useState<string>();
   const router = useRouter();
 
