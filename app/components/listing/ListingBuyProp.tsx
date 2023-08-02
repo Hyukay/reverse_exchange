@@ -14,14 +14,14 @@ import Heading from "../Heading";
 import Loader from "../Loader";
 import { ESCROW_ADDRESS, REAL_ESTATE_ADDRESS} from "@/app/libs/constant";
 import Input from "../inputs/Input";
-import { NFT as NFTType} from '@thirdweb-dev/sdk'
+import { EnglishAuction, DirectListingV3, NFT as NFTType} from '@thirdweb-dev/sdk'
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import toastStyle from "@/app/libs/toastConfig";
 import styles from "../../styles/Token.module.css";
 import profileStyles from "../../styles/Profile.module.css";
 import Button from "../Button";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import formatNumber  from "@/app/libs/formatNumber";
 import Placeholder from "../Placeholder";
 import { useRouter } from "next/navigation";
@@ -58,17 +58,20 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({id, tokenId, nft }) => {
 
 
 
-  const { data: directListing, isLoading: loadingValidDirect, isError: errorValidDirect } =
+  const { data: directListingHook, isLoading: loadingValidDirect, isError: errorValidDirect } =
   useValidDirectListings(escrow, {
     tokenContract: REAL_ESTATE_ADDRESS,
     tokenId: nft?.metadata.id,
   });
 
-  const { data: auctionListing, isLoading: loadingValidAuction, isError: errorValidAuction } =
+  const { data: auctionListingHook, isLoading: loadingValidAuction, isError: errorValidAuction } =
   useValidEnglishAuctions(escrow, {
     tokenContract: REAL_ESTATE_ADDRESS,
     tokenId: nft?.metadata.id,
   });
+
+  const directListing = useMemo(() => {directListingHook}, [directListingHook]) as DirectListingV3[] | undefined;
+  const auctionListing = useMemo(() => {auctionListingHook}, [auctionListingHook]) as EnglishAuction[] | undefined;
 
 
   async function createBidOrOffer() {
