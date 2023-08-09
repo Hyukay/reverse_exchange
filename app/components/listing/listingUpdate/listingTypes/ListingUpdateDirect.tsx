@@ -10,8 +10,8 @@ import { useContractWrite, useContractRead, useContract, Web3Button, useAddress,
 } from '@thirdweb-dev/react';
 import React, { useState, useCallback, useEffect } from "react";
 import axios from 'axios';
-import Loader from '../Loader';
-import Heading from '../Heading';
+import Loader from '../../../Loader';
+import Heading from '../../../Heading';
 import { ESCROW_ADDRESS, REAL_ESTATE_ADDRESS } from "@/app/libs/constant";
 import formatNumber from '@/app/libs/formatNumber';
 import { NFT as NFTType, MarketplaceV3 } from '@thirdweb-dev/sdk'
@@ -19,15 +19,14 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
 import toastStyle from "@/app/libs/toastConfig";
-import styles from "../../styles/Sale.module.css";
+import styles from "../../../../styles/Sale.module.css";
 import profileStyles from "../../styles/Profile.module.css";
-import Input from "../inputs/Input";
+import Input from "../../../inputs/Input";
 import { useCheckAndProvideApproval } from '@/app/hooks/useCheckAndProvideApproval';
 
 
-interface ListingUpdateViewProp {
+interface ListingUpdateDirectProp {
     listingId: string | undefined;
-    auctionId: string | undefined;
     realTokenId: string | undefined;
     nft?: NFTType;
     escrow: MarketplaceV3 | undefined;
@@ -42,7 +41,7 @@ type UpdateFormData = {
     };
 
 
-const ListingUpdateView: React.FC<ListingUpdateViewProp> = ({realTokenId, nft, escrow, listingId, auctionId}) => {
+const ListingUpdateDirect: React.FC<ListingUpdateDirectProp> = ({realTokenId, nft, escrow, listingId}) => {
  
         
     const { checkAndProvideApproval } = useCheckAndProvideApproval(nft?.owner);
@@ -73,14 +72,14 @@ const ListingUpdateView: React.FC<ListingUpdateViewProp> = ({realTokenId, nft, e
             price: '0',
           },
         });     
-
+        
 
         async function handleSubmissionUpdate(data: UpdateFormData) {
 
             await checkAndProvideApproval();
       
             const txResult = await updateListing({ args: [
-              auctionId,
+              listingId,
               {
               assetContractAddress: data.nftContractAddress,
               tokenId: data.tokenId,
@@ -169,4 +168,4 @@ return (
     )
 }
 
-export default ListingUpdateView;
+export default ListingUpdateDirect;

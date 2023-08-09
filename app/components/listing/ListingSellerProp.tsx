@@ -22,7 +22,7 @@ import toastStyle from "@/app/libs/toastConfig";
 import styles from "../../styles/Sale.module.css";
 import profileStyles from "../../styles/Profile.module.css";
 import Input from "../inputs/Input";
-import ListingUpdateView from './ListingUpdateView';
+import ListingUpdateView from './listingUpdate/ListingUpdateView';
 import ListingAuctionView from './ListingAuctionView';
 import ListingMintView from './ListingMintView';
 import ListingDirectView from './ListingDirectView';
@@ -37,11 +37,12 @@ interface sellerProps {
   price: number;
   ipfsUri: string | null;
   nft?: NFTType | undefined;
+  realTokenId: string | undefined;
 
 }
 
 
-const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, nft}) => {
+const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, nft, realTokenId}) => {
 
     // Connect to marketplace contract
     const { contract: escrow } = useContract(
@@ -49,7 +50,7 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
       "marketplace-v3"
     ); 
 
-    const realTokenId = useMemo(() => nft?.metadata.id, [nft]);
+    
 
     const { contract: noHooksEscrow} = useContract(ESCROW_ADDRESS)
       

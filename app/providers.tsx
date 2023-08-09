@@ -14,7 +14,7 @@ const RootProvider = ({ children }: { children: React.ReactNode }) => {
       <ThirdwebProvider 
       sdkOptions={
         {
-          clientId: process.env.NEXT_PUBLIC_THIRDWEB_API_KEY || '',
+          thirdwebApiKey: process.env.NEXT_PUBLIC_THIRDWEB_API_KEY || '',
           apiSecret: process.env.NEXT_PUBLIC_THIRDWEB_API_SECRET || '',
         }
       }
