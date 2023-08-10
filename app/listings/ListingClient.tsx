@@ -50,11 +50,20 @@ const ListingClient: React.FC<ListingClientProps> = ({
   const account = useAddress();
   
   const { contract: realEstate } = useContract(REAL_ESTATE_ADDRESS);
- 
+  const { contract: escrow } = useContract(ESCROW_ADDRESS, "marketplace-v3");
+
+  
+
   const { data: nft, error: nftError } = useNFT(realEstate,listing.tokenId);
   const realTokenId = useMemo(() => nft?.metadata.id, [nft]);
   const { data: owner } = useContractRead(realEstate, 'ownerOf', [listing.tokenId]);
 
+
+  const { data: auctionListing, isLoading: loadingValidAuction, isError: errorValidAuction } =
+    useValidEnglishAuctions(escrow, {
+      tokenContract: REAL_ESTATE_ADDRESS,
+      tokenId: realTokenId,
+    });
 
   const renderComponentBasedOnRole = () => {
     if(!nft && listing.tokenId) {
@@ -66,7 +75,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
       case 'notary':
         return <NotaryView tokenId={listing.tokenId} />;
       default:
-        return currentUser?.id === listing.seller.id || owner == account
+        return currentUser?.id === listing.seller.id || owner == account || auctionListing?.[0]?.creatorAddress == account
           ? <ListingSellerProp 
               account={account}
               id = {listing.id}

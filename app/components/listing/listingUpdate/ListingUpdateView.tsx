@@ -36,13 +36,6 @@ interface ListingUpdateViewProp {
     escrow: MarketplaceV3 | undefined;
 }
 
-type UpdateFormData = {
-    nftContractAddress: string;
-    tokenId: string;
-    price: string;
-    startDate: Date;
-    endDate: Date;
-    };
 
 
 

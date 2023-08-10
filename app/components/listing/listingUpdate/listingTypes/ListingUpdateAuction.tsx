@@ -68,7 +68,6 @@ const ListingUpdateAuction: React.FC<ListingUpdateAuctionProp> = ({ auctionId, r
     
     //if auctionId is a string and not undefined convert it to a number
     const auctionIdBigNumber = auctionId ? parseInt(auctionId) : undefined;
-
     
     const handleCancelAuction = async () => {
       try {
@@ -87,7 +86,7 @@ const ListingUpdateAuction: React.FC<ListingUpdateAuctionProp> = ({ auctionId, r
         <h2>Current Auction Details</h2>
         <p>Auction ID: {auctionId}</p>
         <p>Auction Creator: {englishAuction?.creatorAddress}</p>
-        <p>Minimum Bid Amount: {englishAuction?.minimumBidAmount}</p>
+        <p>Minimum Bid Amount: {englishAuction?.minimumBidAmount} WEIIIIII</p>
         <p>Start Date: {englishAuction?.startTimeInSeconds}</p>
         <p>End Date: {englishAuction?.endTimeInSeconds}</p>
         <p>Bid buffer: {bidBuffer ?  bidBuffer.toString(): 'The rizzler'}</p>

@@ -14,8 +14,8 @@ const RootProvider = ({ children }: { children: React.ReactNode }) => {
       <ThirdwebProvider 
       sdkOptions={
         {
-          thirdwebApiKey: process.env.NEXT_PUBLIC_THIRDWEB_API_KEY || '',
-          apiSecret: process.env.NEXT_PUBLIC_THIRDWEB_API_SECRET || '',
+          clientId: process.env.NEXT_PUBLIC_THIRDWEB_API_KEY || '',
+          secretKey: process.env.NEXT_PUBLIC_THIRDWEB_API_SECRET || '',
         }
       }
       supportedWallets={[metamaskWallet()]}
