@@ -10,7 +10,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import useSearchModal from "@/app/hooks/useSearchModal";
 
 import Modal from "./Modal";
-import Calendar from "../inputs/Calendar";
 import Counter from "../inputs/Counter";
 import CountrySelect, { 
   CountrySelectValue
@@ -19,8 +18,7 @@ import Heading from '../Heading';
 
 enum STEPS {
   LOCATION = 0,
-  DATE = 1,
-  INFO = 2,
+  INFO = 1,
 }
 
 const SearchModal = () => {
@@ -42,7 +40,7 @@ const SearchModal = () => {
 
   const Map = useMemo(() => dynamic(() => import('../Map'), { 
     ssr: false 
-  }), [location]);
+  }), []);
 
   const onBack = useCallback(() => {
     setStep((value) => value - 1);
@@ -130,21 +128,7 @@ const SearchModal = () => {
       <Map center={location?.latlng} />
     </div>
   )
-
-  if (step === STEPS.DATE) {
-    bodyContent = (
-      <div className="flex flex-col gap-8">
-        <Heading
-          title="When do you plan to buy?"
-          subtitle="Find the perfect time!"
-        />
-        <Calendar
-          onChange={(value) => setDateRange(value.selection)}
-          value={dateRange}
-        />
-      </div>
-    )
-  }
+ 
 
   if (step === STEPS.INFO) {
     bodyContent = (
