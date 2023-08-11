@@ -44,6 +44,11 @@ REverse connects property buyers with real estate owners, simplifying the proces
 
 ## Prerequisites
 
+Make sure to be connected on a network that allows P2P protocols (IPFS)
+You may be unable to list/view a property if you are on a public network such as
+school/university, libraries etc. These are known to block P2P protocols.
+If nothing works you might want to try on cellular data.
+
 - Node.js (Recommended version: 14.x) and npm/yarn.
 - MongoDB installation.
 - Thirdweb setup.
@@ -110,4 +115,4 @@ Running commands with yarn `yarn [command]`
 
 ## Acknowledgements
 
-This project is based on the work by Antonio Erdeljac. Significant modifications and additional features have been added by Khalil Anis Zabat.
+This project is based on the work of Antonio Erdeljac. Significant modifications and additional features have been added by Khalil Anis Zabat.

@@ -1,3 +1,4 @@
+'use client'
 import { useContractWrite, useContract, useContractRead } from "@thirdweb-dev/react";
 import W3Button from "../W3Button";
 import { toast } from "react-hot-toast";
