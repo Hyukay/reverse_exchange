@@ -1,3 +1,9 @@
+'use client'
+
+/**
+ * @author Khalil Anis Zabat
+ */
+
 import {
     MediaRenderer,
     ThirdwebNftMedia,

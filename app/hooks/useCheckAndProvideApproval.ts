@@ -1,8 +1,15 @@
+/**
+ * @author Khalil Anis Zabat
+ */
+
+
 import { useContract } from '@thirdweb-dev/react';
 import { REAL_ESTATE_ADDRESS, ESCROW_ADDRESS } from "@/app/libs/constant";
 import toast from "react-hot-toast";
 import toastStyle from "@/app/libs/toastConfig";
 import { useEffect, useState } from 'react';
+
+
 
 export const useCheckAndProvideApproval = (owner: string | undefined) => {
 

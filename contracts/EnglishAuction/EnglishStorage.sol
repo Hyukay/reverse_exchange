@@ -2,12 +2,14 @@
 
 pragma solidity ^0.8.11;
 
-/// @author thirdweb & Hyukay
+/// @author thirdweb
+/// @author Khalil Anis Zabat
 
 import { IEnglishAuctions } from '@thirdweb-dev/contracts/marketplace/IMarketplace.sol';
 
 /**
- * @author  thirdweb.com
+ * @author  thirdweb
+ * @author Khalil Anis Zabat
  */
 library EnglishAuctionsStorage {
     bytes32 public constant ENGLISH_AUCTIONS_STORAGE_POSITION = keccak256("english.auctions.storage");

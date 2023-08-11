@@ -1,4 +1,11 @@
 'use strict';
+
+
+/**
+ * @author Khalil Anis Zabat
+ */
+
+
 import dynamic from "next/dynamic";
 import { IconType } from "react-icons";
 import { FiCheckCircle, FiXCircle } from "react-icons/fi";
@@ -6,7 +13,7 @@ import { FiCheckCircle, FiXCircle } from "react-icons/fi";
 import useCountries from "@/app/hooks/useCountries";
 import { SafeUser } from "@/app/types";
 import ListingHistory from "./ListingHistory";
-import { NFT as NFTType } from "@thirdweb-dev/sdk";
+
 
 
 import Avatar from "../Avatar";

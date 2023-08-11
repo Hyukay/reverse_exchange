@@ -1,5 +1,10 @@
 'use client'
 
+/**
+ * @author Khalil Anis Zabat
+ */
+
+
 import Heading from "../Heading";
 
 
