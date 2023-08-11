@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "../styles/Placeholder.module.css";
+import styles from "../styles/placeholder.module.css";
 
 type Props = {
   width?: string;
