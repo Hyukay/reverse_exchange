@@ -21,7 +21,6 @@ import ListingDirectView from './ListingDirectView';
 import Tabs from '../Tabs';
 
 
-
 interface sellerProps {
   account: string | undefined
   id: string;
@@ -63,8 +62,17 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
   const auctionId = useMemo(() => auctionListing?.[0]?.id, [auctionListing]);
   
   const [hasLoaded, setHasLoaded] = useState(false);
-
-  // Then, in your useEffect
+  /**
+   * This hook is used to run a callback function when the component mounts.
+   * In this case, we want to set the hasLoaded state to true when the component mounts.
+   * This is because we want to wait for the tokenId to be set before we render the component.
+   * If we don't wait for the tokenId to be set, then we will get an error when we try to render the component.
+   * This is because the tokenId is used to fetch the NFT from the blockchain.
+   * If the tokenId is not set, then we will get an error when we try to fetch the NFT.
+   * The tokenId is set when the user clicks on the "Sell" button.
+   * The tokenId is set in the ListingSeller component.
+   * The ListingSeller component is rendered when the seller clicks on the property
+   */
   useEffect(() => {
     if (realTokenId) {
       setHasLoaded(true);
@@ -75,7 +83,6 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
       console.log(errorValidAuction);
     }
   }, [nft, realTokenId, errorValidDirect, errorValidAuction]);
-
 
 let bodyContent;
 if (!hasLoaded || realTokenId == undefined) {

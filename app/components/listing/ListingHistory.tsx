@@ -5,29 +5,21 @@
  */
 
 import {
-    MediaRenderer,
-    ThirdwebNftMedia,
     useContract,
     useContractEvents,
     useValidDirectListings,
-    useValidEnglishAuctions,
-    Web3Button,
   } from "@thirdweb-dev/react";
-  import React, { useState, useMemo } from "react";
-  import { GetStaticProps, GetStaticPaths } from "next";
-  import { ContractEvent, NFT, ThirdwebSDK } from "@thirdweb-dev/sdk";
+  import React, { useMemo } from "react";
+  import { ContractEvent } from "@thirdweb-dev/sdk";
   import {
     ETHERSCAN_URL,
     ESCROW_ADDRESS,
-    NETWORK,
-    REAL_ESTATE_ADDRESS,
+    REAL_ESTATE_ADDRESS
   } from "@/app/libs/constant";
   import Link from "next/link";
-  import toast, { Toaster } from "react-hot-toast";
-  import toastStyle from "@/app/libs/toastConfig";
   import Heading from "../Heading";
   import styles from '../../styles/Token.module.css'
-  import { NFT as NFTType } from "@thirdweb-dev/sdk";
+  
 
   
   type Props = {

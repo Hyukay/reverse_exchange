@@ -50,7 +50,7 @@ export default async function getListings(
       query.locationValue = locationValue;
     }
 
-    if (startDate && endDate) {
+   /* if (startDate && endDate) {
       query.NOT = {
         reservations: {
           some: {
@@ -67,7 +67,7 @@ export default async function getListings(
           }
         }
       }
-    }
+    }*/
 
     const listings = await prisma.listing.findMany({
       where: query,

@@ -1,6 +1,10 @@
 'use client'
 
 
+/**
+ * @author Khalil Anis Zabat
+ */
+
 import { useContractWrite, Web3Button, useAddress,
   
   } from '@thirdweb-dev/react';
