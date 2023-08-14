@@ -90,6 +90,7 @@ export async function POST(
         userId: currentUser.id
       }
     });
+    //grant 
     
   return NextResponse.json(listing);
 }

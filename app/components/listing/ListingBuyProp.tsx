@@ -120,7 +120,7 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({id, nft }) => {
     return txResult;
   }
   // return NoListing if there is no auction or direct listing
-  if (!auctionListing?.[0] && !directListing?.[0]) {
+  if (!auctionListing?.[0] && !directListing?.[0] && !loadingValidAuction && !loadingValidDirect) {
     return <NoListing />;
   }
   
