@@ -14,7 +14,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   value
 }) => {
   const [loading, setLoading] = useState(false);
-  const storage = new ThirdwebStorage();
+  const storage = new ThirdwebStorage({clientId: process.env.NEXT_PUBLIC_THIRDWEB_API_KEY || ''});
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoading(true);
