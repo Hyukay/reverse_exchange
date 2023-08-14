@@ -18,6 +18,7 @@ import { useContractWrite, Web3Button, useAddress,
   import styles from "../../styles/Sale.module.css";
   import { useCheckAndProvideApproval } from '@/app/hooks/useCheckAndProvideApproval';
   import { SmartContract } from '@thirdweb-dev/sdk';
+  import { useRouter } from 'next/navigation';
 
 interface ListingMintViewProps {
 
@@ -33,7 +34,7 @@ const ListingMintView: React.FC<ListingMintViewProps> = ({id, tokenId, ipfsUri, 
 
     const account = useAddress();
 
-     
+    const router = useRouter();
     
 
     
@@ -75,7 +76,7 @@ const ListingMintView: React.FC<ListingMintViewProps> = ({id, tokenId, ipfsUri, 
     return(
     <>
       <Heading
-        title='Minting property'
+        title='You Can Mint Your Property Now!'
         subtitle=''
       />
       <div
@@ -84,7 +85,6 @@ const ListingMintView: React.FC<ListingMintViewProps> = ({id, tokenId, ipfsUri, 
         }`}
         style={{ flexDirection: "column" }}
       >
-        <h4 className={styles.formSectionTitle}>Minting</h4>
         <Web3Button
           contractAddress={REAL_ESTATE_ADDRESS}
           action={async () => { 
@@ -98,12 +98,13 @@ const ListingMintView: React.FC<ListingMintViewProps> = ({id, tokenId, ipfsUri, 
               position: "bottom-center",
             });
           }}
-          onSuccess={(txResult) => {
+          onSuccess={() => {
             toast("Your Property Got Minted Successfully!", {
               icon: "🥳",
               style: toastStyle,
               position: "bottom-center",
             });
+            router.refresh();
             /*
             router.push(
               `/token/${NFT_COLLECTION_ADDRESS}/${nft.metadata.id}`
