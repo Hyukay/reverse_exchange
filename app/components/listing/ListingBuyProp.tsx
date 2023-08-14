@@ -1,11 +1,5 @@
 'use client'
 
-
-/**
- * @author Khalil Anis Zabat
- */
-
-
 import { useContractWrite, useContractRead, useContract, Web3Button, useAddress,  useCreateAuctionListing,
   useCreateDirectListing, 
   useCancelDirectListing,
@@ -79,7 +73,7 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({id, tokenId, nft }) => {
   const directListing = useMemo(() => {directListingHook}, [directListingHook]) as DirectListingV3[] | undefined;
   const auctionListing = useMemo(() => {auctionListingHook}, [auctionListingHook]) as EnglishAuction[] | undefined;
 
-
+  console.log('auctionListing', auctionListing)
   async function createBidOrOffer() {
     let txResult;
     if (!bidValue) {
@@ -127,9 +121,9 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({id, tokenId, nft }) => {
     return txResult;
   }
   // return NoListing if there is no auction or direct listing
-  if (!auctionListing?.[0] && !directListing?.[0]) {
-    return <NoListing />;
-  }
+  // if (!auctionListing?.[0] && !directListing?.[0]) {
+  //   return <NoListing />;
+  // }
   
 return (
   <div className={styles.pricingContainer}>

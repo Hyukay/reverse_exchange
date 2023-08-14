@@ -17,7 +17,7 @@ REverse connects property buyers with real estate owners, simplifying the proces
     - [Start the app](#start-the-app)
   - [Available commands](#available-commands)
   - [Acknowledgements](#acknowledgements)
-  
+
 ## Tech Stack
 
 - **Frontend**: Next.js v13.4.4, React 18, TailwindCSS
@@ -88,8 +88,8 @@ GENERATE_SOURCEMAP=false
 INFURA_API_KEY=
 
 SEPOLIA_PRIVATE_KEY=
-THIRDWEB_API_KEY=
-THIRDWEB_API_SECRET=
+NEXT_PUBLIC_THIRDWEB_API_KEY=
+NEXT_PUBLIC_THIRDWEB_API_SECRET=
 
 ```
 

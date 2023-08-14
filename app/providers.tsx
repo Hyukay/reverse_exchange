@@ -11,15 +11,7 @@ const RootProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
       <ThirdwebProvider 
-
-      clientId={process.env.NEXT_PUBLIC_THIRDWEB_API_KEY || ''}
-
-      sdkOptions={
-        {
-          secretKey: process.env.NEXT_PUBLIC_THIRDWEB_API_SECRET || '',
-        }
-      }
-      
+      clientId={process.env.NEXT_PUBLIC_THIRDWEB_API_KEY}
       supportedWallets={[metamaskWallet()]}
       activeChain={Sepolia}
       >

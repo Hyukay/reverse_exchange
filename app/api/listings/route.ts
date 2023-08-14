@@ -12,7 +12,7 @@ export async function POST(
   const currentUser = await getCurrentUser();
     
   // First, instantiate the thirdweb IPFS storage
-  const storage = new ThirdwebStorage({clientId: process.env.NEXT_PUBLIC_THIRDWEB_API_KEY || ''});
+  const storage = new ThirdwebStorage({clientId: process.env.NEXT_PUBLIC_THIRDWEB_API_KEY});
 
   if (!currentUser) {
     return NextResponse.error();
