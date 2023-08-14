@@ -88,7 +88,6 @@ const ListingClient: React.FC<ListingClientProps> = ({
           : <ListingBuy 
           account={account}
           id = {listing.id}
-          tokenId={listing.tokenId}
           nft={nft}
           />;
     }

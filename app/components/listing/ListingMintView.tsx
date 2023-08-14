@@ -35,7 +35,6 @@ const ListingMintView: React.FC<ListingMintViewProps> = ({id, tokenId, ipfsUri, 
     const account = useAddress();
 
     const router = useRouter();
-    
 
     
     const { mutateAsync: mintTo, isLoading: mintLoading } = useContractWrite(realEstate, "mintTo");
@@ -91,6 +90,7 @@ const ListingMintView: React.FC<ListingMintViewProps> = ({id, tokenId, ipfsUri, 
             await mintProperty()
             }
           }
+          isDisabled={mintLoading}
           onError={(error) => {
             toast(`Minting property failed! Reason: ${error.cause}`, {
               icon: "❌",
@@ -104,7 +104,12 @@ const ListingMintView: React.FC<ListingMintViewProps> = ({id, tokenId, ipfsUri, 
               style: toastStyle,
               position: "bottom-center",
             });
-            router.refresh();
+            //if mintLoading is false, refresh router()
+            if (!mintLoading) {
+              router.refresh();
+            }
+            
+            
             /*
             router.push(
               `/token/${NFT_COLLECTION_ADDRESS}/${nft.metadata.id}`

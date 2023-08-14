@@ -31,13 +31,12 @@ import NoListing from "./NoListing";
 interface ListingBuyerProp {
   account : string | undefined
   id : string;
-  tokenId: number | null;
   nft?: NFTType;
 }
 
 
 
-const ListingBuyer: React.FC<ListingBuyerProp> = ({id, tokenId, nft }) => {
+const ListingBuyer: React.FC<ListingBuyerProp> = ({id, nft }) => {
 
   
   const [bidValue, setBidValue] = useState<string>();
@@ -70,10 +69,10 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({id, tokenId, nft }) => {
     tokenId: nft?.metadata.id,
   });
 
-  const directListing = useMemo(() => {directListingHook}, [directListingHook]) as DirectListingV3[] | undefined;
-  const auctionListing = useMemo(() => {auctionListingHook}, [auctionListingHook]) as EnglishAuction[] | undefined;
+  const directListing = useMemo(() => directListingHook, [directListingHook]) as DirectListingV3[] | undefined;
+  const auctionListing = useMemo(() => auctionListingHook, [auctionListingHook]) as EnglishAuction[] | undefined;
 
-  console.log('auctionListing', auctionListing)
+
   async function createBidOrOffer() {
     let txResult;
     if (!bidValue) {
@@ -121,9 +120,9 @@ const ListingBuyer: React.FC<ListingBuyerProp> = ({id, tokenId, nft }) => {
     return txResult;
   }
   // return NoListing if there is no auction or direct listing
-  // if (!auctionListing?.[0] && !directListing?.[0]) {
-  //   return <NoListing />;
-  // }
+  if (!auctionListing?.[0] && !directListing?.[0]) {
+    return <NoListing />;
+  }
   
 return (
   <div className={styles.pricingContainer}>
