@@ -11,11 +11,11 @@ import {
   SubmitHandler,
   useForm
 } from "react-hook-form";
-import { ESCROW_ADDRESS } from "@/app/libs/constant";
+import { ESCROW_ADDRESS, REAL_ESTATE_ADDRESS } from "@/app/libs/constant";
 
 import useLoginModal from "@/app/hooks/useLoginModal";
 import useRegisterModal from "@/app/hooks/useRegisterModal";
-import { useAddress, useContract, useContractWrite, useGrantRole } from "@thirdweb-dev/react";
+import { useAddress, useConnect, metamaskWallet, useContract, useContractRead, useContractWrite, useGrantRole } from "@thirdweb-dev/react";
 
 import Modal from "./Modal";
 import Input from "../inputs/Input";
@@ -25,17 +25,19 @@ import { use } from "chai";
 
 
 const RegisterModal= () => {
+
   const registerModal = useRegisterModal();
   const loginModal = useLoginModal();
   const [isLoading, setIsLoading] = useState(false);
+  const metamaskConfig = metamaskWallet();
   const account = useAddress();
-  const { contract: escrow } = useContract(ESCROW_ADDRESS);
-  const {
-    mutate: grantRole,
-    isLoading: loadingGrant,
-    error: errorGrant,
-  } = useGrantRole(escrow);
-
+  const  connect  = useConnect();
+  const { contract: escrow } = useContract(ESCROW_ADDRESS, "marketplace-v3");
+  const { contract: realEstate } = useContract(REAL_ESTATE_ADDRESS);
+  const { data: isMinter, isLoading: isHasRoleLoading } = useContractRead(realEstate,"hasRole" ,["minter", account])
+  const { mutateAsync: grantRole, isLoading: isGrantMinterRoleLoading } = useContractWrite(realEstate, "grantRole") 
+ 
+ 
   const { 
     register, 
     handleSubmit,
@@ -59,13 +61,19 @@ const RegisterModal= () => {
       return;
     }
 
+    if(!account) {
+      toast.error("Please connect your wallet");
+      connect(metamaskConfig).then(() => {
+        setIsLoading(false);
+      })
+    }
+
     axios.post('/api/register', data)
     .then(() => {
       toast.success('Registered!');
-     /* grantRole({
-        role: data.role,
-        address: account?
-      });*/ //trouver ou le mettre
+      if(data.role !== "notary" || data.role !== "inspector"){
+      grantMinterRole();
+      }
       registerModal.onClose();
       loginModal.onOpen();
     })
@@ -76,6 +84,16 @@ const RegisterModal= () => {
       setIsLoading(false);
     })
   }
+
+  const grantMinterRole = async () => {
+    try {
+      const data = await grantRole({ args: ["minter", account] });
+      console.info("contract call successs", data);
+    } catch (err) {
+      console.error("contract call failure", err);
+    }
+  }
+
 
   const onToggle = useCallback(() => {
     registerModal.onClose();
