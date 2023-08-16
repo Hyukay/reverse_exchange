@@ -94,9 +94,6 @@ contract Marketplace is
     /// @dev Mapping from uid of listing => listing info.
     mapping(uint256 => Listing) public listings;
 
-    /// @dev Mapping from uid of a direct listing => offeror address => offer made to the direct listing by the respective offeror.
-    mapping(uint256 => mapping(address => Offer)) public offers;
-
     /// @dev Mapping from uid of an auction listing => current winning bid in an auction.
     mapping(uint256 => Offer) public winningBid;
 
@@ -323,31 +320,6 @@ contract Marketplace is
 
             handleOffer(targetListing, newOffer);
         }
-    }
-
-    /// @dev Processes a new offer to a direct listing.
-    function handleOffer(Listing memory _targetListing, Offer memory _newOffer) internal {
-        require(
-            _newOffer.quantityWanted <= _targetListing.quantity && _targetListing.quantity > 0,
-            "insufficient tokens in listing."
-        );
-
-        validateERC20BalAndAllowance(
-            _newOffer.offeror,
-            _newOffer.currency,
-            _newOffer.pricePerToken * _newOffer.quantityWanted
-        );
-
-        offers[_targetListing.listingId][_newOffer.offeror] = _newOffer;
-
-        emit NewOffer(
-            _targetListing.listingId,
-            _newOffer.offeror,
-            _targetListing.listingType,
-            _newOffer.quantityWanted,
-            _newOffer.pricePerToken * _newOffer.quantityWanted,
-            _newOffer.currency
-        );
     }
 
     /// @dev Processes an incoming bid in an auction.
@@ -628,41 +600,7 @@ contract Marketplace is
         require(isValid, "!BALNFT");
     }
 
-    /// @dev Validates conditions of a direct listing sale.
-    function validateDirectListingSale(
-        Listing memory _listing,
-        address _payer,
-        uint256 _quantityToBuy,
-        address _currency,
-        uint256 settledTotalPrice
-    ) internal {
-        require(_listing.listingType == ListingType.Direct, "cannot buy from listing.");
-
-        // Check whether a valid quantity of listed tokens is being bought.
-        require(
-            _listing.quantity > 0 && _quantityToBuy > 0 && _quantityToBuy <= _listing.quantity,
-            "invalid amount of tokens."
-        );
-
-        // Check if sale is made within the listing window.
-        require(block.timestamp < _listing.endTime && block.timestamp > _listing.startTime, "not within sale window.");
-
-        // Check: buyer owns and has approved sufficient currency for sale.
-        if (_currency == CurrencyTransferLib.NATIVE_TOKEN) {
-            require(msg.value == settledTotalPrice, "msg.value != price");
-        } else {
-            validateERC20BalAndAllowance(_payer, _currency, settledTotalPrice);
-        }
-
-        // Check whether token owner owns and has approved `quantityToBuy` amount of listing tokens from the listing.
-        validateOwnershipAndApproval(
-            _listing.tokenOwner,
-            _listing.assetContract,
-            _listing.tokenId,
-            _quantityToBuy,
-            _listing.tokenType
-        );
-    }
+  
 
     /*///////////////////////////////////////////////////////////////
                             Getter functions
