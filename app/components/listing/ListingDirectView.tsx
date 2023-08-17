@@ -1,26 +1,19 @@
 'use client'
 
-import { useContractWrite, useContractRead, useContract, Web3Button, useAddress,  useCreateAuctionListing,
-  useCreateDirectListing, 
-  useCancelDirectListing,
-  useCancelEnglishAuction,
-  useValidDirectListings,
-  useValidEnglishAuctions,
 
-} from '@thirdweb-dev/react';
+/**
+ * @author Khalil Anis Zabat
+ */
+
+
+import { Web3Button, useCreateDirectListing } from '@thirdweb-dev/react';
 import React, { useState, useCallback, useEffect } from "react";
-import axios from 'axios';
-import Loader from '../Loader';
-import Heading from '../Heading';
 import { ESCROW_ADDRESS, REAL_ESTATE_ADDRESS } from "@/app/libs/constant";
-import formatNumber from '@/app/libs/formatNumber';
 import { MarketplaceV3, NFT as NFTType } from '@thirdweb-dev/sdk'
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/router";
 import toast from "react-hot-toast";
 import toastStyle from "@/app/libs/toastConfig";
 import styles from "../../styles/Sale.module.css";
-import profileStyles from "../../styles/Profile.module.css";
 import Input from "../inputs/Input";
 import { useCheckAndProvideApproval } from '@/app/hooks/useCheckAndProvideApproval';
 

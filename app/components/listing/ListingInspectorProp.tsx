@@ -1,3 +1,10 @@
+'use client'
+
+/**
+ * @author Khalil Anis Zabat
+ */
+
+
 import React, { useEffect, useState } from "react";
 import { useContract, useContractRead, useContractWrite } from "@thirdweb-dev/react";
 import { ESCROW_ADDRESS } from "@/app/libs/constant";

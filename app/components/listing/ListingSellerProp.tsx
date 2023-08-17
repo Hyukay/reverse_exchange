@@ -1,33 +1,24 @@
 'use client'
 
-import { useContractWrite, useContractRead, useContract, Web3Button, useAddress,  useCreateAuctionListing,
-  useCreateDirectListing, 
-  useCancelDirectListing,
-  useCancelEnglishAuction,
+/**
+ * @author Khalil Anis Zabat
+ */
+
+
+import { useContract,
   useValidDirectListings,
   useValidEnglishAuctions,
 
 } from '@thirdweb-dev/react';
 import React, { useState, useCallback, useEffect, useMemo } from "react";
-import axios from 'axios';
 import Loader from '../Loader';
-import Heading from '../Heading';
 import { ESCROW_ADDRESS, REAL_ESTATE_ADDRESS } from "@/app/libs/constant";
-import formatNumber from '@/app/libs/formatNumber';
 import { NFT as NFTType } from '@thirdweb-dev/sdk'
-import { useForm } from "react-hook-form";
-import { useRouter } from "next/router";
-import toast from "react-hot-toast";
-import toastStyle from "@/app/libs/toastConfig";
-import styles from "../../styles/Sale.module.css";
-import profileStyles from "../../styles/Profile.module.css";
-import Input from "../inputs/Input";
-import ListingUpdateView from './ListingUpdateView';
+import ListingUpdateView from './listingUpdate/ListingUpdateView';
 import ListingAuctionView from './ListingAuctionView';
 import ListingMintView from './ListingMintView';
 import ListingDirectView from './ListingDirectView';
 import Tabs from '../Tabs';
-
 
 
 interface sellerProps {
@@ -37,11 +28,12 @@ interface sellerProps {
   price: number;
   ipfsUri: string | null;
   nft?: NFTType | undefined;
+  realTokenId: string | undefined;
 
 }
 
 
-const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, nft}) => {
+const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, nft, realTokenId}) => {
 
     // Connect to marketplace contract
     const { contract: escrow } = useContract(
@@ -49,17 +41,10 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
       "marketplace-v3"
     ); 
 
-    const realTokenId = useMemo(() => nft?.metadata.id, [nft]);
-
-    const { contract: noHooksEscrow} = useContract(ESCROW_ADDRESS)
-      
     // useContract is a React hook that returns an object with the contract key.
     // The value of the contract key is an instance of an REAL_ESTATE_ADDRESS on the blockchain.
     // This instance is created from the contract address (REAL_ESTATE_ADDRESS)
     const { contract: realEstate } = useContract(REAL_ESTATE_ADDRESS);
-
-   
-
     
     const { data: directListing, isLoading: loadingValidDirect, isError: errorValidDirect } =
       useValidDirectListings(escrow, {
@@ -75,12 +60,19 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
 
   const listingId = useMemo(() => directListing?.[0]?.id, [directListing]);
   const auctionId = useMemo(() => auctionListing?.[0]?.id, [auctionListing]);
-    
   
   const [hasLoaded, setHasLoaded] = useState(false);
-   
-
-  // Then, in your useEffect
+  /**
+   * This hook is used to run a callback function when the component mounts.
+   * In this case, we want to set the hasLoaded state to true when the component mounts.
+   * This is because we want to wait for the tokenId to be set before we render the component.
+   * If we don't wait for the tokenId to be set, then we will get an error when we try to render the component.
+   * This is because the tokenId is used to fetch the NFT from the blockchain.
+   * If the tokenId is not set, then we will get an error when we try to fetch the NFT.
+   * The tokenId is set when the user clicks on the "Sell" button.
+   * The tokenId is set in the ListingSeller component.
+   * The ListingSeller component is rendered when the seller clicks on the property
+   */
   useEffect(() => {
     if (realTokenId) {
       setHasLoaded(true);
@@ -92,11 +84,11 @@ const ListingSellerProp: React.FC<sellerProps> = ({id, tokenId, price, ipfsUri, 
     }
   }, [nft, realTokenId, errorValidDirect, errorValidAuction]);
 
-
 let bodyContent;
 if (!hasLoaded || realTokenId == undefined) {
   bodyContent = <div>Loading...<Loader /></div>;
 }
+
 else if (!tokenId) {
   bodyContent = (
     <ListingMintView
@@ -108,6 +100,7 @@ else if (!tokenId) {
     ></ListingMintView>
   );
 } 
+
 else if (realTokenId && (auctionId || listingId)) {
   bodyContent = (
     <ListingUpdateView
@@ -119,6 +112,7 @@ else if (realTokenId && (auctionId || listingId)) {
     ></ListingUpdateView>
   )
 }
+
 else if (tokenId && (!listingId || !auctionId)) {
   bodyContent = (
   <>

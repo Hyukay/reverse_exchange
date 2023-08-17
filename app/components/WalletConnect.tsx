@@ -1,5 +1,5 @@
 'use client';
-import { ThirdwebProvider, ConnectWallet, metamaskWallet } from "@thirdweb-dev/react";
+import {  ConnectWallet } from "@thirdweb-dev/react";
 
 const WalletConnect = () => {
 

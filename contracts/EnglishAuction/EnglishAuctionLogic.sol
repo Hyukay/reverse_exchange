@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.11;
 
-/// @author thirdweb & Hyukay   
+/// @author thirdweb
+/// @author Khalil Anis Zabat   
 
 import { EnglishAuctionsStorage } from './EnglishStorage.sol';
 import { IEnglishAuctions } from '@thirdweb-dev/contracts/marketplace/IMarketplace.sol';

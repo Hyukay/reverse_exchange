@@ -1,3 +1,10 @@
+'use client'
+
+/**
+ * @author Khalil Anis Zabat
+ */
+
+
 import { useContractWrite, useContract, useContractRead } from "@thirdweb-dev/react";
 import W3Button from "../W3Button";
 import { toast } from "react-hot-toast";
@@ -9,8 +16,6 @@ import NoListing from "./NoListing";
 interface NotaryProps {
   tokenId: number | null;
 }
-
-
 
 const NotaryView: React.FC<NotaryProps> = ({tokenId}) => {
 
