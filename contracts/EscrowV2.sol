@@ -24,6 +24,7 @@ contract Escrow_v2 is ReentrancyGuard {
     modifier onlyAdmin(){
        
         require(msg.sender == admin, "Only admin can call this function");
+        _;
     }
     
    
@@ -54,7 +55,7 @@ contract Escrow_v2 is ReentrancyGuard {
         properties[_propertyID].buyer = payable(msg.sender);
     }
 
-    function updateInspectionStatus(uint256 _propertyID, bool _status) onlyInspector {
+    function updateInspectionStatus(uint256 _propertyID, bool _status) public onlyInspector {
         
         inspections[_propertyID] = _status;
     }

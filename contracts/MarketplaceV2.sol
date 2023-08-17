@@ -1,16 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.11;
 
-/// @author thirdweb
-
-//   $$\     $$\       $$\                 $$\                         $$\
-//   $$ |    $$ |      \__|                $$ |                        $$ |
-// $$$$$$\   $$$$$$$\  $$\  $$$$$$\   $$$$$$$ |$$\  $$\  $$\  $$$$$$\  $$$$$$$\
-// \_$$  _|  $$  __$$\ $$ |$$  __$$\ $$  __$$ |$$ | $$ | $$ |$$  __$$\ $$  __$$\
-//   $$ |    $$ |  $$ |$$ |$$ |  \__|$$ /  $$ |$$ | $$ | $$ |$$$$$$$$ |$$ |  $$ |
-//   $$ |$$\ $$ |  $$ |$$ |$$ |      $$ |  $$ |$$ | $$ | $$ |$$   ____|$$ |  $$ |
-//   \$$$$  |$$ |  $$ |$$ |$$ |      \$$$$$$$ |\$$$$$\$$$$  |\$$$$$$$\ $$$$$$$  |
-//    \____/ \__|  \__|\__|\__|       \_______| \_____\____/  \_______|\_______/
+/// @author thirdweb & Khalil Anis Zabat
 
 //  ==========  External imports    ==========
 
@@ -30,14 +21,14 @@ import "@openzeppelin/contracts-upgradeable/utils/MulticallUpgradeable.sol";
 
 //  ==========  Internal imports    ==========
 
-import { IMarketplace } from "../interfaces/marketplace/IMarketplace.sol";
+import { IMarketplace } from "./dependencies/IMarketplace.sol";
 
-import "../openzeppelin-presets/metatx/ERC2771ContextUpgradeable.sol";
+import "@thirdweb-dev/contracts/openzeppelin-presets/metatx/ERC2771ContextUpgradeable.sol";
 
-import "../lib/CurrencyTransferLib.sol";
-import "../lib/FeeType.sol";
+import "@thirdweb-dev/contracts/lib/CurrencyTransferLib.sol";
+import "@thirdweb-dev/contracts/lib/FeeType.sol";
 
-contract Marketplace is
+contract MarketplaceV2 is
     Initializable,
     IMarketplace,
     ReentrancyGuardUpgradeable,
@@ -58,6 +49,10 @@ contract Marketplace is
     bytes32 private constant LISTER_ROLE = keccak256("LISTER_ROLE");
     /// @dev Only assets from NFT contracts with asset role can be listed, when listings are restricted by asset address.
     bytes32 private constant ASSET_ROLE = keccak256("ASSET_ROLE");
+
+    /// @dev Role constants for inspectors and notaries.
+    bytes32 private constant INSPECTOR_ROLE = keccak256("INSPECTOR_ROLE");
+    bytes32 private constant NOTARY_ROLE = keccak256("NOTARY_ROLE");
 
     /// @dev The address of the native token wrapper contract.
     address private immutable nativeTokenWrapper;
@@ -96,6 +91,9 @@ contract Marketplace is
 
     /// @dev Mapping from uid of an auction listing => current winning bid in an auction.
     mapping(uint256 => Offer) public winningBid;
+
+    /// Additional state variable to track inspected assets.
+    mapping(address => mapping(uint256 => bool)) public inspectedAssets;
 
     /*///////////////////////////////////////////////////////////////
                                 Modifiers
@@ -144,6 +142,9 @@ contract Marketplace is
         _setupRole(DEFAULT_ADMIN_ROLE, _defaultAdmin);
         _setupRole(LISTER_ROLE, address(0));
         _setupRole(ASSET_ROLE, address(0));
+        _setupRole(INSPECTOR_ROLE, address(0));
+        _setupRole(NOTARY_ROLE, address(0));
+        
     }
 
     /*///////////////////////////////////////////////////////////////
@@ -209,12 +210,27 @@ contract Marketplace is
             super.supportsInterface(interfaceId);
     }
 
+    /// @dev Lets an inspector inspect an asset.
+    function inspectAsset(address assetContract, uint256 tokenId) external onlyRole(INSPECTOR_ROLE) {
+        inspectedAssets[assetContract][tokenId] = true;
+        emit AssetInspected(assetContract, tokenId, _msgSender());
+    }
+
+    event AssetInspected(address indexed assetContract, uint256 indexed tokenId, address indexed inspector);
+
+    /// @dev Checks whether a listing has been inspected.
+    modifier inspected(address assetContract, uint256 tokenId) {
+        require(inspectedAssets[assetContract][tokenId], "Not inspected yet.");
+        _;
+    }
+
+
     /*///////////////////////////////////////////////////////////////
                 Listing (create-update-delete) logic
     //////////////////////////////////////////////////////////////*/
 
     /// @dev Lets a token owner list tokens for sale: Direct Listing or Auction.
-    function createListing(ListingParameters memory _params) external override {
+    function createListing(ListingParameters memory _params) external override inspected(_params.assetContract, _params.tokenId) {
         // Get values to populate `Listing`.
         uint256 listingId = totalListings;
         totalListings += 1;
@@ -310,16 +326,8 @@ contract Marketplace is
             newOffer.quantityWanted = getSafeQuantity(targetListing.tokenType, targetListing.quantity);
 
             handleBid(targetListing, newOffer);
-        } else if (targetListing.listingType == ListingType.Direct) {
-            // Prevent potentially lost/locked native token.
-            require(msg.value == 0, "no value needed");
-
-            // Offers to direct listings cannot be made directly in native tokens.
-            newOffer.currency = _currency == CurrencyTransferLib.NATIVE_TOKEN ? nativeTokenWrapper : _currency;
-            newOffer.quantityWanted = getSafeQuantity(targetListing.tokenType, _quantityWanted);
-
-            handleOffer(targetListing, newOffer);
         }
+        //... Add more types in the future
     }
 
     /// @dev Processes an incoming bid in an auction.

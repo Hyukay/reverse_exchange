@@ -5,23 +5,26 @@ pragma solidity ^0.8.11;
 /// @author thirdweb
 
 
-//   $$\     $$\       $$\                 $$\                         $$\
-//   $$ |    $$ |      \__|                $$ |                        $$ |
-// $$$$$$\   $$$$$$$\  $$\  $$$$$$\   $$$$$$$ |$$\  $$\  $$\  $$$$$$\  $$$$$$$\
-// \_$$  _|  $$  __$$\ $$ |$$  __$$\ $$  __$$ |$$ | $$ | $$ |$$  __$$\ $$  __$$\
-//   $$ |    $$ |  $$ |$$ |$$ |  \__|$$ /  $$ |$$ | $$ | $$ |$$$$$$$$ |$$ |  $$ |
-//   $$ |$$\ $$ |  $$ |$$ |$$ |      $$ |  $$ |$$ | $$ | $$ |$$   ____|$$ |  $$ |
-//   \$$$$  |$$ |  $$ |$$ |$$ |      \$$$$$$$ |\$$$$$\$$$$  |\$$$$$$$\ $$$$$$$  |
-//    \____/ \__|  \__|\__|\__|       \_______| \_____\____/  \_______|\_______/
+//       ___           ___           ___           ___           ___           ___           ___     
+//      /\  \         /\  \         /\__\         /\  \         /\  \         /\  \         /\  \    
+//     /::\  \       /::\  \       /:/  /        /::\  \       /::\  \       /::\  \       /::\  \   
+//    /:/\:\  \     /:/\:\  \     /:/  /        /:/\:\  \     /:/\:\  \     /:/\ \  \     /:/\:\  \  
+//   /::\~\:\  \   /::\~\:\  \   /:/__/  ___   /::\~\:\  \   /::\~\:\  \   _\:\~\ \  \   /::\~\:\  \ 
+//  /:/\:\ \:\__\ /:/\:\ \:\__\  |:|  | /\__\ /:/\:\ \:\__\ /:/\:\ \:\__\ /\ \:\ \ \__\ /:/\:\ \:\__\
+//  \/_|::\/:/  / \:\~\:\ \/__/  |:|  |/:/  / \:\~\:\ \/__/ \/_|::\/:/  / \:\ \:\ \/__/ \:\~\:\ \/__/
+//     |:|::/  /   \:\ \:\__\    |:|__/:/  /   \:\ \:\__\      |:|::/  /   \:\ \:\__\    \:\ \:\__\  
+//     |:|\/__/     \:\ \/__/     \::::/__/     \:\ \/__/      |:|\/__/     \:\/:/  /     \:\ \/__/  
+//     |:|  |        \:\__\        ~~~~          \:\__\        |:|  |        \::/  /       \:\__\    
+//      \|__|         \/__/                       \/__/         \|__|         \/__/         \/__/    
 
 // Interface
-import { ITokenERC721 } from "../interfaces/token/ITokenERC721.sol";
+import { ITokenERC721 } from "@thirdweb-dev/contracts/interfaces/token/ITokenERC721.sol";
 
-import "../interfaces/IThirdwebContract.sol";
-import "../extension/interface/IPlatformFee.sol";
-import "../extension/interface/IPrimarySale.sol";
-import "../extension/interface/IRoyalty.sol";
-import "../extension/interface/IOwnable.sol";
+import "@thirdweb-dev/contracts/interfaces/IThirdwebContract.sol";
+import "@thirdweb-dev/contracts/extension/interface/IPlatformFee.sol";
+import "@thirdweb-dev/contracts/extension/interface/IPrimarySale.sol";
+import "@thirdweb-dev/contracts/extension/interface/IRoyalty.sol";
+import "@thirdweb-dev/contracts/extension/interface/IOwnable.sol";
 
 // Token
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
@@ -35,21 +38,21 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 // Meta transactions
-import "../openzeppelin-presets/metatx/ERC2771ContextUpgradeable.sol";
+import "@thirdweb-dev/contracts/openzeppelin-presets/metatx/ERC2771ContextUpgradeable.sol";
 
 // Utils
 import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/MulticallUpgradeable.sol";
-import "../lib/CurrencyTransferLib.sol";
-import "../lib/FeeType.sol";
+import "@thirdweb-dev/contracts/lib/CurrencyTransferLib.sol";
+import "@thirdweb-dev/contracts/lib/FeeType.sol";
 
 // Helper interfaces
 import "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
 
 // OpenSea operator filter
-import "../extension/DefaultOperatorFiltererUpgradeable.sol";
+import "@thirdweb-dev/contracts/extension/DefaultOperatorFiltererUpgradeable.sol";
 
-contract TokenERC721 is
+contract RealEstate721 is
     Initializable,
     IThirdwebContract,
     IOwnable,
@@ -117,8 +120,6 @@ contract TokenERC721 is
     /// @dev Token ID => royalty recipient and bps for token
     mapping(uint256 => RoyaltyInfo) private royaltyInfoForToken;
 
-    constructor() initializer {}
-
     /// @dev Initiliazes the contract, like a constructor.
     function initialize(
         address _defaultAdmin,
@@ -134,7 +135,7 @@ contract TokenERC721 is
     ) external initializer {
         // Initialize inherited contracts, most base-like -> most derived.
         __ReentrancyGuard_init();
-        __EIP712_init("TokenERC721", "1");
+        __EIP712_init("REV721", "1");
         __ERC2771Context_init(_trustedForwarders);
         __ERC721_init(_name, _symbol);
         __DefaultOperatorFilterer_init();
@@ -391,22 +392,15 @@ contract TokenERC721 is
         CurrencyTransferLib.transferCurrency(_req.currency, _msgSender(), saleRecipient, totalPrice - platformFees);
     }
 
-    ///     =====   Low-level overrides  =====
-
-    /// @dev Burns `tokenId`. See {ERC721-_burn}.
-    function burn(uint256 tokenId) public virtual {
-        //solhint-disable-next-line max-line-length
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721Burnable: caller is not owner nor approved");
-        _burn(tokenId);
-    }
-
     /// @dev See {ERC721-_beforeTokenTransfer}.
     function _beforeTokenTransfer(
         address from,
         address to,
-        uint256 tokenId
+        uint256 tokenId,
+        uint256 quantity
     ) internal virtual override(ERC721EnumerableUpgradeable) {
-        super._beforeTokenTransfer(from, to, tokenId);
+
+        super._beforeTokenTransfer(from, to, tokenId,quantity);
 
         // if transfer is restricted on the contract, we still want to allow burning and minting
         if (!hasRole(TRANSFER_ROLE, address(0)) && from != address(0) && to != address(0)) {
@@ -495,3 +489,5 @@ contract TokenERC721 is
         return ERC2771ContextUpgradeable._msgData();
     }
 }
+
+

@@ -39,6 +39,8 @@ import "@thirdweb-dev/contracts/extension/Drop1155.sol";
 // OpenSea operator filter
 import "@thirdweb-dev/contracts/extension/DefaultOperatorFiltererUpgradeable.sol";
 
+//TODO: MODIFY TO ADAPT RWA WITH MarketplaceV3
+
 contract DropERC1155 is
     Initializable,
     ContractMetadata,
