@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+    volumes:
+      - .:/usr/src
+    environment:
+      NODE_ENV: development
+      # Override la commande pour que ça soit "yarn run dev"
+    command: yarn run dev
