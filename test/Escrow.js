@@ -49,7 +49,7 @@ describe('Escrow_v3', () => {
             expect(result.buyer).to.be.equal(ethers.constants.AddressZero)
             expect(result.price).to.be.equal(tokens(10))
         })
-
+    
         it('Updates ownership', async () => {
             expect(await realEstate.ownerOf(1)).to.be.equal(escrow.address)
         })
@@ -76,7 +76,7 @@ describe('Escrow_v3', () => {
             const transaction = await escrow.connect(inspector).updateInspectionStatus(1, true)
             await transaction.wait()
         })
-
+    
         it('Updates inspection status', async () => {
             const result = await escrow.inspections(1)
             expect(result).to.be.equal(true)
@@ -87,29 +87,29 @@ describe('Escrow_v3', () => {
         beforeEach(async () => {
             let transaction = await escrow.connect(buyer).makeOffer(1, { value: tokens(10) })
             await transaction.wait()
-
+    
             transaction = await escrow.connect(inspector).updateInspectionStatus(1, true)
             await transaction.wait()
-
+    
             transaction = await escrow.connect(seller).finalizeSale(1)
             await transaction.wait()
         })
-
+    
         it('Updates ownership', async () => {
             expect(await realEstate.ownerOf(1)).to.be.equal(buyer.address)
         })
-
+    
         it('Updates balance', async () => {
             expect(await ethers.provider.getBalance(escrow.address)).to.be.equal(0)
         })
-
+    
         it('Updates property listing', async () => {
             const property = await escrow.properties(1)
             expect(property.seller).to.be.equal(ethers.constants.AddressZero)
             expect(property.buyer).to.be.equal(ethers.constants.AddressZero)
             expect(property.price).to.be.equal(0)
         })
-
+    
         it('Updates inspection status', async () => {
             const result = await escrow.inspections(1)
             expect(result).to.be.false
