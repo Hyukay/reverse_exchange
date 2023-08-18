@@ -11,7 +11,6 @@ describe("Deployment Cost Comparison", function () {
 
   it("Compare deployment costs for RealEstate721", async function () {
 
-
     const name = "RealEstate721";
     const symbol = "REV721";
     const contractURI = "ipfs://QmW2tTbiTjZLwUzQ6VPKyd2tKi5dJwvRRVZvvng8tQt1oQ/0";
@@ -35,18 +34,21 @@ describe("Deployment Cost Comparison", function () {
         royaltyBps,
         platformFeeBps,
         platformFeeRecipient
-    ], { gasLimit: 5000000 });
+    ]);
+    
 
-    const realEstate721DeployTxHash = realEstate721.deployTransaction.hash;
-    const receipt = await ethers.provider.getTransactionReceipt(realEstate721DeployTxHash);
-
+    await realEstate721.waitForDeployment();
+    const realEstateAddress = await realEstate721.getAddress();
+    
+    console.log("RealEstate721 deployed to:", realEstateAddress);
 
     
     const Escrow_v2 = await ethers.getContractFactory("Escrow_v2");
-    const escrowDeployTx = await Escrow_v2.getDeployTransaction(); 
+    const escrowDeployTx = await Escrow_v2.getDeployTransaction(realEstateAddress); 
     const escrowGasEstimate = await ethers.provider.estimateGas(escrowDeployTx);
 
-    const Marketplace = await ethers.getContractFactory("Marketplace");
+    const Marketplace = await ethers.getContractFactory("MarketplaceV2");
+
     const marketplaceInstance = await upgrades.deployProxy(Marketplace, [
         reverseAdmin.address,
         contractURI,
@@ -54,12 +56,14 @@ describe("Deployment Cost Comparison", function () {
         platformFeeRecipient,
         platformFeeBps
     ]);
+
+    await marketplaceInstance.waitForDeployment();
+    console.log("Marketplace deployed to:", marketplaceInstance.address);
     
-    const marketplaceDeployTxHash = marketplaceInstance.deployTransaction.hash;
-    const marketplaceReceipt = await ethers.provider.getTransactionReceipt(marketplaceDeployTxHash);
     
     console.log(`Gas used to deploy RealEstate721: ${receipt.gasUsed.toString()}`);
     console.log(`Estimated gas for Escrow_v2 deployment: ${escrowGasEstimate.toString()}`);
     console.log(`Gas used to deploy Marketplace: ${marketplaceReceipt.gasUsed.toString()}`);
+
   });
 });

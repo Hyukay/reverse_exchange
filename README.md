@@ -13,8 +13,11 @@ REverse connects property buyers with real estate owners, simplifying the proces
     - [Cloning the repository](#cloning-the-repository)
     - [Install packages](#install-packages)
     - [Setup .env file](#setup-env-file)
+    - [Obtaining the environment variables](#obtaining-the-environment-variables)
     - [Setup Prisma](#setup-prisma)
     - [Start the app](#start-the-app)
+    - [Running with Docker](#running-with-docker)
+    - [Compiling and Deploying Smart Contracts with Thirdweb](#compiling-and-deploying-smart-contracts-with-thirdweb)
   - [Available commands](#available-commands)
   - [Acknowledgements](#acknowledgements)
 
@@ -60,7 +63,6 @@ If nothing works you might want to try on cellular data.
 
 ```shell
 git clone https://github.com/your_username/MGL850_Reverse_Exchange.git
-
 ```
 
 ### Install packages
@@ -140,11 +142,14 @@ yarn add @thirdweb-dev/sdk@latest
 ````shell
 cd contracts
 ````
+
 4. Use the following command to deploy the contract:
+
 ````shell
 npx thirdweb deploy
 ````
-5. Your contracts should be available in your Thirdweb Dashboard -> Contracts.
+
+1. Your contracts should be available in your Thirdweb Dashboard -> Contracts.
 
 ## Available commands
 
@@ -154,8 +159,6 @@ Running commands with yarn `yarn [command]`
 | :------ | :--------------------------------------- |
 | `dev` | Starts a development instance of the app |
 
-
-
 ## Acknowledgements
 
-This project is based on the work of Antonio Erdeljac. Significant modifications and additional features have been added by Khalil Anis Zabat.
+This project has been templated from the work of Antonio Erdeljac. Significant modifications and additional features have been added by Khalil Anis Zabat.
