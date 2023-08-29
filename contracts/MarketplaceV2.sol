@@ -23,7 +23,7 @@ import "@openzeppelin/contracts-upgradeable/utils/MulticallUpgradeable.sol";
 
 import { IMarketplace } from "./dependencies/IMarketplace.sol";
 
-import "@thirdweb-dev/contracts/openzeppelin-presets/metatx/ERC2771ContextUpgradeable.sol";
+import "@thirdweb-dev/contracts/external-deps/openzeppelin/metatx/ERC2771ContextUpgradeable.sol";
 
 import "@thirdweb-dev/contracts/lib/CurrencyTransferLib.sol";
 import "@thirdweb-dev/contracts/lib/FeeType.sol";
@@ -82,6 +82,8 @@ contract MarketplaceV2 is
     /// @dev The minimum % increase required from the previous winning bid. Default: 5%.
     uint64 public bidBufferBps;
 
+    
+
     /*///////////////////////////////////////////////////////////////
                                 Mappings
     //////////////////////////////////////////////////////////////*/
@@ -94,6 +96,12 @@ contract MarketplaceV2 is
 
     /// Additional state variable to track inspected assets.
     mapping(address => mapping(uint256 => bool)) public inspectedAssets;
+
+    mapping(uint256 => bool) public pendingApproval;
+
+    event SaleApproved(uint256 listingId, address assetContract, uint256 tokenId, address sender);
+      
+    event PendingApproval(uint256 listingId, address assetContract, uint256 tokenId, Offer incomingBid, address bidder);
 
     /*///////////////////////////////////////////////////////////////
                                 Modifiers
@@ -224,6 +232,31 @@ contract MarketplaceV2 is
         _;
     }
 
+    /// @dev Lets a notary approve a sale.
+    function approveSale(uint256 listingId) external onlyRole(NOTARY_ROLE) {
+
+        Listing memory targetListing = listings[listingId];
+        require(targetListing.assetContract != address(0), "DNE");
+        _closeAuctionForBidder(targetListing, winningBid[listingId]);
+        delete listings[listingId];
+        emit SaleApproved(listingId, targetListing.assetContract, targetListing.tokenId, _msgSender());
+        
+    }
+
+
+    function approveTransaction(uint256 _listingId) external onlyRole(NOTARY_ROLE) {
+        
+        require(pendingApproval[_listingId], "No pending approval");
+
+        // Do the logic here, for example, close the auction
+        //Look at the event for the listingId and get the bid
+        Listing memory targetListing = listings[_listingId];
+        Offer memory targetBid = winningBid[_listingId];
+        _closeAuctionForBidder(targetListing, targetBid);
+        // Remove from pending approval
+        delete pendingApproval[_listingId];
+    }
+
 
     /*///////////////////////////////////////////////////////////////
                 Listing (create-update-delete) logic
@@ -342,7 +375,11 @@ contract MarketplaceV2 is
             _targetListing.buyoutPricePerToken > 0 &&
             incomingOfferAmount >= _targetListing.buyoutPricePerToken * _targetListing.quantity
         ) {
-            _closeAuctionForBidder(_targetListing, _incomingBid);
+            //replaced _closeAuctionForBidder with pendingApproval
+            // set winning bid to incoming bid
+            winningBid[_targetListing.listingId] = _incomingBid;
+           pendingApproval[_targetListing.listingId] = true;
+            emit PendingApproval(_targetListing.listingId, _targetListing.assetContract, _targetListing.tokenId, _incomingBid, msg.sender);            
         } else {
             /**
              *      If there's an existng winning bid, incoming bid amount must be bid buffer % greater.

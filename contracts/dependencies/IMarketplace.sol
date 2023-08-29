@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.11;
 
-import "@thirdweb-dev/contracts/interfaces/IThirdwebContract.sol";
+import "@thirdweb-dev/contracts/infra/interface/IThirdwebContract.sol";
 import "@thirdweb-dev/contracts/extension/interface/IPlatformFee.sol";
 
 interface IMarketplace is IThirdwebContract, IPlatformFee {

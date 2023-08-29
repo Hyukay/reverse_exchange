@@ -10,7 +10,6 @@
     "export": "next export",
     "deploy": "next build && next export && npx thirdweb@latest upload out",
     "postinstall": "prisma generate"
-
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.5",
@@ -23,7 +22,7 @@
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
-    "@thirdweb-dev/contracts": "^3.6.0",
+    "@thirdweb-dev/contracts": "^3.9.2",
     "@thirdweb-dev/react": "^3.14.35",
     "@thirdweb-dev/sdk": "^3.10.54",
     "@thirdweb-dev/wallets": "^1.1.18",

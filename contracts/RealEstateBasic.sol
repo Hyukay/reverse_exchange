@@ -18,9 +18,9 @@ pragma solidity ^0.8.11;
 //      \|__|         \/__/                       \/__/         \|__|         \/__/         \/__/    
 
 // Interface
-import { ITokenERC721 } from "@thirdweb-dev/contracts/interfaces/token/ITokenERC721.sol";
+import { ITokenERC721 } from "@thirdweb-dev/contracts/prebuilts/interface/token/ITokenERC721.sol";
 
-import "@thirdweb-dev/contracts/interfaces/IThirdwebContract.sol";
+import "@thirdweb-dev/contracts/infra/interface/IThirdwebContract.sol";
 import "@thirdweb-dev/contracts/extension/interface/IPlatformFee.sol";
 import "@thirdweb-dev/contracts/extension/interface/IPrimarySale.sol";
 import "@thirdweb-dev/contracts/extension/interface/IRoyalty.sol";
@@ -38,7 +38,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 // Meta transactions
-import "@thirdweb-dev/contracts/openzeppelin-presets/metatx/ERC2771ContextUpgradeable.sol";
+import "@thirdweb-dev/contracts/external-deps/openzeppelin/metatx/ERC2771ContextUpgradeable.sol";
 
 // Utils
 import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
